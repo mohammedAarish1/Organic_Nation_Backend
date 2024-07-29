@@ -14,8 +14,11 @@ exports.createOrder = async (req, res) => {
     billingAddress,
     shippingAddress,
     orderDetails,
-    amountPaid,
+    subTotal,
+    taxAmount,
+    shippingFee,
     paymentMethod,
+    paymentStatus,
     receiverDetails,
     orderStatus // New field
   } = req.body;
@@ -41,8 +44,11 @@ exports.createOrder = async (req, res) => {
       billingAddress,
       shippingAddress,
       orderDetails,
-      amountPaid,
+      subTotal,
+      taxAmount,
+      shippingFee,
       paymentMethod,
+      paymentStatus,
       receiverDetails: {
         phoneNumber: receiverPhoneNumber,
         name: receiverName

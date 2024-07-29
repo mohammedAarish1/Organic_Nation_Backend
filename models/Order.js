@@ -14,8 +14,11 @@ const OrderSchema = new mongoose.Schema({
     type: [[String, String, Number]], // 2D array of [productId, quantity]
     required: true
   },
-  amountPaid: { type: Number, required: true },
+  subTotal: { type: Number, required: true },
+  taxAmount: { type: Number, required: true },
+  shippingFee: { type: Number, required: true },
   paymentMethod: { type: String, required: true },
+  paymentStatus: { type: String, required: true },
   receiverDetails: {
     phoneNumber: { type: String, required: false }, // Receiver's phone number, optional
     name: { type: String, required: false } // Receiver's name, optional
