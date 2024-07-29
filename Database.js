@@ -1,38 +1,49 @@
-// dbConnection.js
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
-let database = null;
-const connectAndPingMongoDB = async () => {
-  const uri =
-    "mongodb+srv://aayushkapoor2001:aayush1415@cluster0.sj3vvpc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const mongoose = require('mongoose');
 
-  const client = new MongoClient(uri, {
-    serverApi: {
-      version: ServerApiVersion.v1,
-      strict: true,
-      deprecationErrors: true,
-    },
-  });
+let isConnected = false;
+
+const connectToMongoDB = async () => {
+  if (isConnected) {
+    console.log('Using existing database connection');
+    return;
+  }
+
+  const uri = process.env.MONGO_URI;
 
   try {
-    await client.connect();
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
-    database = client.db("Organic-Nation");
+    await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
+    });
+
+    console.log("Successfully connected to MongoDB!");
+    isConnected = true;
+
+    // Handle connection errors after initial connection
+    mongoose.connection.on('error', (error) => {
+      console.error('MongoDB connection error:', error);
+      isConnected = false;
+    });
   } catch (error) {
     console.error("An error occurred while connecting to MongoDB:", error);
+    isConnected = false;
+    throw error;
   }
 };
 
 const getDb = () => {
-  if (!database) {
-    throw new Error(
-      "Database not initialized. Call connectAndPingMongoDB first."
-    );
+  if (!isConnected) {
+    throw new Error("Database not connected. Call connectToMongoDB first.");
   }
-  return database;
+  return mongoose.connection.db;
 };
 
-module.exports = { connectAndPingMongoDB, getDb };
+const closeConnection = async () => {
+  if (isConnected) {
+    await mongoose.disconnect();
+    isConnected = false;
+    console.log("MongoDB connection closed.");
+  }
+};
+
+module.exports = { connectToMongoDB, getDb, closeConnection };

@@ -1,71 +1,86 @@
 const { getDb } = require("../Database.js");
+const { ObjectId } = require('mongodb'); // Ensure ObjectId is imported
+const Products = require('../models/Products.js')
+const mongoose = require('mongoose');
+
+
+exports.allProducts = async (req, res) => {
+  try {
+
+    const productOne = await Products.find({}).lean();
+
+
+    if (productOne.length === 0) {
+      console.log('No products found in the database');
+    }
+    res.send({ product: productOne });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).send({ error: "Internal Server Error" });
+  }
+};
+
+
 
 exports.getCategories = async (req, res) => {
   try {
-    const db = await getDb();
-    const categories = await db
-      .collection("Products")
-      .find(
-        {},
-        {
-          projection: {
-            _id: 0,
-            category: 1,
-            "category-url": 1,
-          },
-        }
-      )
-      .toArray();
+    // Use Mongoose to query the database
+    const categories = await Products.find({}, 'category category-url')
+      .lean() // Convert to plain JavaScript objects
+      .exec(); // Execute the query
 
+    // Extract unique categories
     const categoryValues = categories.map((doc) => doc.category);
     const uniqueCategoriesSet = new Set(categoryValues);
     const uniqueCategoriesArray = Array.from(uniqueCategoriesSet);
 
     res.send({ message: "done", categories: uniqueCategoriesArray });
   } catch (error) {
-    console.log("Error", error);
+    console.error("Error fetching categories:", error);
+    res.status(500).send({ message: "Error fetching categories", error: error.message });
   }
 };
 
+
+
+
+
+//  get products by category 
 exports.getProductsByCategory = async (req, res) => {
   try {
     const category = req.params.category;
-    // console.log(category);
-    const db = await getDb();
-    const categories = await db
-      .collection("Products")
-      .find({ "category-url": { $regex: new RegExp(`^${category}$`, "i") } })
-      .toArray();
-
-    res.send({ products: categories });
+    // Using Mongoose to find products by category URL
+    const products = await Products.find({ 'category-url': { $regex: new RegExp(`^${category}$`, "i") } });
+    // Sending response with products
+    res.json({ products });
   } catch (error) {
-    console.log("Error", error);
+    // Handling errors
+    console.error("Error fetching products by category:", error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+
+
 
 exports.getProduct = async (req, res) => {
   try {
     const product = req.params.product;
-    const db = await getDb();
-    const productOne = await db
-      .collection("Products")
-      .find({
-        "name-url": product,
-      })
-      .toArray();
-    res.send({ product: productOne });
+
+    // Using Mongoose to find a single product by name URL
+    const singleProduct = await Products.findOne({ "name-url": product });
+    // Checking if product exists
+    if (!singleProduct) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Sending response with the found product
+    res.json({ product: singleProduct });
   } catch (error) {
-    console.log("Error", error);
+    // Handling errors
+    console.error("Error fetching product:", error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-exports.allProducts = async (req, res) => {
-  try {
-    const product = req.params.product;
-    const db = await getDb();
-    const productOne = await db.collection("Products").find({}).toArray();
-    res.send({ product: productOne });
-  } catch (error) {
-    console.log("Error", error);
-  }
-};
+
