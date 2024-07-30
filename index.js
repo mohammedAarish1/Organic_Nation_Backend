@@ -20,7 +20,7 @@ const cors = require("cors");
 // const categoryRouter = require("./Router/categoryRouter.js");
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:5173', // Ensure this matches your frontend URL
+  origin: process.env.FRONTEND_URL, // Ensure this matches your frontend URL
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization']
 }));

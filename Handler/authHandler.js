@@ -59,13 +59,12 @@ exports.googleCallback = (req, res) => {
     // Check if the user is new (doesn't have a password set)
     if (!req.user.password) {
       // New user, redirect to collect phone number
-      res.redirect(`http://localhost:5173/collect-phone-number?token=${secureToken}`);
+      res.redirect(`${process.env.FRONTEND_URL}/collect-phone-number?token=${secureToken}`);
     } else {
       // Existing user, redirect to dashboard or home page
-      res.redirect(`http://localhost:5173/?token=${secureToken}`);
+      res.redirect(`${process.env.FRONTEND_URL}/?token=${secureToken}`);
     }
 
-    // res.redirect(`http://localhost:5173/collect-phone-number?token=${token}`);
   });
 }
 
