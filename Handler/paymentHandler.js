@@ -13,8 +13,8 @@ const generateTransactionID = () => {
 // payment route
 exports.getPaymentDone = async (req, res) => {
     try {
-        const { name, number, amount } = req.body;
-        if (!name || !number || !amount) {
+        const { number, amount } = req.body;
+        if (!number || !amount) {
             return res.status(400).json({
                 success: false,
                 message: "Missing required fields"
@@ -27,11 +27,11 @@ exports.getPaymentDone = async (req, res) => {
             merchantId: process.env.PHONEPE_MERCHANT_ID,
             merchantTransactionId: merchantTransactionId,
             merchantUserId: "MUID" + Date.now(),
-            name: name,
+            // name: name,
             amount: amount * 100, // multiply by 100 since it counts money in 'paise' instead of rupee
-            redirectUrl: `http://localhost:8000/api/phonepe/status/?id=${merchantTransactionId}`,
+            redirectUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/status/?id=${merchantTransactionId}`,
             redirectMode: "POST",
-            callbackUrl: `http://localhost:8000/api/phonepe/status/?id=${merchantTransactionId}`,
+            callbackUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/status/?id=${merchantTransactionId}`,
             mobileNumber: number,
             paymentInstrument: {
                 type: "PAY_PAGE"
@@ -64,6 +64,7 @@ exports.getPaymentDone = async (req, res) => {
 
         try {
             const response = await axios.request(options);
+            console.log('initiate', response)
             return res.json(response.data);
         } catch (error) {
             console.error('errrr', error);
@@ -107,16 +108,18 @@ exports.checkPaymentStatus = async (req, res) => {
 
 
     // CHECK PAYMENT STATUS
-    axios.request(options).then(async (response) => {
+    axios.request(options).then((response) => {
+        console.log('ddddddddd', response)
         if (response.data.success) {
-            const url = `http://localhost:5173/success`
+            console.log('STATUS', response.data)
+            const url = `http://localhost:5173/order-confirmed/:123456`
             return res.redirect(url)
         } else {
-            const url = `http://localhost:5173/failure`
-            return res.redirect(url)
+            // const url = `http://localhost:5173/failure`
+            // return res.redirect(url)
         }
     })
         .catch((error) => {
-            console.error(error);
+            console.error('errorrrr', error);
         });
 }
