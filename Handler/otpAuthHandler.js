@@ -13,7 +13,7 @@ const sendOTP = async (phoneNumber) => {
     const otp = generateOTP();
     await OTP.create({ phoneNumber, otp, createdAt: new Date() });
 
-  
+
     const params = {
         Message: `Organic Nation - Your OTP is: ${otp}. Please don't share it with anyone`,
         PhoneNumber: phoneNumber,

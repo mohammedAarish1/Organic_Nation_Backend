@@ -59,6 +59,7 @@ app.use('/api/user-query', require('./Router/contactedUserRouter.js'));
 app.use('/api/blogs', require('./Router/blogsRouter.js'));
 app.use('/api/recipes', require('./Router/recipesRouter.js'));
 app.use('/api/delivery-charges', require('./Router/deliveryChargesRouter.js'));
+app.use('/api/phonepe', require('./Router/paymentRouter.js'));
 
 
 

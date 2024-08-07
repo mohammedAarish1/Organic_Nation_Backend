@@ -15,7 +15,7 @@ const OrderSchema = new mongoose.Schema({
     required: true
   },
   subTotal: { type: Number, required: true },
-  taxAmount: { type: Number, required: true },
+  // taxAmount: { type: Number, required: true },
   shippingFee: { type: Number, required: true },
   paymentMethod: { type: String, required: true },
   paymentStatus: { type: String, required: true },

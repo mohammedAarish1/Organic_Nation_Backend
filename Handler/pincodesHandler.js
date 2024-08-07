@@ -1,6 +1,6 @@
 const PinCode = require('../models/PinCode');
 
-exports.checkDeliveryAvailability=async (req, res) => {
+exports.checkDeliveryAvailability = async (req, res) => {
     try {
         const pinCode = req.params.pincode;
 

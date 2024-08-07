@@ -166,6 +166,7 @@ exports.handleCartMerge = async (req, res) => {
       return res.status(404).json({ msg: 'User not found' });
     }
 
+
     if (replaceCart) {
       // Replace server cart with local cart
       user.cart = localCart;
