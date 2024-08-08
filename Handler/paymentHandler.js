@@ -1,6 +1,12 @@
 const crypto = require("crypto");
 const axios = require("axios");
 
+
+
+
+const merchantId = 'PGTESTPAYUAT86';
+const salt_key = '96434309-7796-489d-8924-ab56988a6076';
+
 // generate random Transaction Id
 const generateTransactionID = () => {
     const timestamp = Date.now();
@@ -24,7 +30,7 @@ exports.getPaymentDone = async (req, res) => {
         const merchantTransactionId = generateTransactionID()
 
         const data = {
-            merchantId: process.env.PHONEPE_MERCHANT_ID,
+            merchantId: merchantId,
             merchantTransactionId: merchantTransactionId,
             merchantUserId: "MUID" + Date.now(),
             amount: amount * 100, // multiply by 100 since it counts money in 'paise' instead of rupee
@@ -39,10 +45,12 @@ exports.getPaymentDone = async (req, res) => {
 
         const payload = JSON.stringify(data);
         const payloadMain = Buffer.from(payload).toString('base64');
+        console.log('payload', payloadMain)
         const keyIndex = 1;
-        const string = payloadMain + '/pg/v1/pay' + process.env.PHONEPE_SALT_KEY;
+        const string = payloadMain + '/pg/v1/pay' + salt_key;
         const sha256 = crypto.createHash('sha256').update(string).digest('hex');
         const checksum = sha256 + '###' + keyIndex;
+        console.log('checksum', checksum)
 
         // change this URL with production URL
         const prod_URL = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay"
@@ -135,7 +143,7 @@ exports.getPaymentDone = async (req, res) => {
 // function verifyPhonePeSignature(req) {
 //     try {
 //         const receivedSignature = req.headers['x-verify'];
-//         const salt = process.env.PHONEPE_SALT_KEY; // Ensure this is securely stored
+//         const salt = salt_key; // Ensure this is securely stored
 //         const payload = JSON.stringify(req.body);
 
 //         const computedSignature = crypto
@@ -165,8 +173,8 @@ exports.getPaymentDone = async (req, res) => {
 
 exports.checkPaymentStatus = async (req, res) => {
     const merchantTransactionId = req.query.id
-    const merchantId = process.env.PHONEPE_MERCHANT_ID
-    const salt_key = process.env.PHONEPE_SALT_KEY
+    const merchantId = merchantId
+    const salt_key = salt_key
 
     const keyIndex = 1;
     const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}` + salt_key;
