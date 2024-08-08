@@ -69,7 +69,6 @@ exports.getPaymentDone = async (req, res) => {
 
         try {
             const response = await axios.request(options);
-            // console.log('initiate', response.data)
             // return res.redirect(response.data.data.instrumentResponse.redirectInfo.url)
             return res.json(response.data);
         } catch (error) {
@@ -193,18 +192,20 @@ exports.checkPaymentStatus = async (req, res) => {
 
 
     // CHECK PAYMENT STATUS
-    axios.request(options).then((response) => {
+
+
+    try {
+        const response = await axios.request(options);
         if (response.data.success) {
-            console.log('STATUS', response.data)
-            const paymentStatus = response.data.success ? 'success' : 'failure';
-            const url = `${process.env.FRONTEND_URL}/${paymentStatus}?id=${merchantTransactionId}`
+            const url = `${process.env.FRONTEND_URL}/payment-status?status=success?id=${merchantTransactionId}`
             return res.redirect(url)
         } else {
-            const url = `${process.env.FRONTEND_URL}/failure`
+            const url = `${process.env.FRONTEND_URL}/payment-status?status=failure?id=${merchantTransactionId}`
             return res.redirect(url)
         }
-    })
-        .catch((error) => {
-            console.error('errorrrr', error);
-        });
+    } catch (error) {
+        return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=InternalServerError`);
+    }
+
+
 }
