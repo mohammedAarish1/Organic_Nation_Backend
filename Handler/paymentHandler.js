@@ -45,12 +45,10 @@ exports.getPaymentDone = async (req, res) => {
 
         const payload = JSON.stringify(data);
         const payloadMain = Buffer.from(payload).toString('base64');
-        console.log('payload', payloadMain)
         const keyIndex = 1;
         const string = payloadMain + '/pg/v1/pay' + salt_key;
         const sha256 = crypto.createHash('sha256').update(string).digest('hex');
         const checksum = sha256 + '###' + keyIndex;
-        console.log('checksum', checksum)
 
         // change this URL with production URL
         const prod_URL = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay"
@@ -173,8 +171,8 @@ exports.getPaymentDone = async (req, res) => {
 
 exports.checkPaymentStatus = async (req, res) => {
     const merchantTransactionId = req.query.id
-    const merchantId = merchantId
-    const salt_key = salt_key
+    // const merchantId = merchantId
+    // const salt_key = salt_key
 
     const keyIndex = 1;
     const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}` + salt_key;
@@ -198,7 +196,8 @@ exports.checkPaymentStatus = async (req, res) => {
     axios.request(options).then((response) => {
         if (response.data.success) {
             console.log('STATUS', response.data)
-            const url = `${process.env.FRONTEND_URL}/`
+            const paymentStatus = response.data.success ? 'success' : 'failure';
+            const url = `${process.env.FRONTEND_URL}/${paymentStatus}?id=${merchantTransactionId}`
             return res.redirect(url)
         } else {
             const url = `${process.env.FRONTEND_URL}/failure`
