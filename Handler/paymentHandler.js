@@ -197,10 +197,10 @@ exports.checkPaymentStatus = async (req, res) => {
     try {
         const response = await axios.request(options);
         if (response.data.success) {
-            const url = `${process.env.FRONTEND_URL}/payment-status?status=success?id=${merchantTransactionId}`
+            const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}`
             return res.redirect(url)
         } else {
-            const url = `${process.env.FRONTEND_URL}/payment-status?status=failure?id=${merchantTransactionId}`
+            const url = `${process.env.FRONTEND_URL}/payment-status?status=failure&id=${merchantTransactionId}`
             return res.redirect(url)
         }
     } catch (error) {
