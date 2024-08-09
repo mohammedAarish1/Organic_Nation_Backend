@@ -8,8 +8,8 @@ const jwt = require('jsonwebtoken');
 
 
 
-const merchantId = 'PGTESTPAYUAT86';
-const salt_key = '96434309-7796-489d-8924-ab56988a6076';
+const merchantId = process.env.PHONEPE_MERCHANT_ID;
+const salt_key = process.env.PHONEPE_SALT_KEY;
 
 
 
@@ -49,21 +49,13 @@ exports.getPaymentDone = async (req, res) => {
         }
 
 
-        // const { number, amount, merchantTransactionId } = req.body;
-        // if (!number || !amount || !merchantTransactionId) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: "Missing required fields"
-        //     });
-        // }
-
 
         const data = {
             merchantId: merchantId,
             merchantTransactionId: paymentDetails.merchantTransactionId,
             merchantUserId: "MUID" + Date.now(),
             amount: paymentDetails.amount * 100, // multiply by 100 since it counts money in 'paise' instead of rupee
-            // redirectUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/status/?id=${paymentDetails.merchantTransactionId}`,
+            redirectUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/status/?id=${paymentDetails.merchantTransactionId}`,
             redirectMode: "POST",
             callbackUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/callback/?id=${paymentDetails.merchantTransactionId}`,
             mobileNumber: paymentDetails.number,
@@ -126,38 +118,40 @@ exports.handleCallback = async (req, res) => {
         // Input validation
         // const errors = validationResult(req);
         // if (!errors.isEmpty()) {
-        //     logger.warn('Invalid callback data received', { errors: errors.array() });
         //     return res.status(400).json({ success: false, message: 'Invalid input' });
         // }
 
         const merchantTransactionId = req.query.id;
 
-
+        if (!merchantTransactionId) {
+            return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=TransactionIdMissing`);
+        }
         // Fetch the order using the merchantTransactionId
         const order = await Order.findOne({ merchantTransactionId: merchantTransactionId });
 
 
         if (!order) {
-            console.error('Order not found for transaction ID:', merchantTransactionId);
+            // console.error('Order not found for transaction ID:', merchantTransactionId);
             return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=OrderNotFound`);
         }
 
-        const paymentData = req.body;
-        console.log(paymentData)
 
-        if (paymentData) {
-            order.paymentStatus = 'PAID';
-            await order.save(); // Save the updated order
 
-        }
-
-        // logger.info('Received callback for transaction', { merchantTransactionId, paymentData });
 
         // Verify the callback authenticity
-        // if (!verifyPhonePeSignature(req)) {
-        //     // logger.error('Invalid signature in callback', { merchantTransactionId });
-        //     return res.status(403).json({ success: false, message: 'Invalid signature' });
-        // }
+        if (!verifyPhonePeSignature(req)) {
+            // logger.error('Invalid signature in callback', { merchantTransactionId });
+            return res.status(403).json({ success: false, message: 'Invalid signature' });
+        }
+
+
+        const paymentData = req.body;
+        const paymentStatus = paymentData.code;
+
+        if (paymentStatus === 'PAYMENT_SUCCESS') {
+            order.paymentStatus = 'PAID';
+            await order.save(); // Save the updated order
+        }
 
         // Process the payment status
         // const paymentStatus = paymentData.code;
@@ -178,29 +172,28 @@ exports.handleCallback = async (req, res) => {
         // Respond to PhonePe
         // res.status(200).json({ success: true, message: 'Callback processed successfully' });
     } catch (error) {
-        console.log('err', error)
         // logger.error('Error processing callback', { error: error.message, stack: error.stack });
         res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };
 
-// function verifyPhonePeSignature(req) {
-//     try {
-//         const receivedSignature = req.headers['x-verify'];
-//         const salt = salt_key; // Ensure this is securely stored
-//         const payload = JSON.stringify(req.body);
+function verifyPhonePeSignature(req) {
+    try {
+        const receivedSignature = req.headers['x-verify'];
+        const salt = salt_key; // Ensure this is securely stored
+        const payload = JSON.stringify(req.body);
 
-//         const computedSignature = crypto
-//             .createHash('sha256')
-//             .update(payload + salt)
-//             .digest('hex') + '###' + 1; // Assuming key index is 1
+        const computedSignature = crypto
+            .createHash('sha256')
+            .update(payload + salt)
+            .digest('hex') + '###' + 1; // Assuming key index is 1
 
-//         return receivedSignature === computedSignature;
-//     } catch (error) {
-//         // logger.error('Error verifying signature', { error: error.message });
-//         return false;
-//     }
-// }
+        return receivedSignature === computedSignature;
+    } catch (error) {
+        // logger.error('Error verifying signature', { error: error.message });
+        return false;
+    }
+}
 
 // Middleware for input validation
 // exports.validateCallback = [
@@ -215,79 +208,79 @@ exports.handleCallback = async (req, res) => {
 
 
 
-// exports.checkPaymentStatus = async (req, res) => {
-//     const merchantTransactionId = req.query.id
-//     // const merchantId = merchantId
-//     // const salt_key = salt_key
+exports.checkPaymentStatus = async (req, res) => {
+    const merchantTransactionId = req.query.id
+    // const merchantId = merchantId
+    // const salt_key = salt_key
 
 
-//     if (!merchantTransactionId) {
-//         return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=TransactionIdMissing`);
-//     }
+    if (!merchantTransactionId) {
+        return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=TransactionIdMissing`);
+    }
 
-//     const keyIndex = 1;
-//     const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}` + salt_key;
-//     const sha256 = crypto.createHash('sha256').update(string).digest('hex');
-//     const checksum = sha256 + "###" + keyIndex;
-
-
-//     const options = {
-//         method: 'GET',
-//         url: `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`,
-//         headers: {
-//             accept: 'application/json',
-//             'Content-Type': 'application/json',
-//             'X-VERIFY': checksum,
-//             'X-MERCHANT-ID': `${merchantId}`
-//         }
-//     };
+    const keyIndex = 1;
+    const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}` + salt_key;
+    const sha256 = crypto.createHash('sha256').update(string).digest('hex');
+    const checksum = sha256 + "###" + keyIndex;
 
 
-//     // CHECK PAYMENT STATUS
+    const options = {
+        method: 'GET',
+        url: `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`,
+        headers: {
+            accept: 'application/json',
+            'Content-Type': 'application/json',
+            'X-VERIFY': checksum,
+            'X-MERCHANT-ID': `${merchantId}`
+        }
+    };
 
 
-//     try {
-//         // Simulate a network or service error
-//         // throw new Error('Simulated network error');
+    // CHECK PAYMENT STATUS
 
 
-//         // Fetch the order using the merchantTransactionId
-//         const order = await Order.findOne({ merchantTransactionId: merchantTransactionId });
+    try {
+        // Simulate a network or service error
+        // throw new Error('Simulated network error');
 
 
-//         if (!order) {
-//             console.error('Order not found for transaction ID:', merchantTransactionId);
-//             return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=OrderNotFound`);
-//         }
-
-//         // Generate JWT token with payment details
-//         const token = jwt.sign({
-//             number: order.receiverDetails.phoneNumber,
-//             amount: order.subTotal + order.shippingFee,
-//             merchantTransactionId: order.merchantTransactionId
-//         }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-//         const response = await axios.request(options);
-
-//         // Simulate a failure response
-//         // const response = {
-//         //     data: {
-//         //         success: false // Simulate a payment failure
-//         //     }
-//         // };
-
-//         if (response.data.success) {
-//             order.paymentStatus = 'PAID';
-//             await order.save(); // Save the updated order
-//             const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}`
-//             return res.redirect(url)
-//         } else {
-//             const url = `${process.env.FRONTEND_URL}/payment-status?status=failure&retryToken=${token}`
-//             return res.redirect(url)
-//         }
-//     } catch (error) {
-//         return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=InternalServerError`);
-//     }
+        // Fetch the order using the merchantTransactionId
+        const order = await Order.findOne({ merchantTransactionId: merchantTransactionId });
 
 
-// }
+        if (!order) {
+            console.error('Order not found for transaction ID:', merchantTransactionId);
+            return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=OrderNotFound`);
+        }
+
+        // Generate JWT token with payment details
+        const token = jwt.sign({
+            number: order.receiverDetails.phoneNumber,
+            amount: order.subTotal + order.shippingFee,
+            merchantTransactionId: order.merchantTransactionId
+        }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        const response = await axios.request(options);
+
+        // Simulate a failure response
+        // const response = {
+        //     data: {
+        //         success: false // Simulate a payment failure
+        //     }
+        // };
+
+        if (response.data.success) {
+            // order.paymentStatus = 'PAID';
+            // await order.save(); // Save the updated order
+            const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}`
+            return res.redirect(url)
+        } else {
+            const url = `${process.env.FRONTEND_URL}/payment-status?status=failure&retryToken=${token}`
+            return res.redirect(url)
+        }
+    } catch (error) {
+        return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=InternalServerError`);
+    }
+
+
+}
