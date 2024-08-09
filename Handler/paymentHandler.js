@@ -1,5 +1,9 @@
 const crypto = require("crypto");
 const axios = require("axios");
+const Order = require('../models/Order');
+const jwt = require('jsonwebtoken');
+
+
 
 
 
@@ -7,37 +11,62 @@ const axios = require("axios");
 const merchantId = 'PGTESTPAYUAT86';
 const salt_key = '96434309-7796-489d-8924-ab56988a6076';
 
-// generate random Transaction Id
-const generateTransactionID = () => {
-    const timestamp = Date.now();
-    const randomNum = Math.floor(Math.random() * 1000000);
-    const merchantPrefix = 'T';
-    const transactionID = `${merchantPrefix}${timestamp}${randomNum}`;
-    return transactionID;
-}
+
 
 // payment route
 exports.getPaymentDone = async (req, res) => {
     try {
-        const { number, amount } = req.body;
-        if (!number || !amount) {
-            return res.status(400).json({
-                success: false,
-                message: "Missing required fields"
-            });
+
+        // Extract data from request body or query
+        const { retryToken, number, amount, merchantTransactionId } = req.body;
+        let paymentDetails;
+
+        if (retryToken) {
+            try {
+                // Decode JWT token to get payment details
+                const decoded = jwt.verify(retryToken, process.env.JWT_SECRET);
+                paymentDetails = {
+                    number: decoded.number,
+                    amount: decoded.amount,
+                    merchantTransactionId: decoded.merchantTransactionId
+                };
+            } catch (error) {
+                console.error('Invalid retry token:', error);
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid retry token'
+                });
+            }
+        } else {
+            // Validate request body if no retryToken
+            if (!number || !amount || !merchantTransactionId) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Missing required fields"
+                });
+            }
+            paymentDetails = { number, amount, merchantTransactionId };
         }
 
-        const merchantTransactionId = generateTransactionID()
+
+        // const { number, amount, merchantTransactionId } = req.body;
+        // if (!number || !amount || !merchantTransactionId) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: "Missing required fields"
+        //     });
+        // }
+
 
         const data = {
             merchantId: merchantId,
-            merchantTransactionId: merchantTransactionId,
+            merchantTransactionId: paymentDetails.merchantTransactionId,
             merchantUserId: "MUID" + Date.now(),
-            amount: amount * 100, // multiply by 100 since it counts money in 'paise' instead of rupee
-            redirectUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/status/?id=${merchantTransactionId}`,
+            amount: paymentDetails.amount * 100, // multiply by 100 since it counts money in 'paise' instead of rupee
+            redirectUrl: `http://localhost:8000/api/phonepe/status/?id=${paymentDetails.merchantTransactionId}`,
             redirectMode: "POST",
-            callbackUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/callback/?id=${merchantTransactionId}`,
-            mobileNumber: number,
+            callbackUrl: `http://localhost:8000/api/phonepe/callback/?id=${paymentDetails.merchantTransactionId}`,
+            mobileNumber: paymentDetails.number,
             paymentInstrument: {
                 type: "PAY_PAGE"
             }
@@ -173,6 +202,11 @@ exports.checkPaymentStatus = async (req, res) => {
     // const merchantId = merchantId
     // const salt_key = salt_key
 
+
+    if (!merchantTransactionId) {
+        return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=TransactionIdMissing`);
+    }
+
     const keyIndex = 1;
     const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}` + salt_key;
     const sha256 = crypto.createHash('sha256').update(string).digest('hex');
@@ -195,12 +229,42 @@ exports.checkPaymentStatus = async (req, res) => {
 
 
     try {
+        // Simulate a network or service error
+        // throw new Error('Simulated network error');
+
+
+        // Fetch the order using the merchantTransactionId
+        const order = await Order.findOne({ merchantTransactionId: merchantTransactionId });
+
+
+        if (!order) {
+            console.error('Order not found for transaction ID:', merchantTransactionId);
+            return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=OrderNotFound`);
+        }
+
+        // Generate JWT token with payment details
+        const token = jwt.sign({
+            number: order.receiverDetails.phoneNumber,
+            amount: order.subTotal + order.shippingFee,
+            merchantTransactionId: order.merchantTransactionId
+        }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
         const response = await axios.request(options);
+
+        // Simulate a failure response
+        // const response = {
+        //     data: {
+        //         success: false // Simulate a payment failure
+        //     }
+        // };
+
         if (response.data.success) {
+            order.paymentStatus = 'PAID';
+            await order.save(); // Save the updated order
             const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}`
             return res.redirect(url)
         } else {
-            const url = `${process.env.FRONTEND_URL}/payment-status?status=failure&id=${merchantTransactionId}`
+            const url = `${process.env.FRONTEND_URL}/payment-status?status=failure&retryToken=${token}`
             return res.redirect(url)
         }
     } catch (error) {

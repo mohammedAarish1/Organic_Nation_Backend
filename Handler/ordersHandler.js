@@ -20,6 +20,7 @@ exports.createOrder = async (req, res) => {
     paymentMethod,
     paymentStatus,
     receiverDetails,
+    merchantTransactionId,
     orderStatus // New field
   } = req.body;
 
@@ -53,6 +54,7 @@ exports.createOrder = async (req, res) => {
         phoneNumber: receiverPhoneNumber,
         name: receiverName
       },
+      merchantTransactionId,
       orderStatus: orderStatus || 'active' // Set default value if not provided
     });
 

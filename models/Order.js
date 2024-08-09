@@ -23,6 +23,7 @@ const OrderSchema = new mongoose.Schema({
     phoneNumber: { type: String, required: false }, // Receiver's phone number, optional
     name: { type: String, required: false } // Receiver's name, optional
   },
+  merchantTransactionId: { type: String, required: true },
   orderStatus: { type: String, default: 'active' }, // Order status with default value "active"
   createdAt: { type: Date, default: Date.now }
 });
