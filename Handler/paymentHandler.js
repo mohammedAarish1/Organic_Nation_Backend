@@ -139,10 +139,10 @@ exports.handleCallback = async (req, res) => {
 
 
         // Verify the callback authenticity
-        if (!verifyPhonePeSignature(req)) {
-            // logger.error('Invalid signature in callback', { merchantTransactionId });
-            return res.status(403).json({ success: false, message: 'Invalid signature' });
-        }
+        // if (!verifyPhonePeSignature(req)) {
+        //     // logger.error('Invalid signature in callback', { merchantTransactionId });
+        //     return res.status(403).json({ success: false, message: 'Invalid signature' });
+        // }
 
 
         const paymentData = req.body;
@@ -177,23 +177,23 @@ exports.handleCallback = async (req, res) => {
     }
 };
 
-function verifyPhonePeSignature(req) {
-    try {
-        const receivedSignature = req.headers['x-verify'];
-        const salt = salt_key; // Ensure this is securely stored
-        const payload = JSON.stringify(req.body);
+// function verifyPhonePeSignature(req) {
+//     try {
+//         const receivedSignature = req.headers['x-verify'];
+//         const salt = salt_key; // Ensure this is securely stored
+//         const payload = JSON.stringify(req.body);
 
-        const computedSignature = crypto
-            .createHash('sha256')
-            .update(payload + salt)
-            .digest('hex') + '###' + 1; // Assuming key index is 1
+//         const computedSignature = crypto
+//             .createHash('sha256')
+//             .update(payload + salt)
+//             .digest('hex') + '###' + 1; // Assuming key index is 1
 
-        return receivedSignature === computedSignature;
-    } catch (error) {
-        // logger.error('Error verifying signature', { error: error.message });
-        return false;
-    }
-}
+//         return receivedSignature === computedSignature;
+//     } catch (error) {
+//         // logger.error('Error verifying signature', { error: error.message });
+//         return false;
+//     }
+// }
 
 // Middleware for input validation
 // exports.validateCallback = [
