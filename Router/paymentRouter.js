@@ -5,12 +5,12 @@ const router = express.Router();
 const {
     getPaymentDone,
     checkPaymentStatus,
-    handleCallback,
+    // handleCallback,
 } = require("../Handler/paymentHandler.js");
 
 router.post("/payment", getPaymentDone);
 router.post("/status", checkPaymentStatus);
-router.post("/callback", handleCallback);
+// router.post("/callback", handleCallback);
 
 
 
