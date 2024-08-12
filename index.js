@@ -35,6 +35,14 @@ app.use(session({
 }));
 
 
+// referrer policy -- as suggested by phonepe team
+app.use((req, res, next) => {
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
+
+
+
 // Passport Config
 require('./config/passport');
 
