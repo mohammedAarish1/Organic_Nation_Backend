@@ -72,7 +72,11 @@ exports.getPaymentDone = async (req, res) => {
         const checksum = sha256 + '###' + keyIndex;
 
         // change this URL with production URL
-        const prod_URL = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay"
+        // test url 
+        // const prod_URL = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay"
+
+        // production url 
+        const prod_URL = "https://api.phonepe.com/apis/hermes/pg/v1/pay"
 
         const options = {
             method: 'POST',
@@ -197,7 +201,7 @@ exports.checkPaymentStatus = async (req, res) => {
 
     const options = {
         method: 'GET',
-        url: `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`,
+        url: `https://api.phonepe.com/apis/hermes/pg/v1/status/${merchantId}/${merchantTransactionId}`,
         headers: {
             accept: 'application/json',
             'Content-Type': 'application/json',
