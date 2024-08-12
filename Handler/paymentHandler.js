@@ -57,7 +57,7 @@ exports.getPaymentDone = async (req, res) => {
             amount: paymentDetails.amount * 100, // multiply by 100 since it counts money in 'paise' instead of rupee
             redirectUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/status/?id=${paymentDetails.merchantTransactionId}`,
             redirectMode: "POST",
-            // callbackUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/callback/?id=${paymentDetails.merchantTransactionId}`,
+            callbackUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/callback/?id=${paymentDetails.merchantTransactionId}`,
             mobileNumber: paymentDetails.number,
             paymentInstrument: {
                 type: "PAY_PAGE"
@@ -113,68 +113,68 @@ exports.getPaymentDone = async (req, res) => {
 
 // callback function 
 
-// exports.handleCallback = async (req, res) => {
-//     try {
-//         const merchantTransactionId = req.query.id;
+exports.handleCallback = async (req, res) => {
+    try {
+        const merchantTransactionId = req.query.id;
 
-//         if (!merchantTransactionId) {
-//             return res.status(400).json({ success: false, message: 'Transaction ID missing' });
-//         }
+        if (!merchantTransactionId) {
+            return res.status(400).json({ success: false, message: 'Transaction ID missing' });
+        }
 
-//         const order = await Order.findOne({ merchantTransactionId: merchantTransactionId });
+        const order = await Order.findOne({ merchantTransactionId: merchantTransactionId });
 
-//         if (!order) {
-//             console.error('Order not found for transaction ID:', merchantTransactionId);
-//             return res.status(404).json({ success: false, message: 'Order not found' });
-//         }
+        if (!order) {
+            console.error('Order not found for transaction ID:', merchantTransactionId);
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
 
-//         if (!verifyPhonePeSignature(req)) {
-//             console.error('Invalid signature in callback', { merchantTransactionId });
-//             return res.status(403).json({ success: false, message: 'Invalid signature' });
-//         }
+        if (!verifyPhonePeSignature(req)) {
+            console.error('Invalid signature in callback', { merchantTransactionId });
+            return res.status(403).json({ success: false, message: 'Invalid signature' });
+        }
 
-//         const paymentData = req.body;
-//         const paymentStatus = paymentData.code;
+        const paymentData = req.body;
+        const paymentStatus = paymentData.code;
 
-//         switch (paymentStatus) {
-//             case 'PAYMENT_SUCCESS':
-//                 order.paymentStatus = 'PAID';
-//                 await order.save();
-//                 console.log('Payment successful', { merchantTransactionId });
-//                 break;
-//             case 'PAYMENT_ERROR':
-//             case 'PAYMENT_DECLINED':
-//                 order.paymentStatus = 'FAILED';
-//                 await order.save();
-//                 console.warn('Payment failed', { merchantTransactionId, status: paymentStatus });
-//                 break;
-//             default:
-//                 order.paymentStatus = 'PENDING';
-//                 await order.save();
-//                 console.info('Payment in pending or unknown state', { merchantTransactionId, status: paymentStatus });
-//         }
+        switch (paymentStatus) {
+            case 'PAYMENT_SUCCESS':
+                order.paymentStatus = 'PAID';
+                await order.save();
+                console.log('Payment successful', { merchantTransactionId });
+                break;
+            case 'PAYMENT_ERROR':
+            case 'PAYMENT_DECLINED':
+                order.paymentStatus = 'FAILED';
+                await order.save();
+                console.warn('Payment failed', { merchantTransactionId, status: paymentStatus });
+                break;
+            default:
+                order.paymentStatus = 'PENDING';
+                await order.save();
+                console.info('Payment in pending or unknown state', { merchantTransactionId, status: paymentStatus });
+        }
 
-//         res.status(200).json({ success: true, message: 'Callback processed successfully' });
-//     } catch (error) {
-//         console.error('Error processing callback', { error: error.message, stack: error.stack });
-//         res.status(500).json({ success: false, message: 'Internal server error' });
-//     }
-// };
+        res.status(200).json({ success: true, message: 'Callback processed successfully' });
+    } catch (error) {
+        console.error('Error processing callback', { error: error.message, stack: error.stack });
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
 
-// function verifyPhonePeSignature(req) {
-//     try {
-//         const receivedSignature = req.headers['x-verify'];
-//         const payload = JSON.stringify(req.body);
-//         const computedSignature = crypto
-//             .createHash('sha256')
-//             .update(payload + salt_key)
-//             .digest('hex') + '###' + 1;
-//         return receivedSignature === computedSignature;
-//     } catch (error) {
-//         console.error('Error verifying signature', { error: error.message });
-//         return false;
-//     }
-// }
+function verifyPhonePeSignature(req) {
+    try {
+        const receivedSignature = req.headers['x-verify'];
+        const payload = JSON.stringify(req.body);
+        const computedSignature = crypto
+            .createHash('sha256')
+            .update(payload + salt_key)
+            .digest('hex') + '###' + 1;
+        return receivedSignature === computedSignature;
+    } catch (error) {
+        console.error('Error verifying signature', { error: error.message });
+        return false;
+    }
+}
 
 
 
@@ -239,8 +239,8 @@ exports.checkPaymentStatus = async (req, res) => {
         // };
 
         if (response.data.success) {
-            order.paymentStatus = 'PAID';
-            await order.save(); // Save the updated order
+            // order.paymentStatus = 'PAID';
+            // await order.save(); // Save the updated order
             const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}`
             return res.redirect(url)
         } else {

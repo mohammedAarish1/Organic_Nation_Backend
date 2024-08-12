@@ -58,21 +58,22 @@ exports.createOrder = async (req, res) => {
       orderStatus: orderStatus || 'active' // Set default value if not provided
     });
 
+
     const savedOrder = await newOrder.save();
 
 
     // Send order confirmation email
-    await sendEmail(
-      savedOrder.userEmail,
-      "Order Confirmation",
-      "orderConfirmation",
-      {
-        orderNumber: savedOrder._id,
-        customerName: receiverName,
-        totalAmount: savedOrder.amountPaid,
-        // Add more template variables as needed
-      }
-    );
+    // await sendEmail(
+    //   savedOrder.userEmail,
+    //   "Order Confirmation",
+    //   "orderConfirmation",
+    //   {
+    //     orderNumber: savedOrder._id,
+    //     customerName: receiverName,
+    //     totalAmount: savedOrder.amountPaid,
+    //     // Add more template variables as needed
+    //   }
+    // );
 
     res.status(200).json({ message: "Order placed successfully", orderId: savedOrder._id });
     // res.json(savedOrder);

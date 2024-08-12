@@ -49,6 +49,7 @@ exports.userSignup = async (req, res) => {
 exports.googleCallback = (req, res) => {
   const payload = { user: { id: req.user.id, email: req.user.email } };
 
+
   jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
     if (err) {
       console.error('JWT signing error:', err);

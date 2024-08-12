@@ -26,7 +26,7 @@ passport.use(new JwtStrategy(opts, (jwt_payload, done) => {
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "https://dpzi63xcomvst.cloudfront.net/api/auth/google/callback"
+  callbackURL: "http://localhost:8000/api/auth/google/callback"
 },
   async (accessToken, refreshToken, profile, done) => {
     const { id, name, emails } = profile;
@@ -46,6 +46,7 @@ passport.use(new GoogleStrategy({
         await user.save();
         return done(null, user);
       }
+
 
       // Create a new user with basic details and placeholder for phone number and password
       user = new User({
