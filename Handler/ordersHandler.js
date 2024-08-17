@@ -62,18 +62,24 @@ exports.createOrder = async (req, res) => {
     const savedOrder = await newOrder.save();
 
 
-    // Send order confirmation email
-    // await sendEmail(
-    //   savedOrder.userEmail,
-    //   "Order Confirmation",
-    //   "orderConfirmation",
-    //   {
-    //     orderNumber: savedOrder._id,
-    //     customerName: receiverName,
-    //     totalAmount: savedOrder.amountPaid,
-    //     // Add more template variables as needed
-    //   }
-    // );
+    if (savedOrder.paymentMethod === 'cash_on_delivery') {
+
+      //  Send order confirmation email
+      await sendEmail(
+        savedOrder.userEmail,
+        "Order Confirmation",
+        "orderConfirmation",
+        {
+          orderNumber: savedOrder.orderNo,
+          customerName: receiverName,
+          totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
+          // Add more template variables as needed
+        }
+      );
+
+    }
+
+
 
     res.status(200).json({ message: "Order placed successfully", orderId: savedOrder._id });
     // res.json(savedOrder);

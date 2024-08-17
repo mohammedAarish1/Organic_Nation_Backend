@@ -2,6 +2,8 @@ const crypto = require("crypto");
 const axios = require("axios");
 const Order = require('../models/Order');
 const jwt = require('jsonwebtoken');
+const { sendEmail } = require("../utility/emailService");
+
 
 
 
@@ -54,6 +56,7 @@ exports.getPaymentDone = async (req, res) => {
             merchantUserId: "MUID" + Date.now(),
             amount: paymentDetails.amount * 100, // multiply by 100 since it counts money in 'paise' instead of rupee
             redirectUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/status/?id=${paymentDetails.merchantTransactionId}`,
+            // redirectUrl: `http://localhost:8000/api/phonepe/status/?id=${paymentDetails.merchantTransactionId}`,
             redirectMode: "POST",
             // callbackUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/callback/?id=${paymentDetails.merchantTransactionId}`,
             // callbackUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/callback`,
@@ -76,7 +79,7 @@ exports.getPaymentDone = async (req, res) => {
         // const prod_URL = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay"
 
         // production url 
-        const prod_URL = "https://api.phonepe.com/apis/hermes/pg/v1/pay"
+        const prod_URL = "https://api.phonepe.com/apis/hermes/pg/v1/pay";
 
         const options = {
             method: 'POST',
@@ -188,7 +191,6 @@ exports.checkPaymentStatus = async (req, res) => {
     const merchantTransactionId = req.query.id
 
 
-
     if (!merchantTransactionId) {
         return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=TransactionIdMissing`);
     }
@@ -202,6 +204,7 @@ exports.checkPaymentStatus = async (req, res) => {
     const options = {
         method: 'GET',
         url: `https://api.phonepe.com/apis/hermes/pg/v1/status/${merchantId}/${merchantTransactionId}`,
+        // url: `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`,
         headers: {
             accept: 'application/json',
             'Content-Type': 'application/json',
@@ -242,10 +245,26 @@ exports.checkPaymentStatus = async (req, res) => {
         //     }
         // };
 
+
         if (response.data.success) {
             order.paymentStatus = 'PAID';
             await order.save(); // Save the updated order
             const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}`
+
+
+            //  Send order confirmation email
+            await sendEmail(
+                order.userEmail,
+                "Order Confirmation",
+                "orderConfirmation",
+                {
+                    orderNumber: order.orderNo,
+                    customerName: order.receiverDetails.name,
+                    totalAmount: order.subTotal + order.shippingFee,
+                    // Add more template variables as needed
+                }
+            );
+
             return res.redirect(url)
         } else {
             const url = `${process.env.FRONTEND_URL}/payment-status?status=failure&retryToken=${token}`

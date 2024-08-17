@@ -112,13 +112,28 @@ exports.collectPhoneAndPassword = async (req, res) => {
 // @route   POST /api/auth/login
 // @desc    Authenticate user and get token
 exports.userLogin = async (req, res) => {
-  const { email, password } = req.body;
+  const { userId, password } = req.body;
+
 
   try {
+
+    // Determine if userId is an email or a phone number
+    let query;
+    if (/^\d{10}$/.test(userId)) {
+      // Assuming phone numbers are 10 digits long
+      query = { phoneNumber: `+91${userId}` };
+    } else {
+      // Otherwise treat it as an email
+      query = { email: userId.toLowerCase() };
+    }
+
+
+
     // Check if user exists
-    let user = await User.findOne({ email });
+    let user = await User.findOne(query);
+
     if (!user) {
-      return res.status(400).json({ msg: 'Invalid Credentials due to email' });
+      return res.status(400).json({ msg: 'Invalid Credentials due to User Id' });
     }
 
     // Verify password

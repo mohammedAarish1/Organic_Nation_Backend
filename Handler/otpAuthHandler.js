@@ -26,8 +26,8 @@ const sendOTP = async (phoneNumber) => {
     };
 
     try {
+        // console.log('otp', otp)
         const data = await snsClient.send(new PublishCommand(params));
-        // console.log("Success, message published. MessageID is " + data.MessageId);
 
         return data;
     } catch (err) {
