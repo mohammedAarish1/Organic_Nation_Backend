@@ -11,12 +11,14 @@ const { sendEmail } = require("../utility/emailService");
 exports.userSignup = async (req, res) => {
   const { firstName, lastName, email, phoneNumber, password } = req.body;
 
+
+
   try {
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email: email.toLowerCase() });
     if (user) {
       return res.status(400).json({ msg: 'User with this email already exists' });
     }
-    user = new User({ firstName, lastName, email, phoneNumber: '+91' + phoneNumber, password });
+    user = new User({ firstName, lastName, email: email.toLowerCase(), phoneNumber: phoneNumber, password });
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
     await user.save();
@@ -128,9 +130,9 @@ exports.userLogin = async (req, res) => {
     }
 
 
-
     // Check if user exists
     let user = await User.findOne(query);
+    console.log('user', user)
 
     if (!user) {
       return res.status(400).json({ msg: 'Invalid Credentials due to User Id' });

@@ -11,11 +11,11 @@ const OrderSchema = new mongoose.Schema({
   billingAddress: { type: String, required: true },
   shippingAddress: { type: String, required: true },
   orderDetails: {
-    type: [[String, String, Number]], // 2D array of [productId, quantity]
+    type: [[String, String, Number, String]], // 2D array of [productId, quantity]
     required: true
   },
   subTotal: { type: Number, required: true },
-  // taxAmount: { type: Number, required: true },
+  taxAmount: { type: Number, required: true },
   shippingFee: { type: Number, required: true },
   paymentMethod: { type: String, required: true },
   paymentStatus: { type: String, required: true },

@@ -76,6 +76,28 @@ exports.createOrder = async (req, res) => {
           // Add more template variables as needed
         }
       );
+      //  Send order receiving email to sales.foodsbay@gmail.com
+      await sendEmail(
+        'sales.foodsbay@gmail.com',
+        "Received Order",
+        "orderRecieved",
+        {
+          orderNumber: savedOrder.orderNo,
+          customerName: receiverName,
+          phoneNumber: receiverPhoneNumber,
+          email: savedOrder.userEmail,
+          shippingAddress: savedOrder.shippingAddress,
+          billingAddress: savedOrder.billingAddress,
+          // below line will convert the orderDetails array into plain strings 
+          orderDetails: savedOrder.orderDetails.map(item => `${item[0]},${item[3]},${item[2]}`).join(','),
+          subTotal: savedOrder.subTotal,
+          shippingFee: savedOrder.shippingFee,
+          totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
+          paymentMethod: savedOrder.paymentMethod,
+          paymentStatus: savedOrder.paymentStatus,
+          // Add more template variables as needed
+        }
+      );
 
     }
 

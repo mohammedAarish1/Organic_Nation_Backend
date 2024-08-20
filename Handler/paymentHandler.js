@@ -265,6 +265,31 @@ exports.checkPaymentStatus = async (req, res) => {
                 }
             );
 
+
+
+            //  Send order receiving email to sales.foodsbay@gmail.com
+            await sendEmail(
+                'sales.foodsbay@gmail.com',
+                "Received Order",
+                "orderRecieved",
+                {
+                    orderNumber: order.orderNo,
+                    customerName: order.receiverDetails.name,
+                    phoneNumber: order.receiverDetails.phoneNumber,
+                    email: order.userEmail,
+                    shippingAddress: order.shippingAddress,
+                    billingAddress: order.billingAddress,
+                    // below line will convert the orderDetails array into plain strings 
+                    orderDetails: order.orderDetails.map(item => `${item[0]},${item[3]},${item[2]}`).join(','),
+                    subTotal: order.subTotal,
+                    shippingFee: order.shippingFee,
+                    totalAmount: order.subTotal + order.shippingFee,
+                    paymentMethod: order.paymentMethod,
+                    paymentStatus: order.paymentStatus,
+                    // Add more template variables as needed
+                }
+            );
+
             return res.redirect(url)
         } else {
             const url = `${process.env.FRONTEND_URL}/payment-status?status=failure&retryToken=${token}`
