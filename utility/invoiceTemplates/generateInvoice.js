@@ -101,15 +101,9 @@ async function generateInvoice(order, res) {
     //   });
 
     const browser = await puppeteer.launch({
-        headless: true,  // Ensure headless mode is enabled
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--single-process',
-          '--disable-gpu',
-        ],
-        executablePath: '/usr/bin/chromium-browser'  // Ensure the path is correct for Elastic Beanstalk
+        headless: 'new',
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
+        executablePath: '/usr/bin/google-chrome'
       });
     
 
