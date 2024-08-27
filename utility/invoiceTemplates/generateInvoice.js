@@ -64,7 +64,7 @@ handlebars.registerHelper('default', function (value, defaultValue) {
 
 
 // Register a helper to add multiple numbers
-handlebars.registerHelper('add', function(...args) {
+handlebars.registerHelper('add', function (...args) {
     // Remove the last argument (options object) and sum the rest
     const sum = args.slice(0, -1).reduce((acc, num) => acc + Number(num), 0);
     return sum;
@@ -73,7 +73,7 @@ handlebars.registerHelper('add', function(...args) {
 
 
 // Register the helper with Handlebars
-handlebars.registerHelper('amountInWords', function(amount) {
+handlebars.registerHelper('amountInWords', function (amount) {
     let numericAmount = Math.round(parseFloat(amount));
     if (isNaN(numericAmount)) {
         return 'Invalid Amount';
@@ -88,11 +88,19 @@ async function generateInvoice(order, res) {
     const template = handlebars.compile(templateHtml);
     const html = template(order);
 
+    // const browser = await puppeteer.launch({
+    //     headless: 'new',
+    //     args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    //     timeout: 60000
+    // });
+
     const browser = await puppeteer.launch({
         headless: 'new',
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
         timeout: 60000
-    });
+      });
+
+    
 
     try {
         const page = await browser.newPage();

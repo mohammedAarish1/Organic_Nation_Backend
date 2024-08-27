@@ -180,6 +180,10 @@ exports.getAllUserQueries = async (req, res) => {
 
 // generate invoice
 exports.generateInvoice = async (req, res) => {
+
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+
     const { orderId } = req.body; // Assuming the order object is sent in the request body
     // console.log('orderid', orderId)
 

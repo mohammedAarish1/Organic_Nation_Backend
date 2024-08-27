@@ -54,9 +54,9 @@ const {
     adminLogin,
     getAdminProfile,
     getTotalOrders,
-    generateInvoice,
     getAllUsers,
-    getAllUserQueries
+    getAllUserQueries,
+    generateInvoice,
 } = require("../Handler/adminHandler.js");
 
 
