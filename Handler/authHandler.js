@@ -40,7 +40,7 @@ exports.userSignup = async (req, res) => {
     );
 
   } catch (err) {
-    console.error('Error during user registration:', err.message);
+    // console.error('Error during user registration:', err.message);
     res.status(500).send('Server error');
   }
 };
@@ -54,7 +54,6 @@ exports.googleCallback = (req, res) => {
 
   jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
     if (err) {
-      console.error('JWT signing error:', err);
       return res.status(500).send('Authentication failed');
     };
 
@@ -104,7 +103,7 @@ exports.collectPhoneAndPassword = async (req, res) => {
 
     res.json({ msg: 'Phone number and password saved successfully' });
   } catch (err) {
-    console.error('Error saving phone number and password:', err.message);
+    // console.error('Error saving phone number and password:', err.message);
     res.status(500).send('Server error');
   }
 }
@@ -132,7 +131,6 @@ exports.userLogin = async (req, res) => {
 
     // Check if user exists
     let user = await User.findOne(query);
-    console.log('user', user)
 
     if (!user) {
       return res.status(400).json({ msg: 'Invalid Credentials due to User Id' });
@@ -151,7 +149,7 @@ exports.userLogin = async (req, res) => {
       res.json({ token, msg: 'Verified' });
     });
   } catch (err) {
-    console.error('Error during login:', err.message);
+    // console.error('Error during login:', err.message);
     res.status(500).send('Server error');
   }
 }
@@ -170,7 +168,7 @@ exports.getUserByEmail = async (req, res) => {
     // Return user data
     res.json(user);
   } catch (err) {
-    console.error('Error retrieving user data:', err.message);
+    // console.error('Error retrieving user data:', err.message);
     res.status(500).send('Server error');
   }
 }
@@ -186,7 +184,7 @@ exports.getUserByToken = async (req, res) => {
     // return user data
     res.json(user);
   } catch (err) {
-    console.error('Error retrieving user data:', err.message);
+    // console.error('Error retrieving user data:', err.message);
     res.status(500).send('Server Error');
   }
 }

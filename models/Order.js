@@ -1,5 +1,19 @@
 const mongoose = require('mongoose');
 
+
+// Define the schema for order details
+const OrderDetailSchema = new mongoose.Schema({
+  id: { type: mongoose.Schema.Types.ObjectId, required: true },
+  "name-url": { type: String, required: true },
+  quantity: { type: Number, required: true },
+  weight: { type: String, required: true },
+  tax: { type: Number, required: true },
+  unitPrice: { type: Number, required: true }
+});
+
+
+
+
 const OrderSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -10,8 +24,12 @@ const OrderSchema = new mongoose.Schema({
   userEmail: { type: String, required: true },
   billingAddress: { type: String, required: true },
   shippingAddress: { type: String, required: true },
+  // orderDetails: {
+  //   type: [[String, String, Number, String]], // 2D array of [productId, quantity]
+  //   required: true
+  // },
   orderDetails: {
-    type: [[String, String, Number, String]], // 2D array of [productId, quantity]
+    type: [OrderDetailSchema], // Array of OrderDetailSchema objects
     required: true
   },
   subTotal: { type: Number, required: true },
@@ -29,3 +47,6 @@ const OrderSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Order', OrderSchema);
+
+
+

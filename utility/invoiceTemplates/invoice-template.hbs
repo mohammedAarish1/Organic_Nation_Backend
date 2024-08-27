@@ -1,0 +1,209 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+        .invoice-box table {
+            width: 100%;
+            line-height: inherit;
+            text-align: left;
+        }
+        .invoice-box table td {
+            padding: 5px;
+            vertical-align: top;
+        }
+        .invoice-box table tr.top table td {
+            padding-bottom: 20px;
+        }
+        .invoice-box table tr.information table td {
+            padding-bottom: 40px;
+        }
+        .invoice-box table tr.heading td {
+            background: #eee;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+        }
+        .invoice-box table tr.details td {
+            padding-bottom: 20px;
+        }
+        .invoice-box table tr.item td {
+            border-bottom: 1px solid #eee;
+        }
+        .invoice-box table tr.total td:nth-child(5) {
+            border-top: 2px solid #eee;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <table cellpadding="0" cellspacing="0">
+            <tr class="top">
+                <td colspan="10">
+                    <table>
+                        <tr>
+                            <td>
+                                <h1>FOODSBAY INDIA</h1>
+                                SHOP NO-336, PLOT NO-134B,<br />
+                                SHOPRRIX MALL, SECTOR-61, Noida, <br />
+                                Uttar Pradesh, PIN-201301 <br/>
+                                GST Registration No: 09AAGFF1901K1ZI <br />
+                                FSSAI License No: 12619007000076 
+                             </td>
+                            <td style="text-align: right;">
+                                <h2>TAX INVOICE</h2>
+                                Invoice #: {{default orderNo "N/A"}}<br />
+                                Date: {{formatDate createdAt}}<br />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            
+            <tr class="information">
+                <td colspan="10">
+                    <table>
+                        <tr>
+                            <td>
+                                Bill To:<br />
+                                {{default receiverName "N/A"}}<br />
+                                {{default billingAddress "N/A"}}<br />
+                                {{default receiverPhone "N/A"}}<br />
+                                {{default receiverEmail "N/A"}}
+                            </td>
+                            <td style="text-align: right;">
+                                Ship To:<br />
+                                {{default receiverName "N/A"}}<br />
+                                {{default shippingAddress "N/A"}}<br />
+                                {{default receiverPhone "N/A"}}<br />
+                                {{default receiverEmail "N/A"}}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            
+        
+
+<tr class="heading" style="text-align: center;">
+    <td>S.No.</td>
+    <td>Description</td>
+    <td>Unit Price</td>
+    <td>Quantity</td>
+    <td>Net Amount</td>
+    <td>Tax Rate</td>
+    <td>CGST</td>
+    <td>SGST</td>
+    <td>IGST</td>
+    <td>Total Amount</td>
+</tr>
+
+
+
+
+{{#each orderDetails}}
+<tr class="item" style="text-align: center;">
+    <td>{{default this.serialNo "N/A"}}</td>
+    <td>
+        {{default this.description "N/A"}}</br>
+        {{default this.hsnCode "N/A"}}
+    </td>
+    <td>{{formatCurrency this.unitPrice}}</td>
+    <td>{{default this.quantity "0"}}</td>
+    <td>{{formatCurrency this.netAmount}}</td>
+    <td>{{default this.taxRate "N/A"}}</td>
+    <td>{{formatCurrency this.CGST}}</td>
+    <td>{{formatCurrency this.SGST}}</td>
+    <td>{{formatCurrency this.IGST}}</td>
+    <td>{{formatCurrency this.totalAmount}}</td>
+</tr>
+{{/each}}
+            <tr class="total">
+                <td colspan="8"></td>
+                <td colspan="8">Subtotal: {{formatCurrency subTotal}}</td>
+            </tr>
+            <tr class="total">
+                <td colspan="8"></td>
+                <td colspan="8">Total Tax: {{formatCurrency taxAmount}}</td>
+            </tr>
+            <tr class="total">
+                <td colspan="8"></td>
+                <td colspan="8"> Shipping: {{formatCurrency shippingFee}}</td>
+            </tr>
+            <tr class="total">
+               <td colspan="8"></td>
+                <td colspan="8">Total: <strong>{{formatCurrency total}}</strong> </td>
+            </tr>
+
+        </table>
+
+        <div>
+            <table>
+                
+                {{!-- number in texts and signature  --}}
+            <tr>
+             <td colspan="10">
+                    <table style="width: 100%; margin-top: 20px;">
+                         <tr>
+                             <td style="width: 50%; text-align: left; border: 1px solid #000; padding: 10px;">
+                                <strong>Amount in Words:</strong><br/>
+                                     {{amountInWords total}}
+                            </td>
+                             <td style="width: 50%; text-align: right; border: 1px solid #000; padding: 10px;">
+                            <strong>For FOODSBAY INDIA:</strong><br/>
+                             <img src="https://signaturely.com/wp-content/uploads/2020/04/unreadable-letters-signaturely.svg" alt="Signature" style="width: 100px; height: auto;"><br/>
+                                    Authorized Signatory
+                         </td>
+                        </tr>
+                     </table>    
+              </td>
+            </tr>
+            </table>
+        </div>
+        <div>
+            <table>
+                
+            <tr>
+             <td colspan="10">
+                    <table style="width: 100%; margin-top: 20px;">
+                         <tr>
+                             <td style="width: 33.33%; text-align: left; border: 1px solid #000; padding: 5px;">
+                                <strong>Payment Transaction ID</strong><br/>
+                                     {{transactionID}}
+                            </td>
+                             
+                             <td style="width: 33.33%; text-align: left; border: 1px solid #000; padding: 5px;">
+                                <strong>Invoice Value</strong><br/>
+                                     {{formatCurrency total}}
+                            </td>
+                             <td style="width: 33.33%; text-align: left; border: 1px solid #000; padding: 5px;">
+                                <strong>Payment Mode</strong><br/>
+                                     {{paymentMethod}}
+                            </td>
+                             
+                        
+                        </tr>
+                     </table>    
+              </td>
+            </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+
+

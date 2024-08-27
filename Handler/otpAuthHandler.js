@@ -31,7 +31,7 @@ const sendOTP = async (phoneNumber) => {
 
         return data;
     } catch (err) {
-        console.error("Error", err);
+        // console.error("Error", err);
         throw err;
     }
 };

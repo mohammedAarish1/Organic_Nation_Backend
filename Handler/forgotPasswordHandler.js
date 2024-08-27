@@ -47,7 +47,6 @@ exports.getEmailVerified = async (req, res) => {
 
         res.json({ message: 'Password reset email sent' });
     } catch (error) {
-        console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
 }
@@ -84,7 +83,6 @@ exports.resetPassword = async (req, res) => {
 
         res.json({ message: 'Password reset successful' });
     } catch (error) {
-        console.error(error);
         if (error.name === 'JsonWebTokenError') {
             return res.status(400).json({ message: 'Invalid token' });
         }

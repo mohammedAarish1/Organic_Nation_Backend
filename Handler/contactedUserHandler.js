@@ -30,7 +30,6 @@ exports.saveContactedUser= async (req, res) => {
 
         res.status(201).json({ message: 'Contact Details submitted successfully' });
     } catch (error) {
-        console.error('Error submitting contact form:', error);
         res.status(500).json({ message: 'Error submitting contact form' });
     }
 }

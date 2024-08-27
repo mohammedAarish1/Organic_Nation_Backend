@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 const User = require('../models/User'); // Ensure the User model is imported correctly
+const Admin = require('../models/Admin');
 const keys = process.env.JWT_SECRET;
 
 const opts = {};
@@ -16,7 +17,36 @@ passport.use(new JwtStrategy(opts, (jwt_payload, done) => {
   User.findById(jwt_payload.user.id)
     .then(user => {
       if (user) {
-        return done(null, user);
+
+        // Include the user's role in the payload
+        const userWithRole = {
+          id: user.id,
+          email: user.email,
+          role: user.role
+        };
+
+        return done(null, userWithRole);
+      }
+      return done(null, false);
+    })
+    .catch(err => console.error(err));
+}));
+
+
+// to authenticate the admin
+passport.use('jwt-admin', new JwtStrategy(opts, (jwt_payload, done) => {
+  Admin.find(jwt_payload._id)
+    .then(admin => {
+      if (admin && admin[0].role === 'admin') {
+
+        // Include the admin's role in the payload
+        const adminWithRole = {
+          username: admin[0].username,
+          role: admin[0].role
+        };
+
+
+        return done(null, adminWithRole);
       }
       return done(null, false);
     })
@@ -55,12 +85,13 @@ passport.use(new GoogleStrategy({
         lastName: name.familyName,
         email: emails[0].value,
         phoneNumber: '', // Placeholder for phone number
-        password: '' // Placeholder for password
+        password: '',  // Placeholder for password
+        role: 'user' // Set default role for new Google sign-ups
       });
       await user.save();
       return done(null, user);
     } catch (err) {
-      console.error('Error during Google OAuth:', err.message);
+      // console.error('Error during Google OAuth:', err.message);
       return done(err, false);
     }
   }));
@@ -69,9 +100,30 @@ passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
+// passport.deserializeUser(async (id, done) => {
+//   const user = await User.findById(id);
+//   done(null, user);
+// });
+
 passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id);
-  done(null, user);
+  try {
+    const user = await User.findById(id);
+    // Include the user's role when deserializing
+    done(null, { id: user.id, email: user.email, role: user.role });
+  } catch (err) {
+    done(err);
+  }
 });
+
+
+// Add custom middleware for role-based authentication
+passport.checkRole = (roles) => {
+  return (req, res, next) => {
+    if (req.isAuthenticated() && roles.includes(req.user.role)) {
+      return next();
+    }
+    res.status(403).json({ message: 'Unauthorized: Insufficient role' });
+  };
+};
 
 module.exports = passport;

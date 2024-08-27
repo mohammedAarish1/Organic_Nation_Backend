@@ -7,6 +7,8 @@ const dotenv = require('dotenv');
 const passport = require('passport');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const cookieParser = require('cookie-parser');
+// const csrf = require('csurf');
 
 // Load environment variables
 dotenv.config();
@@ -16,13 +18,13 @@ dotenv.config();
 const cors = require("cors");
 
 
-
+app.use(cookieParser());
 // const categoryRouter = require("./Router/categoryRouter.js");
 app.use(express.json());
 app.use(cors({
   origin: process.env.FRONTEND_URL, // Ensure this matches your frontend URL
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'CSRF-Token']
 }));
 
 
@@ -34,6 +36,8 @@ app.use(session({
   store: MongoStore.create({ mongoUrl: process.env.MONGO_URI })
 }));
 
+
+// app.use(csrf({ cookie: true }));
 
 // referrer policy -- as suggested by phonepe team
 app.use((req, res, next) => {
@@ -68,6 +72,7 @@ app.use('/api/blogs', require('./Router/blogsRouter.js'));
 app.use('/api/recipes', require('./Router/recipesRouter.js'));
 app.use('/api/delivery-charges', require('./Router/deliveryChargesRouter.js'));
 app.use('/api/phonepe', require('./Router/paymentRouter.js'));
+app.use('/api/admin', require('./Router/adminRouter.js'));
 
 
 

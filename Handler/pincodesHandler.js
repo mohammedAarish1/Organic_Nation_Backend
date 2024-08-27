@@ -23,7 +23,7 @@ exports.checkDeliveryAvailability = async (req, res) => {
             });
         }
     } catch (error) {
-        console.error('Error checking pin code availability:', error);
+        // console.error('Error checking pin code availability:', error);
         res.status(500).json({
             error: 'An error occurred while checking availability.'
         });

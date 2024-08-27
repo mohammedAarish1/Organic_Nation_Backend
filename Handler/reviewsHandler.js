@@ -23,7 +23,7 @@ exports.addReview = async (req, res) => {
     const savedReview = await newReview.save();
     res.json(savedReview);
   } catch (err) {
-    console.error('Error writing review:', err.message);
+    // console.error('Error writing review:', err.message);
     res.status(500).send('Server error');
   }
 }
@@ -35,7 +35,7 @@ exports.getAllReviews = async (req, res) => {
     const reviews = await Review.find();
     res.json(reviews);
   } catch (err) {
-    console.error('Error fetching reviews:', err.message);
+    // console.error('Error fetching reviews:', err.message);
     res.status(500).send('Server error');
   }
 }
@@ -56,7 +56,7 @@ exports.getAverageRating = async (req, res) => {
 
     res.json({ productName, averageRating });
   } catch (err) {
-    console.error('Error calculating average rating:', err.message);
+    // console.error('Error calculating average rating:', err.message);
     res.status(500).send('Server error');
   }
 }
@@ -73,7 +73,7 @@ exports.getSingleProductReviews = async (req, res) => {
     }
     res.json(reviews);
   } catch (err) {
-    console.error('Error fetching reviews:', err.message);
+    // console.error('Error fetching reviews:', err.message);
     res.status(500).send('Server error');
   }
 }

@@ -13,7 +13,7 @@ exports.getAllBlogs = async (req, res) => {
         }
         res.json(blogs);
     } catch (error) {
-        console.error('Error fetching blogs:', error);
+        // console.error('Error fetching blogs:', error);
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 }
@@ -32,7 +32,7 @@ exports.getSingleBlog = async (req, res) => {
         }
         res.json(blog);
     } catch (error) {
-        console.error('Error fetching blog by ID:', error);
+        // console.error('Error fetching blog by ID:', error);
         if (error.kind === 'ObjectId') {
             return res.status(400).json({ message: 'Invalid blog ID format' });
         }
@@ -51,7 +51,7 @@ exports.getAllRecipes = async (req, res) => {
         }
         res.json(recipes);
     } catch (error) {
-        console.error('Error fetching recipes:', error);
+        // console.error('Error fetching recipes:', error);
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 }
@@ -71,7 +71,7 @@ exports.getSingleRecipe = async (req, res) => {
         }
         res.json(recipe);
     } catch (error) {
-        console.error('Error fetching recipe by ID:', error);
+        // console.error('Error fetching recipe by ID:', error);
         if (error.kind === 'ObjectId') {
             return res.status(400).json({ message: 'Invalid recipe ID format' });
         }

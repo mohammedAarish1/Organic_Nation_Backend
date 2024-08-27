@@ -89,7 +89,8 @@ exports.createOrder = async (req, res) => {
           shippingAddress: savedOrder.shippingAddress,
           billingAddress: savedOrder.billingAddress,
           // below line will convert the orderDetails array into plain strings 
-          orderDetails: savedOrder.orderDetails.map(item => `${item[0]},${item[3]},${item[2]}`).join(','),
+          // orderDetails: savedOrder.orderDetails.map(item => `${item[0]},${item[3]},${item[2]}`).join(','),
+          orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
           subTotal: savedOrder.subTotal,
           shippingFee: savedOrder.shippingFee,
           totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
@@ -106,7 +107,7 @@ exports.createOrder = async (req, res) => {
     res.status(200).json({ message: "Order placed successfully", orderId: savedOrder._id });
     // res.json(savedOrder);
   } catch (err) {
-    console.error('Error creating order:', err.message);
+    // console.error('Error creating order:', err.message);
     res.status(500).send('Server error');
   }
 }
@@ -130,7 +131,7 @@ exports.cancelOrder = async (req, res) => {
 
     res.json({ msg: 'Order cancelled successfully' });
   } catch (err) {
-    console.error('Error cancelling order:', err.message);
+    // console.error('Error cancelling order:', err.message);
     res.status(500).send('Server error');
   }
 }
@@ -187,7 +188,7 @@ exports.getOrderById = async (req, res) => {
 
     res.json(order);
   } catch (err) {
-    console.error('Error retrieving order:', err.message);
+    // console.error('Error retrieving order:', err.message);
 
     // Check if the error is due to an invalid ObjectId
     if (err.kind === 'ObjectId') {

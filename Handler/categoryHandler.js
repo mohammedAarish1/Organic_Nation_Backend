@@ -15,7 +15,6 @@ exports.allProducts = async (req, res) => {
     }
     res.send({ product: productOne });
   } catch (error) {
-    console.error("Error fetching products:", error);
     res.status(500).send({ error: "Internal Server Error" });
   }
 };

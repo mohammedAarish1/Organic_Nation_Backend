@@ -31,7 +31,7 @@ exports.getPaymentDone = async (req, res) => {
                     merchantTransactionId: decoded.merchantTransactionId
                 };
             } catch (error) {
-                console.error('Invalid retry token:', error);
+                // console.error('Invalid retry token:', error);
                 return res.status(400).json({
                     success: false,
                     message: 'Invalid retry token'
@@ -100,7 +100,6 @@ exports.getPaymentDone = async (req, res) => {
             // return res.redirect(response.data.data.instrumentResponse.redirectInfo.url)
             return res.json(response.data);
         } catch (error) {
-            console.error('initiate errrr', error);
             res.status(error.response?.status || 500).json({
                 success: false,
                 message: error.message,
@@ -225,7 +224,6 @@ exports.checkPaymentStatus = async (req, res) => {
 
 
         if (!order) {
-            console.error('Order not found for transaction ID:', merchantTransactionId);
             return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=OrderNotFound`);
         }
 
@@ -280,7 +278,7 @@ exports.checkPaymentStatus = async (req, res) => {
                     shippingAddress: order.shippingAddress,
                     billingAddress: order.billingAddress,
                     // below line will convert the orderDetails array into plain strings 
-                    orderDetails: order.orderDetails.map(item => `${item[0]},${item[3]},${item[2]}`).join(','),
+                    orderDetails: order.orderDetails.map(item =>`Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
                     subTotal: order.subTotal,
                     shippingFee: order.shippingFee,
                     totalAmount: order.subTotal + order.shippingFee,
