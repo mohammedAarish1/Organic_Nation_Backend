@@ -94,12 +94,23 @@ async function generateInvoice(order, res) {
     //     timeout: 60000
     // });
 
-    const browser = await puppeteer.launch({
-        headless: 'new',
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
-        timeout: 60000
-      });
+    // const browser = await puppeteer.launch({
+    //     headless: 'new',
+    //     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
+    //     timeout: 60000
+    //   });
 
+    const browser = await puppeteer.launch({
+        headless: true,  // Ensure headless mode is enabled
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--single-process',
+          '--disable-gpu',
+        ],
+        executablePath: '/usr/bin/chromium-browser'  // Ensure the path is correct for Elastic Beanstalk
+      });
     
 
     try {
