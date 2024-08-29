@@ -8,6 +8,7 @@ const OrderDetailSchema = new mongoose.Schema({
   quantity: { type: Number, required: true },
   weight: { type: String, required: true },
   tax: { type: Number, required: true },
+  hsnCode: { type: Number, required: true },
   unitPrice: { type: Number, required: true }
 });
 

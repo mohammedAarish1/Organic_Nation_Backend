@@ -9,6 +9,8 @@ const Order = require('../models/Order');
 const User = require('../models/User');
 const ContactedUser = require('../models/ContactedUser');
 const fs = require('fs');
+const { sendEmail } = require("../utility/emailService");
+
 // app.use(cookieParser());
 
 const { generateInvoice } = require('../utility/invoiceTemplates/generateInvoice');
@@ -223,7 +225,7 @@ exports.generateInvoice = async (req, res) => {
             return {
                 serialNo: index + 1,
                 description: item['name-url'].replace(/-/g, ' ') + " " + item.weight,
-                hsnCode: 'HSN Code: 987654',
+                hsnCode: 'HSN Code:' + ' ' + item.hsnCode,
                 name: item['name-url'],
                 weight: item.weight,
                 unitPrice: unitPriceExclTax,
@@ -259,3 +261,81 @@ exports.generateInvoice = async (req, res) => {
 };
 
 
+// update order status
+
+exports.updateOrderStatus = async (req, res) => {
+    const { orderId, orderStatus } = req.body;
+
+    if (!orderId || !orderStatus) {
+        return res.status(400).json({ error: 'Order ID and status are required' });
+    }
+
+    try {
+        const updatedOrder = await Order.findByIdAndUpdate(
+            orderId,
+            { orderStatus: orderStatus },
+            { new: true, runValidators: true }
+        );
+
+
+        if (!updatedOrder) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+
+        if (updatedOrder.orderStatus === 'dispatched') {
+
+            await sendEmail(
+                updatedOrder.userEmail,
+                "Order Dispatched",
+                "orderDispatched",
+                {
+                    customerName: updatedOrder.receiverDetails.name,
+                    orderNumber: updatedOrder.orderNo,
+
+                    // Add more template variables as needed
+                }
+            );
+
+        } else if (updatedOrder.orderStatus === 'completed') {
+
+            // await sendEmail(
+            //     'sales.foodsbay@gmail.com',
+            //     "Received Order",
+            //     "orderRecieved",
+            //     {
+            //       orderNumber: savedOrder.orderNo,
+            //       customerName: receiverName,
+            //       phoneNumber: receiverPhoneNumber,
+            //       email: savedOrder.userEmail,
+            //       shippingAddress: savedOrder.shippingAddress,
+            //       billingAddress: savedOrder.billingAddress,
+            //       // below line will convert the orderDetails array into plain strings 
+            //       // orderDetails: savedOrder.orderDetails.map(item => `${item[0]},${item[3]},${item[2]}`).join(','),
+            //       orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
+            //       subTotal: savedOrder.subTotal,
+            //       shippingFee: savedOrder.shippingFee,
+            //       totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
+            //       paymentMethod: savedOrder.paymentMethod,
+            //       paymentStatus: savedOrder.paymentStatus,
+            //       // Add more template variables as needed
+            //     }
+            //   );
+
+
+        }
+
+
+        res.json({ message: 'Order status updated successfully' });
+    } catch (error) {
+
+        console.error('Error updating order status:', error);
+        if (error instanceof mongoose.Error.ValidationError) {
+            return res.status(400).json({ error: error.message });
+        }
+        res.status(500).json({ error: 'Internal server error' });
+
+
+    }
+
+}
