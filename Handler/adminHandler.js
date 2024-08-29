@@ -181,84 +181,84 @@ exports.getAllUserQueries = async (req, res) => {
 
 
 // generate invoice
-exports.generateInvoice = async (req, res) => {
+// exports.generateInvoice = async (req, res) => {
 
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+//     res.header('Access-Control-Allow-Origin', '*');
+//     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
 
-    const { orderId } = req.body; // Assuming the order object is sent in the request body
-    // console.log('orderid', orderId)
+//     const { orderId } = req.body; // Assuming the order object is sent in the request body
+//     // console.log('orderid', orderId)
 
-    // Find the order by its _id
-    const order = await Order.findById(orderId);
-
-
-    if (!order) {
-        return res.status(404).json({ message: 'Order not found' });
-    }
+//     // Find the order by its _id
+//     const order = await Order.findById(orderId);
 
 
-
-    // Prepare the order data for the invoice
-
-    const invoiceData = {
-        orderNo: order.orderNo,
-        createdAt: order.createdAt,
-        receiverName: order.receiverDetails.name,
-        receiverPhone: 'Contact Number: ' + order.receiverDetails.phoneNumber,
-        receiverEmail: 'Email: ' + order.userEmail,
-        billingAddress: order.billingAddress,
-        shippingAddress: order.shippingAddress,
-        orderDetails: order.orderDetails.map((item, index) => {
-            // Calculate unit price excluding tax
-            const unitPriceExclTax = item.unitPrice / (1 + item.tax / 100);
-
-            // Determine tax type and tax rate based on location
-            const isUP = order.shippingAddress.includes('Uttar Pradesh') || order.billingAddress.includes('Uttar Pradesh');
-            const taxType = isUP ? ['CGST', 'SGST'] : ['IGST'];
-            const taxRate = isUP ? item.tax / 2 : item.tax;
-
-            // Calculate tax amounts
-            const taxAmount = unitPriceExclTax * (item.tax / 100);
-            const taxAmountSplit = isUP ? taxAmount / 2 : taxAmount;
-
-            return {
-                serialNo: index + 1,
-                description: item['name-url'].replace(/-/g, ' ') + " " + item.weight,
-                hsnCode: 'HSN Code:' + ' ' + item.hsnCode,
-                name: item['name-url'],
-                weight: item.weight,
-                unitPrice: unitPriceExclTax,
-                quantity: item.quantity,
-                netAmount: unitPriceExclTax * item.quantity,
-                taxRate: isUP ? `${taxRate}% + ${taxRate}%` : `${taxRate}%`, // Show split rates if UP
-                taxType: isUP ? taxType.join(' & ') : taxType[0], // Combine CGST and SGST if UP
-                CGST: isUP ? taxAmountSplit * item.quantity : 0, // Show CGST amount if UP
-                SGST: isUP ? taxAmountSplit * item.quantity : 0, // Show SGST amount if UP
-                IGST: !isUP ? taxAmount * item.quantity : 0, // Show IGST amount if not in UP
-                totalAmount: unitPriceExclTax * item.quantity + (isUP ? taxAmountSplit * item.quantity * 2 : taxAmount * item.quantity) // Total amount including tax
-            };
-        }),
-        subTotal: order.subTotal,
-        taxAmount: order.taxAmount,
-        shippingFee: order.shippingFee,
-        total: order.subTotal + order.shippingFee, // Total is now subtotal + shipping fee only
-        transactionID: order.paymentStatus === 'pending' ? 'N/A' : order.merchantTransactionId,
-        paymentMethod: order.paymentMethod.replace(/_/g, ' ').toUpperCase(),
-
-    };
+//     if (!order) {
+//         return res.status(404).json({ message: 'Order not found' });
+//     }
 
 
 
-    // const invoicePath = path.join(__dirname, 'invoices', `${order.orderNo}.pdf`);
+//     // Prepare the order data for the invoice
 
-    try {
-        await generateInvoice(invoiceData, res);
-    } catch (error) {
-        console.error('Error generating invoice:', error);
-        res.status(500).send('Error generating invoice');
-    }
-};
+//     const invoiceData = {
+//         orderNo: order.orderNo,
+//         createdAt: order.createdAt,
+//         receiverName: order.receiverDetails.name,
+//         receiverPhone: 'Contact Number: ' + order.receiverDetails.phoneNumber,
+//         receiverEmail: 'Email: ' + order.userEmail,
+//         billingAddress: order.billingAddress,
+//         shippingAddress: order.shippingAddress,
+//         orderDetails: order.orderDetails.map((item, index) => {
+//             // Calculate unit price excluding tax
+//             const unitPriceExclTax = item.unitPrice / (1 + item.tax / 100);
+
+//             // Determine tax type and tax rate based on location
+//             const isUP = order.shippingAddress.includes('Uttar Pradesh') || order.billingAddress.includes('Uttar Pradesh');
+//             const taxType = isUP ? ['CGST', 'SGST'] : ['IGST'];
+//             const taxRate = isUP ? item.tax / 2 : item.tax;
+
+//             // Calculate tax amounts
+//             const taxAmount = unitPriceExclTax * (item.tax / 100);
+//             const taxAmountSplit = isUP ? taxAmount / 2 : taxAmount;
+
+//             return {
+//                 serialNo: index + 1,
+//                 description: item['name-url'].replace(/-/g, ' ') + " " + item.weight,
+//                 hsnCode: 'HSN Code:' + ' ' + item.hsnCode,
+//                 name: item['name-url'],
+//                 weight: item.weight,
+//                 unitPrice: unitPriceExclTax,
+//                 quantity: item.quantity,
+//                 netAmount: unitPriceExclTax * item.quantity,
+//                 taxRate: isUP ? `${taxRate}% + ${taxRate}%` : `${taxRate}%`, // Show split rates if UP
+//                 taxType: isUP ? taxType.join(' & ') : taxType[0], // Combine CGST and SGST if UP
+//                 CGST: isUP ? taxAmountSplit * item.quantity : 0, // Show CGST amount if UP
+//                 SGST: isUP ? taxAmountSplit * item.quantity : 0, // Show SGST amount if UP
+//                 IGST: !isUP ? taxAmount * item.quantity : 0, // Show IGST amount if not in UP
+//                 totalAmount: unitPriceExclTax * item.quantity + (isUP ? taxAmountSplit * item.quantity * 2 : taxAmount * item.quantity) // Total amount including tax
+//             };
+//         }),
+//         subTotal: order.subTotal,
+//         taxAmount: order.taxAmount,
+//         shippingFee: order.shippingFee,
+//         total: order.subTotal + order.shippingFee, // Total is now subtotal + shipping fee only
+//         transactionID: order.paymentStatus === 'pending' ? 'N/A' : order.merchantTransactionId,
+//         paymentMethod: order.paymentMethod.replace(/_/g, ' ').toUpperCase(),
+
+//     };
+
+
+
+//     // const invoicePath = path.join(__dirname, 'invoices', `${order.orderNo}.pdf`);
+
+//     try {
+//         await generateInvoice(invoiceData, res);
+//     } catch (error) {
+//         console.error('Error generating invoice:', error);
+//         res.status(500).send('Error generating invoice');
+//     }
+// };
 
 
 // update order status
