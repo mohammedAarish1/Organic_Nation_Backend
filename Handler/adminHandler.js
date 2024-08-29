@@ -297,42 +297,13 @@ exports.updateOrderStatus = async (req, res) => {
                 }
             );
 
-        } else if (updatedOrder.orderStatus === 'completed') {
-
-            // await sendEmail(
-            //     'sales.foodsbay@gmail.com',
-            //     "Received Order",
-            //     "orderRecieved",
-            //     {
-            //       orderNumber: savedOrder.orderNo,
-            //       customerName: receiverName,
-            //       phoneNumber: receiverPhoneNumber,
-            //       email: savedOrder.userEmail,
-            //       shippingAddress: savedOrder.shippingAddress,
-            //       billingAddress: savedOrder.billingAddress,
-            //       // below line will convert the orderDetails array into plain strings 
-            //       // orderDetails: savedOrder.orderDetails.map(item => `${item[0]},${item[3]},${item[2]}`).join(','),
-            //       orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
-            //       subTotal: savedOrder.subTotal,
-            //       shippingFee: savedOrder.shippingFee,
-            //       totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
-            //       paymentMethod: savedOrder.paymentMethod,
-            //       paymentStatus: savedOrder.paymentStatus,
-            //       // Add more template variables as needed
-            //     }
-            //   );
-
-
-        }
+        } 
 
 
         res.json({ message: 'Order status updated successfully' });
     } catch (error) {
 
-        console.error('Error updating order status:', error);
-        if (error instanceof mongoose.Error.ValidationError) {
-            return res.status(400).json({ error: error.message });
-        }
+       
         res.status(500).json({ error: 'Internal server error' });
 
 
