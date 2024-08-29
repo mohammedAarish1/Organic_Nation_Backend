@@ -57,7 +57,7 @@ const {
     getAllUsers,
     getAllUserQueries,
     // generateInvoice,
-    updateOrderStatus,
+    // updateOrderStatus,
 } = require("../Handler/adminHandler.js");
 
 
@@ -68,7 +68,7 @@ router.get("/orders", requireAuth, getTotalOrders);
 router.get("/users", requireAuth, getAllUsers);
 router.get("/queries", requireAuth, getAllUserQueries);
 // router.post("/orders/invoice", requireAuth, generateInvoice);
-router.put("/orders/update-status", requireAuth, updateOrderStatus);
+// router.put("/orders/update-status", requireAuth, updateOrderStatus);
 
 
 module.exports = router;

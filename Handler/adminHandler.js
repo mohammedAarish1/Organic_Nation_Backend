@@ -9,12 +9,12 @@ const Order = require('../models/Order');
 const User = require('../models/User');
 const ContactedUser = require('../models/ContactedUser');
 const fs = require('fs');
-const { sendEmail } = require("../utility/emailService");
+// const { sendEmail } = require("../utility/emailService");
 
 // app.use(cookieParser());
 
-const { generateInvoice } = require('../utility/invoiceTemplates/generateInvoice');
-const path = require('path');
+// const { generateInvoice } = require('../utility/invoiceTemplates/generateInvoice');
+// const path = require('path');
 
 // CSRF protection
 // const csrfProtection = csrf({ cookie: true });
@@ -263,50 +263,50 @@ exports.getAllUserQueries = async (req, res) => {
 
 // update order status
 
-exports.updateOrderStatus = async (req, res) => {
-    const { orderId, orderStatus } = req.body;
+// exports.updateOrderStatus = async (req, res) => {
+//     const { orderId, orderStatus } = req.body;
 
-    if (!orderId || !orderStatus) {
-        return res.status(400).json({ error: 'Order ID and status are required' });
-    }
+//     if (!orderId || !orderStatus) {
+//         return res.status(400).json({ error: 'Order ID and status are required' });
+//     }
 
-    try {
-        const updatedOrder = await Order.findByIdAndUpdate(
-            orderId,
-            { orderStatus: orderStatus },
-            { new: true, runValidators: true }
-        );
-
-
-        if (!updatedOrder) {
-            return res.status(404).json({ error: 'Order not found' });
-        }
+//     try {
+//         const updatedOrder = await Order.findByIdAndUpdate(
+//             orderId,
+//             { orderStatus: orderStatus },
+//             { new: true, runValidators: true }
+//         );
 
 
-        if (updatedOrder.orderStatus === 'dispatched') {
-
-            await sendEmail(
-                updatedOrder.userEmail,
-                "Order Dispatched",
-                "orderDispatched",
-                {
-                    customerName: updatedOrder.receiverDetails.name,
-                    orderNumber: updatedOrder.orderNo,
-
-                    // Add more template variables as needed
-                }
-            );
-
-        } 
+//         if (!updatedOrder) {
+//             return res.status(404).json({ error: 'Order not found' });
+//         }
 
 
-        res.json({ message: 'Order status updated successfully' });
-    } catch (error) {
+//         if (updatedOrder.orderStatus === 'dispatched') {
+
+//             await sendEmail(
+//                 updatedOrder.userEmail,
+//                 "Order Dispatched",
+//                 "orderDispatched",
+//                 {
+//                     customerName: updatedOrder.receiverDetails.name,
+//                     orderNumber: updatedOrder.orderNo,
+
+//                     // Add more template variables as needed
+//                 }
+//             );
+
+//         } 
+
+
+//         res.json({ message: 'Order status updated successfully' });
+//     } catch (error) {
 
        
-        res.status(500).json({ error: 'Internal server error' });
+//         res.status(500).json({ error: 'Internal server error' });
 
 
-    }
+//     }
 
-}
+// }
