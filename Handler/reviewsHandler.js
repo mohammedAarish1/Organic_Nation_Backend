@@ -9,6 +9,8 @@ exports.addReview = async (req, res) => {
   const firstName = req.user.firstName;
   const lastName = req.user.lastName;
 
+console.log('user', )
+
   const userId = req.user.id
 
   try {
