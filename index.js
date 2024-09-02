@@ -73,6 +73,7 @@ app.use('/api/recipes', require('./Router/recipesRouter.js'));
 app.use('/api/delivery-charges', require('./Router/deliveryChargesRouter.js'));
 app.use('/api/phonepe', require('./Router/paymentRouter.js'));
 app.use('/api/admin', require('./Router/adminRouter.js'));
+app.use('/api/validate/', require('./Router/couponCodeRouter.js'));
 
 
 
