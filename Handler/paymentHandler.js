@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const axios = require("axios");
 const Order = require('../models/Order');
+const Products = require('../models/Products.js')
 const jwt = require('jsonwebtoken');
 const { sendEmail } = require("../utility/emailService");
 
@@ -250,6 +251,32 @@ exports.checkPaymentStatus = async (req, res) => {
             const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}`
 
 
+
+            // Update stock availability for each product in orderDetails
+            const updateStockInDatabase = order.orderDetails.map(async (detail) => {
+                const productId = detail.id;
+                const orderedQuantity = detail.quantity;
+
+                // Find the product and update its stock
+                const product = await Products.findById(productId);
+                if (!product) {
+                    throw new Error(`Product with ID ${productId} not found`);
+                }
+
+                // Check if sufficient stock is available
+                // if (product.availability < orderedQuantity) {
+                //   throw new Error(`Insufficient stock for product ID ${productId}`);
+                // }
+
+                // Update the product stock
+                product.availability -= orderedQuantity;
+                await product.save();
+            });
+
+            // Await all stock updates
+            await Promise.all(updateStockInDatabase);
+
+
             //  Send order confirmation email
             await sendEmail(
                 order.userEmail,
@@ -278,7 +305,7 @@ exports.checkPaymentStatus = async (req, res) => {
                     shippingAddress: order.shippingAddress,
                     billingAddress: order.billingAddress,
                     // below line will convert the orderDetails array into plain strings 
-                    orderDetails: order.orderDetails.map(item =>`Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
+                    orderDetails: order.orderDetails.map(item => `Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
                     subTotal: order.subTotal,
                     shippingFee: order.shippingFee,
                     totalAmount: order.subTotal + order.shippingFee,

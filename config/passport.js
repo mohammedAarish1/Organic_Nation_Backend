@@ -53,10 +53,55 @@ passport.use('jwt-admin', new JwtStrategy(opts, (jwt_payload, done) => {
     .catch(err => console.error(err));
 }));
 
+// passport.use(new GoogleStrategy({
+//   clientID: process.env.GOOGLE_CLIENT_ID,
+//   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//   callbackURL: "http://localhost:8000/api/auth/google/callback"
+// },
+//   async (accessToken, refreshToken, profile, done) => {
+//     const { id, name, emails } = profile;
+
+//     try {
+//       // Check if a user with this Google ID already exists
+//       let user = await User.findOne({ googleId: id });
+//       if (user) {
+//         return done(null, user);
+//       }
+
+//       // Check if a user with this email already exists
+//       user = await User.findOne({ email: emails[0].value });
+//       if (user) {
+//         // Update user with googleId if email exists but googleId is not set
+//         user.googleId = id;
+//         await user.save();
+//         return done(null, user);
+//       }
+
+
+//       // Create a new user with basic details and placeholder for phone number and password
+//       user = new User({
+//         googleId: id,
+//         firstName: name.givenName,
+//         lastName: name.familyName,
+//         email: emails[0].value,
+//         phoneNumber: '', // Placeholder for phone number
+//         password: '',  // Placeholder for password
+//         role: 'Customer' // Set default role for new Google sign-ups
+//       });
+//       await user.save();
+//       return done(null, user);
+//     } catch (err) {
+//       // console.error('Error during Google OAuth:', err.message);
+//       return done(err, false);
+//     }
+//   }));
+
+
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: "https://dpzi63xcomvst.cloudfront.net/api/auth/google/callback"
+  // callbackURL: "http://localhost:8000/api/auth/google/callback"
 },
   async (accessToken, refreshToken, profile, done) => {
     const { id, name, emails } = profile;
@@ -64,34 +109,33 @@ passport.use(new GoogleStrategy({
     try {
       // Check if a user with this Google ID already exists
       let user = await User.findOne({ googleId: id });
-      if (user) {
-        return done(null, user);
+      
+      if (!user) {
+        // If no user found with Google ID, check by email
+        user = await User.findOne({ email: emails[0].value });
+        
+        if (user) {
+          // Update user with googleId if email exists but googleId is not set
+          user.googleId = id;
+          await user.save();
+        } else {
+          // Create a new user if neither googleId nor email matches
+          user = new User({
+            googleId: id,
+            firstName: name.givenName,
+            lastName: name.familyName,
+            email: emails[0].value,
+            phoneNumber: '', // Placeholder for phone number
+            password: '',  // Placeholder for password
+            role: 'Customer' // Set default role for new Google sign-ups
+          });
+          await user.save();
+        }
       }
 
-      // Check if a user with this email already exists
-      user = await User.findOne({ email: emails[0].value });
-      if (user) {
-        // Update user with googleId if email exists but googleId is not set
-        user.googleId = id;
-        await user.save();
-        return done(null, user);
-      }
-
-
-      // Create a new user with basic details and placeholder for phone number and password
-      user = new User({
-        googleId: id,
-        firstName: name.givenName,
-        lastName: name.familyName,
-        email: emails[0].value,
-        phoneNumber: '', // Placeholder for phone number
-        password: '',  // Placeholder for password
-        role: 'user' // Set default role for new Google sign-ups
-      });
-      await user.save();
       return done(null, user);
     } catch (err) {
-      // console.error('Error during Google OAuth:', err.message);
+      console.error('Error during Google OAuth:', err.message);
       return done(err, false);
     }
   }));
@@ -105,9 +149,23 @@ passport.serializeUser((user, done) => {
 //   done(null, user);
 // });
 
+// passport.deserializeUser(async (id, done) => {
+//   try {
+//     const user = await User.findById(id);
+//     // Include the user's role when deserializing
+//     done(null, { id: user.id, email: user.email, role: user.role });
+//   } catch (err) {
+//     done(err);
+//   }
+// });
+
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await User.findById(id);
+    if (!user) {
+      // Handle case where user no longer exists in the database
+      return done(null, false);
+    }
     // Include the user's role when deserializing
     done(null, { id: user.id, email: user.email, role: user.role });
   } catch (err) {

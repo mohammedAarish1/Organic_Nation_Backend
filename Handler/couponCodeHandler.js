@@ -50,7 +50,7 @@ exports.validateCouponCode = async (req, res) => {
             const discountedPrice = basePrice * 0.55; // 45% discount
             const taxAmount = discountedPrice * (product.tax / (100 + product.tax));  // reverse calclulations
 
-           
+
 
 
             subtotalIncludingTax += discountedPrice;  // this will include tax
@@ -58,10 +58,10 @@ exports.validateCouponCode = async (req, res) => {
 
 
             return
-           
+
         });
 
-       
+
 
         // 6. Update user's cart
         // user.cart.items = updatedItems;
@@ -71,13 +71,14 @@ exports.validateCouponCode = async (req, res) => {
 
         await user.save();
 
-      
+
 
 
         // 8. Prepare response
 
         const response = {
-            message: 'Coupon Code Applied Successfully'
+            message: 'Coupon Code Applied Successfully',
+            isCouponCodeApplied: user.cart.isCouponCodeApplied,
         }
 
         res.json(response);

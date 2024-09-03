@@ -1,5 +1,7 @@
 const Order = require('../models/Order');
 const User = require('../models/User');
+const Products = require('../models/Products.js')
+
 const { sendEmail } = require("../utility/emailService");
 
 // const requireAuth = passport.authenticate('jwt', { session: false });
@@ -63,6 +65,32 @@ exports.createOrder = async (req, res) => {
 
 
     if (savedOrder.paymentMethod === 'cash_on_delivery') {
+
+      // Update stock availability for each product in orderDetails
+      const updateStockInDatabase = savedOrder.orderDetails.map(async (detail) => {
+        const productId = detail.id;
+        const orderedQuantity = detail.quantity;
+
+        // Find the product and update its stock
+        const product = await Products.findById(productId);
+        if (!product) {
+          throw new Error(`Product with ID ${productId} not found`);
+        }
+
+        // Check if sufficient stock is available
+        // if (product.availability < orderedQuantity) {
+        //   throw new Error(`Insufficient stock for product ID ${productId}`);
+        // }
+
+        // Update the product stock
+        product.availability -= orderedQuantity;
+        await product.save();
+      });
+
+      // Await all stock updates
+      await Promise.all(updateStockInDatabase);
+
+
 
       //  Send order confirmation email
       await sendEmail(

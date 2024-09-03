@@ -190,7 +190,7 @@ exports.clearCart = async (req, res) => {
     user.cart.items = [];
     user.cart.totalCartAmount = 0;
     user.cart.totalTaxes = 0;
-    // user.cart.isCouponCodeApplied = false
+    user.cart.isCouponCodeApplied = false
 
     // Save the updated user document
     await user.save();

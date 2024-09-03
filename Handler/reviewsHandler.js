@@ -1,17 +1,33 @@
 const Review = require('../models/Review');
+const User = require('../models/User')
 
 
 // @route   POST /api/reviews
 // @desc    Write a review
 exports.addReview = async (req, res) => {
-  const { productName, rating, review } = req.body;
-  const userEmail = req.user.email;
-  const firstName = req.user.firstName;
-  const lastName = req.user.lastName;
 
-console.log('user', )
+  const { productName, rating, review } = req.body;
 
   const userId = req.user.id
+
+  const fullUser = await User.findById(userId);  // Assuming you have a User model
+
+  if (!fullUser) {
+    return res.status(404).send('User not found');
+  }
+
+
+  const userEmail = fullUser.email;
+  const firstName = fullUser.firstName;
+  const lastName = fullUser.lastName;
+
+
+
+
+  // Fetch the full user object
+
+
+
 
   try {
     const newReview = new Review({
@@ -19,7 +35,7 @@ console.log('user', )
       rating,
       review,
       userEmail,
-      userName:firstName +" "+ lastName
+      userName: firstName + " " + lastName
     });
 
     const savedReview = await newReview.save();
