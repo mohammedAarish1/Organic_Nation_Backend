@@ -7,14 +7,38 @@ const cookieParser = require('cookie-parser');
 const Admin = require('../models/Admin');
 const Order = require('../models/Order');
 const User = require('../models/User');
+const Products = require('../models/Products.js')
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+
+const crypto = require('crypto');
 const ContactedUser = require('../models/ContactedUser');
 const fs = require('fs');
 const { sendEmail } = require("../utility/emailService");
 
+
 // app.use(cookieParser());
 
 const { generateInvoice } = require('../utility/invoiceTemplates/generateInvoice');
+const { s3Client } = require('../config/awsConfig.js');
 // const path = require('path');
+
+
+
+// Helper function to upload file to S3
+async function uploadFileToS3(file) {
+    const fileName = `Organic-Nation-Images/${Date.now()}-${crypto.randomBytes(8).toString('hex')}-${file.originalname}`;
+
+    const uploadParams = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: fileName,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+        ACL: 'public-read',
+    };
+
+    await s3Client.send(new PutObjectCommand(uploadParams));
+    return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
+}
 
 // CSRF protection
 // const csrfProtection = csrf({ cookie: true });
@@ -90,7 +114,7 @@ exports.adminLogin = async (req, res) => {
     const token = jwt.sign(
         { username: username, role: 'admin' },
         process.env.JWT_SECRET,
-        { expiresIn: '1h' }
+        { expiresIn: '8h' }
     );
 
     // Set httpOnly cookie with the JWT token
@@ -180,6 +204,7 @@ exports.getAllUserQueries = async (req, res) => {
 
 
 // generate invoice
+
 exports.generateInvoice = async (req, res) => {
 
     // res.header('Access-Control-Allow-Origin', '*');
@@ -195,7 +220,6 @@ exports.generateInvoice = async (req, res) => {
     if (!order) {
         return res.status(404).json({ message: 'Order not found' });
     }
-
 
 
     // Prepare the order data for the invoice
@@ -238,6 +262,29 @@ exports.generateInvoice = async (req, res) => {
                 totalAmount: unitPriceExclTax * item.quantity + (isUP ? taxAmountSplit * item.quantity * 2 : taxAmount * item.quantity) // Total amount including tax
             };
         }),
+        mrpTotal: order.orderDetails.reduce((total, item) => {
+            let mrpTotal;
+            mrpTotal = total + (item.unitPrice * item.quantity)
+
+            return mrpTotal;
+
+        }, 0),
+        get totalDiscount() {
+            // Calculate total discount using mrpTotal and subTotal
+            const mrpTotal = this.mrpTotal;
+            const discount = mrpTotal - this.subTotal;
+            return discount;
+        },
+        get discountRate() {
+            // Determine discount rate based on payment method and coupon code
+            if (order.paymentMethod === 'cash_on_delivery') {
+                return order.isCouponCodeApplied ? '45%' : '20%';
+            } else if (order.paymentMethod === 'online_payment') {
+                return order.isCouponCodeApplied ? '45% + 5%' : '20% + 5%'; // 20% + 5% for non-coupon and 45% + 5% for coupon
+            }
+            return '0%'; // Default value if payment method is not recognized
+        },
+        // discountRate:order.paymentMethod==='cash_on_delivery' ? '':'+5%',
         subTotal: order.subTotal,
         taxAmount: order.taxAmount,
         shippingFee: order.shippingFee,
@@ -246,7 +293,6 @@ exports.generateInvoice = async (req, res) => {
         paymentMethod: order.paymentMethod.replace(/_/g, ' ').toUpperCase(),
 
     };
-
 
 
     // const invoicePath = path.join(__dirname, 'invoices', `${order.orderNo}.pdf`);
@@ -324,4 +370,52 @@ exports.updateOrderStatus = async (req, res) => {
 
     }
 
+}
+
+
+
+// add a new product in the database
+
+exports.addNewProductInDatabase = async (req, res) => {
+    try {
+        const { name, weight, price, discount, tax, hsnCode, category, description, availability, ...metaFields } = req.body;
+        console.log('files', req.files)
+        const imageUrls = await Promise.all(req.files?.map(uploadFileToS3));
+
+
+        if (imageUrls.length === 0) {
+            return res.status(400).json({ error: 'No image uploaded' })
+        }
+        console.log('checkinggggg', imageUrls)
+
+        const newProduct = new Products({
+            product_id: 0,
+            name,
+            'name-url': name.replace(/\s+/g, '-'),
+            weight,
+            price: parseInt(price),
+            discount: parseInt(discount),
+            tax: parseInt(tax),
+            'hsn-code': parseInt(hsnCode),
+            category,
+            'category-url': category.replace(/\s+/g, '-'),
+            description,
+            availability: parseInt(availability),
+            img: imageUrls,
+            meta: {
+                buy: parseInt(metaFields.buy) || 0,
+                get: parseInt(metaFields.get) || 0,
+                season_special: metaFields.season_special === 'true',
+                new_arrivals: metaFields.new_arrivals === 'true',
+                best_seller: metaFields.best_seller === 'true',
+                deal_of_the_day: metaFields.deal_of_the_day === 'true'
+            }
+        });
+        console.log('checkinggggg', newProduct);
+        await newProduct.save();
+        res.status(201).json(newProduct);
+        console.log('done')
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
 }

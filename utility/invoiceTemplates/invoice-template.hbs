@@ -48,6 +48,10 @@
             font-weight: bold;
         }
 
+        .invoice-box table tr.total{
+            text-align: right;
+        }
+
  .signature-container {
             position: relative;
             text-align: right;
@@ -153,19 +157,27 @@
 {{/each}}
             <tr class="total">
                 <td colspan="8"></td>
-                <td colspan="8">Subtotal: {{formatCurrency subTotal}}</td>
+                <td colspan="8">Grand Total: {{formatCurrency mrpTotal}}</td>
+            </tr>
+            <tr class="total">
+                <td colspan="7"></td>
+                <td colspan="7">Less: Discount({{discountRate}}) -{{formatCurrency totalDiscount}}</td>
             </tr>
             <tr class="total">
                 <td colspan="8"></td>
-                <td colspan="8">Total Tax: {{formatCurrency taxAmount}}</td>
+                <td colspan="8">Subtotal: {{formatCurrency subTotal}}</td>
             </tr>
+            {{!-- <tr class="total">
+                <td colspan="6"></td>
+                <td colspan="6">Tax Included (After Discount): {{formatCurrency taxAmount}}</td>
+            </tr> --}}
             <tr class="total">
                 <td colspan="8"></td>
                 <td colspan="8"> Shipping: {{formatCurrency shippingFee}}</td>
             </tr>
             <tr class="total">
                <td colspan="8"></td>
-                <td colspan="8">Total: <strong>{{formatCurrency total}}</strong> </td>
+                <td colspan="8">Net Payable: <strong>{{formatCurrency total}}</strong> </td>
             </tr>
 
         </table>

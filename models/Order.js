@@ -43,6 +43,7 @@ const OrderSchema = new mongoose.Schema({
     name: { type: String, required: false } // Receiver's name, optional
   },
   merchantTransactionId: { type: String, required: true },
+  isCouponCodeApplied: { type: Boolean, default: false },
   orderStatus: { type: String, default: 'active' }, // Order status with default value "active"
   createdAt: { type: Date, default: Date.now }
 });

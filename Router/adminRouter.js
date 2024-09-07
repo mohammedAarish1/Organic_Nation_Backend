@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const passport = require('passport');
+const multer = require('multer');
 
 const requireAuth = passport.authenticate('jwt-admin', { session: false });
 
@@ -50,6 +51,10 @@ const loginLimiter = rateLimit({
 });
 
 
+// Configure multer for memory storage
+const upload = multer({ storage: multer.memoryStorage() });
+
+
 const {
     adminLogin,
     getAdminProfile,
@@ -58,6 +63,7 @@ const {
     getAllUserQueries,
     generateInvoice,
     updateOrderStatus,
+    addNewProductInDatabase
 } = require("../Handler/adminHandler.js");
 
 
@@ -69,6 +75,7 @@ router.get("/users", requireAuth, getAllUsers);
 router.get("/queries", requireAuth, getAllUserQueries);
 router.post("/orders/invoice", requireAuth, generateInvoice);
 router.put("/orders/update-status", requireAuth, updateOrderStatus);
+router.post("/products/add",  upload.array('images', 5), addNewProductInDatabase);
 
 
 module.exports = router;

@@ -23,6 +23,7 @@ exports.createOrder = async (req, res) => {
     paymentStatus,
     receiverDetails,
     merchantTransactionId,
+    isCouponCodeApplied,
     orderStatus // New field
   } = req.body;
 
@@ -57,6 +58,7 @@ exports.createOrder = async (req, res) => {
         name: receiverName
       },
       merchantTransactionId,
+      isCouponCodeApplied,
       orderStatus: orderStatus || 'active' // Set default value if not provided
     });
 

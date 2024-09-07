@@ -88,13 +88,6 @@ async function generateInvoice(order, res) {
     const template = handlebars.compile(templateHtml);
     const html = template(order);
 
-    // const browser = await puppeteer.launch({
-    //     headless: 'new',
-    //     args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    //     timeout: 60000
-    // });
-
-
     // for developement 
     // const browser = await puppeteer.launch({
     //     headless: 'new',
@@ -109,7 +102,6 @@ async function generateInvoice(order, res) {
         executablePath: '/usr/bin/google-chrome'
     });
 
-console.log('testing')
     try {
         const page = await browser.newPage();
 

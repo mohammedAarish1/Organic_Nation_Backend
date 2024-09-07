@@ -32,7 +32,8 @@ const productSchema = new mongoose.Schema({
   },
   'hsn-code': {
     type: Number,
-    default: 0
+    required: true,
+    // default: 0
   },
   category: {
     type: String,
