@@ -5,6 +5,7 @@ const contactedUserSchema = new mongoose.Schema({
     email: { type: String },
     phoneNumber: { type: String },
     city: { type: String, required: true },
+    message: { type: String },
     createdAt: { type: Date, default: Date.now },
 });
 

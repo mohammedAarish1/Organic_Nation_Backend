@@ -102,7 +102,6 @@ async function generateInvoice(order, res) {
         executablePath: '/usr/bin/google-chrome'
     });
 
-console.log('testing')
 
     try {
         const page = await browser.newPage();

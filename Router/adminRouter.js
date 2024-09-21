@@ -63,7 +63,10 @@ const {
     getAllUserQueries,
     generateInvoice,
     updateOrderStatus,
-    addNewProductInDatabase
+    updatePaymentStatus,
+    addNewProductInDatabase,
+    deleteDocument,
+    generateSalesReport
 } = require("../Handler/adminHandler.js");
 
 
@@ -75,7 +78,10 @@ router.get("/users", requireAuth, getAllUsers);
 router.get("/queries", requireAuth, getAllUserQueries);
 router.post("/orders/invoice", requireAuth, generateInvoice);
 router.put("/orders/update-status", requireAuth, updateOrderStatus);
-router.post("/products/add",  upload.array('images', 5), addNewProductInDatabase);
+router.put("/orders/update/payment-status", requireAuth, updatePaymentStatus);
+router.post("/products/add", upload.array('images', 5), addNewProductInDatabase);
+router.delete("/delete/:collection/:id", requireAuth, deleteDocument);
+router.post("/generate-report", generateSalesReport);
 
 
 module.exports = router;

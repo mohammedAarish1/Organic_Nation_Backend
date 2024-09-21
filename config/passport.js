@@ -17,7 +17,6 @@ passport.use(new JwtStrategy(opts, (jwt_payload, done) => {
   User.findById(jwt_payload.user.id)
     .then(user => {
       if (user) {
-
         // Include the user's role in the payload
         const userWithRole = {
           id: user.id,
@@ -34,23 +33,41 @@ passport.use(new JwtStrategy(opts, (jwt_payload, done) => {
 
 
 // to authenticate the admin
+// passport.use('jwt-admin', new JwtStrategy(opts, (jwt_payload, done) => {
+//   console.log('jwt_payload', jwt_payload)
+//   Admin.find(jwt_payload.username)
+//     .then(admin => {
+//       if (admin && admin[0].role === 'admin') {
+
+//         // Include the admin's role in the payload
+//         const adminWithRole = {
+//           username: admin[0].username,
+//           role: admin[0].role
+//         };
+
+
+//         return done(null, adminWithRole);
+//       }
+//       return done(null, false);
+//     })
+//     .catch(err => console.error(err));
+// }));
 passport.use('jwt-admin', new JwtStrategy(opts, (jwt_payload, done) => {
-  Admin.find(jwt_payload._id)
+  Admin.findOne({ username: jwt_payload.username })
     .then(admin => {
-      if (admin && admin[0].role === 'admin') {
-
-        // Include the admin's role in the payload
+      if (admin && admin.role === 'admin') {
         const adminWithRole = {
-          username: admin[0].username,
-          role: admin[0].role
+          username: admin.username,
+          role: admin.role
         };
-
-
         return done(null, adminWithRole);
       }
       return done(null, false);
     })
-    .catch(err => console.error(err));
+    .catch(err => {
+      console.error(err);
+      return done(err, false);
+    });
 }));
 
 // passport.use(new GoogleStrategy({
@@ -109,11 +126,11 @@ passport.use(new GoogleStrategy({
     try {
       // Check if a user with this Google ID already exists
       let user = await User.findOne({ googleId: id });
-      
+
       if (!user) {
         // If no user found with Google ID, check by email
         user = await User.findOne({ email: emails[0].value });
-        
+
         if (user) {
           // Update user with googleId if email exists but googleId is not set
           user.googleId = id;

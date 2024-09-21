@@ -25,10 +25,6 @@ const OrderSchema = new mongoose.Schema({
   userEmail: { type: String, required: true },
   billingAddress: { type: String, required: true },
   shippingAddress: { type: String, required: true },
-  // orderDetails: {
-  //   type: [[String, String, Number, String]], // 2D array of [productId, quantity]
-  //   required: true
-  // },
   orderDetails: {
     type: [OrderDetailSchema], // Array of OrderDetailSchema objects
     required: true
@@ -45,6 +41,7 @@ const OrderSchema = new mongoose.Schema({
   merchantTransactionId: { type: String, required: true },
   isCouponCodeApplied: { type: Boolean, default: false },
   orderStatus: { type: String, default: 'active' }, // Order status with default value "active"
+  invoiceNumber: { type: String, required: true, unique: true },
   createdAt: { type: Date, default: Date.now }
 });
 

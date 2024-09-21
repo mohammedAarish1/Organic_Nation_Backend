@@ -1,7 +1,10 @@
 const Order = require('../models/Order');
+const ReturnItem = require('../models/ReturnItem');
 const User = require('../models/User');
 const Products = require('../models/Products.js')
-
+const {  PutObjectCommand } = require('@aws-sdk/client-s3');
+const { s3Client } = require('../config/awsConfig.js');
+const { generateInvoiceNumber } = require('../utility/invoiceTemplates/generateInvoiceNumber.js')
 const { sendEmail } = require("../utility/emailService");
 
 // const requireAuth = passport.authenticate('jwt', { session: false });
@@ -30,6 +33,8 @@ exports.createOrder = async (req, res) => {
   try {
     let receiverPhoneNumber = receiverDetails?.phoneNumber;
     let receiverName = receiverDetails?.name;
+    // Generate the unique invoice number
+    const invoiceNumber = await generateInvoiceNumber();
 
     if (!receiverPhoneNumber || !receiverName) {
       // If receiver's details are not provided, use user's phone number
@@ -59,7 +64,8 @@ exports.createOrder = async (req, res) => {
       },
       merchantTransactionId,
       isCouponCodeApplied,
-      orderStatus: orderStatus || 'active' // Set default value if not provided
+      orderStatus: orderStatus || 'active' ,// Set default value if not provided
+      invoiceNumber,
     });
 
 
@@ -228,4 +234,73 @@ exports.getOrderById = async (req, res) => {
     res.status(500).send('Server error');
   }
 }
+
+
+// route for handling item return
+exports.handleReturnItems = async (req, res) => {
+  try {
+
+    const { itemName, weight, price, quantity, reason, orderNo } = req.body;
+    const images = req.files;
+    const userId = req.user.id;
+
+    // Create a new folder for this return using timestamp
+    const folderName = `returns/${orderNo}-${Date.now()}/`;
+
+    // Upload images to S3 and get their paths
+    const imagePaths = await Promise.all(images.map(async (image, index) => {
+      const params = {
+        Bucket: process.env.AWS_BUCKET_NAME_RETURN_ITEMS,
+        Key: `${folderName}${index + 1}.jpg`,
+        Body: image.buffer,
+        ContentType: image.mimetype,
+        ACL: 'public-read',
+      };
+
+      const command = new PutObjectCommand(params);
+      await s3Client.send(command);
+
+      return `https://${process.env.AWS_BUCKET_NAME_RETURN_ITEMS}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+    }));
+
+    // Create a new return item
+    const returnItem = new ReturnItem({
+      user: userId,
+      orderNo,
+      itemName,
+      weight,
+      price,
+      quantity,
+      reason,
+      images: imagePaths,
+    });
+
+    await returnItem.save();
+
+    res.status(201).json({ message: 'Return item created successfully' });
+  } catch (error) {
+    console.error('Error creating return item:', error);
+    res.status(500).json({ message: 'Error creating return item', error: error.message });
+  }
+};
+
+
+// @route   GET all return items
+exports.getAllReturnItmes = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const returnItems = await ReturnItem.find({ user: userId });
+
+    if (!returnItems.length) {
+      return res.status(404).json({ msg: 'No return items found for this user' });
+    }
+    res.status(200).json(returnItems);
+  } catch (err) {
+    // console.error('Error retrieving return items:', err.message);
+    res.status(500).send('Server error');
+  }
+}
+
+
 

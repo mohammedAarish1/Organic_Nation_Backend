@@ -1,6 +1,7 @@
 const { getDb } = require("../Database.js");
 const { ObjectId } = require('mongodb'); // Ensure ObjectId is imported
 const Products = require('../models/Products.js')
+const ProductAdditionalInfo = require('../models/ProductAdditoinalInfo.js')
 const mongoose = require('mongoose');
 
 
@@ -65,13 +66,16 @@ exports.getProductsByCategory = async (req, res) => {
 exports.getProduct = async (req, res) => {
   try {
     const product = req.params.product;
-
     // Using Mongoose to find a single product by name URL
     const singleProduct = await Products.findOne({ "name-url": product });
+
     // Checking if product exists
     if (!singleProduct) {
       return res.status(404).json({ error: 'Product not found' });
     }
+
+    // const productAddInfo = await ProductAdditionalInfo.findOne({ "name-url": product });
+    // console.log('product', productAddInfo)
 
     // Sending response with the found product
     res.json({ product: singleProduct });
