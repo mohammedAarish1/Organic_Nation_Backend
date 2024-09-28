@@ -12,8 +12,9 @@ exports.checkDeliveryAvailability = async (req, res) => {
                 available: true,
                 message: `Delivery is available for ${pinCodeData.city}, ${pinCodeData.state}.`,
                 data: {
-                    city: pinCodeData.city,
-                    state: pinCodeData.state
+                    city: pinCodeData?.city,
+                    state: pinCodeData?.state,
+                    pinCode,
                 }
             });
         } else {

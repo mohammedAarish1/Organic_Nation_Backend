@@ -89,18 +89,18 @@ async function generateInvoice(order, res) {
     const html = template(order);
 
     // for developement 
-    // const browser = await puppeteer.launch({
-    //     headless: 'new',
-    //     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
-    //     timeout: 60000
-    //   });
-
-    // for production
     const browser = await puppeteer.launch({
         headless: 'new',
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
-        executablePath: '/usr/bin/google-chrome'
-    });
+        timeout: 60000
+      });
+
+    // for production
+    // const browser = await puppeteer.launch({
+    //     headless: 'new',
+    //     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
+    //     executablePath: '/usr/bin/google-chrome'
+    // });
 
 
     try {

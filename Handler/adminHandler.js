@@ -274,11 +274,16 @@ exports.generateInvoice = async (req, res) => {
         },
         get discountRate() {
             // Determine discount rate based on payment method and coupon code
-            if (order.paymentMethod === 'cash_on_delivery') {
-                return order.isCouponCodeApplied ? '45%' : '20%';
-            } else if (order.paymentMethod === 'online_payment') {
-                return order.isCouponCodeApplied ? '45% + 5%' : '20% + 5%'; // 20% + 5% for non-coupon and 45% + 5% for coupon
+            if(order.isPickleCouponApplied){
+                return ''
+            }else{
+                if (order.paymentMethod === 'cash_on_delivery') {
+                    return order.isCouponCodeApplied ? '45%' : '20%';
+                } else if (order.paymentMethod === 'online_payment') {
+                    return order.isCouponCodeApplied ? '45% + 5%' : '20% + 5%'; // 20% + 5% for non-coupon and 45% + 5% for coupon
+                }
             }
+           
             return '0%'; // Default value if payment method is not recognized
         },
         // discountRate:order.paymentMethod==='cash_on_delivery' ? '':'+5%',

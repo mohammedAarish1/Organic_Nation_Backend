@@ -5,10 +5,12 @@ const requireAuth = passport.authenticate('jwt', { session: false });
 
 
 const {
-    validateCouponCode
+    validateCouponCode,
+    applyPickleCouponCode
 } = require("../Handler/couponCodeHandler.js");
 
 router.post("/coupon-code", requireAuth, validateCouponCode);
+router.post("/pickle/coupon-code",  applyPickleCouponCode);
 
 
 
