@@ -9,7 +9,12 @@ const OrderDetailSchema = new mongoose.Schema({
   weight: { type: String, required: true },
   tax: { type: Number, required: true },
   hsnCode: { type: Number, required: true },
-  unitPrice: { type: Number, required: true }
+  unitPrice: { type: Number, required: true },
+  returnInfo: {
+    isItemReturned: { type: Boolean, default: false },
+    returnedQuantity: { type: Number, default: 0 }
+  },
+  actualAmountPaid:{type:Number},  // it will include the actual amount paid for each item
 });
 
 

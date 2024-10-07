@@ -17,6 +17,7 @@ const { sendEmail } = require("../utility/emailService");
 
 const { generateInvoice } = require('../utility/invoiceTemplates/generateInvoice');
 const { s3Client } = require('../config/awsConfig.js');
+const ReturnItem = require('../models/ReturnItem.js');
 // const path = require('path');
 
 
@@ -590,4 +591,89 @@ exports.generateSalesReport = async (req, res) => {
         console.error('Error generating report:', error);
         res.status(500).json({ message: 'Error generating report', error: error.message });
     }
+}
+
+
+
+// get all returns
+exports.getTotalReturns = async (req, res) => {
+    try {
+        const returns = await ReturnItem.find();
+
+        if (!returns) {
+            return res.status(404).json({ message: 'No returns found' });
+        }
+
+        res.json(returns);
+    } catch (err) {
+        res.status(500).send('Server error');
+    }
+
+};
+
+
+// update return status
+
+exports.updateReturnStatus = async (req, res) => {
+    const { returnId, status } = req.body;
+
+    if (!returnId || !status) {
+        return res.status(400).json({ error: 'Return ID and status are required' });
+    }
+
+    try {
+        const updatedReturnItem = await ReturnItem.findByIdAndUpdate(
+            returnId,
+            { returnStatus: status },
+            { new: true, runValidators: true }
+        );
+
+
+        if (!updatedReturnItem) {
+            return res.status(404).json({ error: 'Return not found' });
+        }
+
+
+        // if (updatedOrder.orderStatus === 'dispatched') {
+
+        //     await sendEmail(
+        //         updatedOrder.userEmail,
+        //         "Order Dispatched",
+        //         "orderDispatched",
+        //         {
+        //             customerName: updatedOrder.receiverDetails.name,
+        //             orderNumber: updatedOrder.orderNo,
+
+        //             // Add more template variables as needed
+        //         }
+        //     );
+
+        // } else if (updatedOrder.orderStatus === 'completed') {
+
+        //     await sendEmail(
+        //         updatedOrder.userEmail,
+        //         "Order Delivered",
+        //         "orderDelivered",
+        //         {
+        //             customerName: updatedOrder.receiverDetails.name,
+        //             orderNumber: updatedOrder.orderNo,
+        //             OrderAmount: updatedOrder.subTotal + updatedOrder.shippingFee,
+        //             PaymentMethod: updatedOrder.paymentMethod,
+
+
+        //             // Add more template variables as needed
+        //         }
+        //     );
+        // }
+
+
+        res.json({ message: 'Return status updated successfully' });
+    } catch (error) {
+
+
+        res.status(500).json({ error: 'Internal server error' });
+
+
+    }
+
 }

@@ -66,7 +66,9 @@ const {
     updatePaymentStatus,
     addNewProductInDatabase,
     deleteDocument,
-    generateSalesReport
+    generateSalesReport,
+    getTotalReturns,
+    updateReturnStatus
 } = require("../Handler/adminHandler.js");
 
 
@@ -81,7 +83,9 @@ router.put("/orders/update-status", requireAuth, updateOrderStatus);
 router.put("/orders/update/payment-status", requireAuth, updatePaymentStatus);
 router.post("/products/add", upload.array('images', 5), addNewProductInDatabase);
 router.delete("/delete/:collection/:id", requireAuth, deleteDocument);
-router.post("/generate-report", generateSalesReport);
+router.post("/generate-report",requireAuth, generateSalesReport);
+router.get("/returns",requireAuth, getTotalReturns);
+router.put("/returns/update/return-status", requireAuth, updateReturnStatus);
 
 
 module.exports = router;
