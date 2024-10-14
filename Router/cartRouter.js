@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 const requireAuth = passport.authenticate('jwt', { session: false });
 
+const authMiddleware = require("../middleware/authMiddleware.js");
 
 const {
     getCart,
@@ -14,12 +15,12 @@ const {
 } = require("../Handler/cartHandler.js");
 
 // Define the route for getting products by category
-router.get("/", requireAuth, getCart);
-router.post("/", requireAuth, addItemToCart);
-router.delete("/", requireAuth, clearCart);
-router.delete("/:itemId", requireAuth, deleteSingleItem);
-router.put("/updateQuantity/:productId", requireAuth, updateQty);
-router.post("/merge", requireAuth, handleCartMerge);
+router.get("/", authMiddleware, getCart);
+router.post("/", authMiddleware, addItemToCart);
+router.delete("/", authMiddleware, clearCart);
+router.delete("/:itemId", authMiddleware, deleteSingleItem);
+router.put("/updateQuantity/:productId", authMiddleware, updateQty);
+router.post("/merge", authMiddleware, handleCartMerge);
 
 
 module.exports = router;

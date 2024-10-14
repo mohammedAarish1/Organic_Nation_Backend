@@ -78,11 +78,9 @@ exports.validateCouponCode = async (req, res) => {
     res.json(response);
   } catch (error) {
     console.error("Error in coupon validation:", error);
-    res
-      .status(500)
-      .json({
-        error: error.message || "An error occurred during coupon validation",
-      });
+    res.status(500).json({
+      error: error.message || "An error occurred during coupon validation",
+    });
   }
 };
 
@@ -210,7 +208,6 @@ exports.applyPickleCouponCode = async (req, res) => {
       totalTaxes += taxAmount;
     });
 
-
  // Apply the coupon
 //  user.applyPickleCoupon();
 
@@ -232,3 +229,140 @@ exports.applyPickleCouponCode = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// exports.applyPickleCouponCode = async (req, res) => {
+//   const { userEmail, cart, couponCode } = req.body;
+//   try {
+//     // Validate coupon code
+//     let user;
+//     if (userEmail) {
+//       user =await User.findOne({ email: userEmail });
+//     }
+//     const validCouponCode = process.env.PICKLE_COUPON_CODE;
+//     if (couponCode !== validCouponCode) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid coupon code",
+//       });
+//     }
+
+//     // Fetch full product details from database
+//     const productIds = cart.map((item) => item.productId);
+//     const products = await Products.find({ _id: { $in: productIds } });
+
+//     // Create a map for easy lookup
+//     const productMap = products.reduce((acc, product) => {
+//       acc[product._id.toString()] = product;
+//       return acc;
+//     }, {});
+
+//     let totalPickles = 0;
+//     let pickleItems = [];
+//     let otherItems = [];
+
+//     // Separate pickle items and other items, count total pickles
+//     cart.forEach((cartItem) => {
+//       const product = productMap[cartItem.productId.toString()];
+//       if (product.name.toLowerCase().includes("pickle")) {
+//         totalPickles += cartItem.quantity;
+//         pickleItems.push({ ...cartItem, product });
+//       } else {
+//         otherItems.push({ ...cartItem, product });
+//       }
+//     });
+
+//     // Check if user has selected at least 4 pickles
+//     if (totalPickles < 4) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Please select at least four pickles to avail the offer",
+//       });
+//     }
+
+//     const PICKLE_SET_PRICE = 999;
+//     const pickleSets = Math.floor(totalPickles / 4);
+//     let remainingPickles = totalPickles % 4;
+
+//     let totalCartAmount = pickleSets * PICKLE_SET_PRICE;
+//     let totalTaxes = 0;
+
+//     // Calculate tax for pickle sets
+//     const pickleSetTaxRate = 12; // Assuming 12% tax for pickle sets, adjust if necessary
+//     const pickleSetTaxAmount =
+//       (PICKLE_SET_PRICE * pickleSets * pickleSetTaxRate) /
+//       (100 + pickleSetTaxRate);
+//     totalTaxes += pickleSetTaxAmount;
+
+//     // Process remaining pickles
+//     let remainingPickleAmount = 0;
+//     for (let i = 0; i < remainingPickles; i++) {
+//       const pickleItem = pickleItems[i];
+//       const discountedPrice =
+//         pickleItem.product.price * (1 - pickleItem.product.discount / 100);
+//       remainingPickleAmount += discountedPrice;
+//     }
+//     totalCartAmount += remainingPickleAmount;
+
+//     // Calculate tax for remaining pickles
+//     const remainingPickleTaxAmount =
+//       (remainingPickleAmount * pickleSetTaxRate) / (100 + pickleSetTaxRate);
+//     totalTaxes += remainingPickleTaxAmount;
+
+//     // Process other items
+//     otherItems.forEach((item) => {
+//       const { product, quantity } = item;
+//       const discountedPrice = product.price * (1 - product.discount / 100);
+//       const itemTotal = discountedPrice * quantity;
+//       totalCartAmount += itemTotal;
+
+//       // Calculate tax
+//       const preTaxAmount = itemTotal / (1 + product.tax / 100);
+//       const taxAmount = itemTotal - preTaxAmount;
+//       totalTaxes += taxAmount;
+//     });
+
+//     // Round the final amounts
+//     totalCartAmount = Math.round(totalCartAmount * 100) / 100;
+//     totalTaxes = Math.round(totalTaxes * 100) / 100;
+
+//     console.log("Total Cart Amount:", totalCartAmount);
+//     console.log("Total Taxes:", totalTaxes);
+//     console.log("Pickle Sets:", pickleSets);
+//     console.log("Remaining Pickles:", remainingPickles);
+
+
+//     if(user){
+//       user.cart.totalCartAmount=Math.round(totalCartAmount)
+//       user.cart.totalTaxes=Math.round(totalTaxes)
+//       user.cart.isCouponCodeApplied=true
+
+//       await user.save();
+//       // console.log('user',user)
+//       res.json({
+//         success: true,
+//         message: "Coupon applied successfully",
+//         data:null
+//       });
+//     }else{
+//       res.json({
+//         success: true,
+//         message: "Coupon applied successfully",
+//         data: {
+//           totalCartAmount,
+//           totalTaxes,
+//           // pickleSets,
+//           // remainingPickles,
+//           isCouponCodeApplied: true,
+//         },
+//       });
+//     }
+
+   
+//   } catch (error) {
+//     console.error("Error in applyPickleCouponCode:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "An error occurred while processing the coupon code",
+//     });
+//   }
+// };

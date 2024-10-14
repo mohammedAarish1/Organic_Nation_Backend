@@ -37,14 +37,15 @@ const {
     getAllReturnItmes,
     cancelReturnRequest,
 } = require("../Handler/ordersHandler.js");
+const authMiddleware = require("../middleware/authMiddleware.js");
 
-router.post("/", requireAuth, createOrder);
-router.delete("/:orderId", requireAuth, cancelOrder);
-router.get("/all", requireAuth, getAllOrders);
+router.post("/", authMiddleware, createOrder);
+router.delete("/:orderId", authMiddleware, cancelOrder);
+router.get("/all", authMiddleware, getAllOrders);
 router.get("/:orderId", getOrderById);
-router.post("/add-return-item", requireAuth, upload, handleReturnItems)
-router.get("/all/return-items", requireAuth, getAllReturnItmes)
-router.delete('/cancel-return/:returnId', requireAuth, cancelReturnRequest);
+router.post("/add-return-item", authMiddleware, upload, handleReturnItems)
+router.get("/all/return-items", authMiddleware, getAllReturnItmes)
+router.delete('/cancel-return/:returnId', authMiddleware, cancelReturnRequest);
 
 
 
