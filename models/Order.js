@@ -18,7 +18,10 @@ const OrderDetailSchema = new mongoose.Schema({
 });
 
 
-
+const CouponDetailsSchema = new mongoose.Schema({
+  id: { type: mongoose.Schema.Types.ObjectId,ref:'Coupon', required: true },
+  name: { type: String, required: true },
+});
 
 const OrderSchema = new mongoose.Schema({
   user: {
@@ -44,8 +47,9 @@ const OrderSchema = new mongoose.Schema({
     name: { type: String, required: false } // Receiver's name, optional
   },
   merchantTransactionId: { type: String, required: true },
-  isCouponCodeApplied: { type: Boolean, default: false },
-  isPickleCouponApplied: { type: Boolean,default: false  }, // New field and will be removed once pickle offer over
+  couponCodeApplied: [CouponDetailsSchema], // New array field for coupon codes
+  // isCouponCodeApplied: { type: Boolean, default: false },
+  // isPickleCouponApplied: { type: Boolean,default: false  }, // New field and will be removed once pickle offer over
   orderStatus: { type: String, default: 'active' }, // Order status with default value "active"
   invoiceNumber: { type: String, required: true, unique: true },
   createdAt: { type: Date, default: Date.now }

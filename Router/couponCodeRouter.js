@@ -7,11 +7,16 @@ const authMiddleware = require("../middleware/authMiddleware.js");
 
 const {
     validateCouponCode,
-    applyPickleCouponCode
+    applyPickleCouponCode,
+    applyAdditionalDiscountCoupon
+    // picklecoupon
 } = require("../Handler/couponCodeHandler.js");
 
 router.post("/coupon-code", authMiddleware, validateCouponCode);
 router.post("/pickle/coupon-code",  applyPickleCouponCode);
+router.post("/additional/coupon/discount",  applyAdditionalDiscountCoupon);
+
+
 
 
 

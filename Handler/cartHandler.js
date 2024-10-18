@@ -66,7 +66,8 @@ exports.addItemToCart = async (req, res) => {
         items: [],
         totalCartAmount: 0,
         totalTaxes: 0,
-        isCouponCodeApplied: false
+        // isCouponCodeApplied: false
+        couponCodeApplied: []
       };
     }
 
@@ -120,7 +121,8 @@ exports.addItemToCart = async (req, res) => {
     // Update the user's cart totals
     user.cart.totalCartAmount = Math.round(totalCartAmount);
     user.cart.totalTaxes = Math.round(totalTaxes);
-    user.cart.isCouponCodeApplied = false
+    // user.cart.isCouponCodeApplied = false
+    user.cart.couponCodeApplied = []
 
     // Save the updated user document
     await user.save();
@@ -190,7 +192,9 @@ exports.clearCart = async (req, res) => {
     user.cart.items = [];
     user.cart.totalCartAmount = 0;
     user.cart.totalTaxes = 0;
-    user.cart.isCouponCodeApplied = false
+    // user.cart.isCouponCodeApplied = false
+    user.cart.couponCodeApplied = []
+
 
     // Save the updated user document
     await user.save();
@@ -267,7 +271,9 @@ exports.deleteSingleItem = async (req, res) => {
     // Update the user's cart totals
     user.cart.totalCartAmount = Math.round(totalCartAmount);
     user.cart.totalTaxes = Math.round(totalTaxes);
-    user.cart.isCouponCodeApplied = false
+    // user.cart.isCouponCodeApplied = false
+    user.cart.couponCodeApplied = []
+
 
     // Save the updated user document
     await user.save();
@@ -363,15 +369,15 @@ exports.updateQty = async (req, res) => {
       totalCartAmount += itemSubtotal;
       totalTaxes += itemTax;
     }
-
+    // console.log('totalCartAmount',totalCartAmount)
     // Update the user's cart totals
     user.cart.totalCartAmount = Math.round(totalCartAmount);
     user.cart.totalTaxes = Math.round(totalTaxes);
-    user.cart.isCouponCodeApplied = false
+    // user.cart.isCouponCodeApplied = false
+    user.cart.couponCodeApplied = []
 
     // Save the updated user document
     await user.save();
-
     res.json(user.cart);
   } catch (err) {
     console.error('Error updating quantity:', err.message);
@@ -415,61 +421,84 @@ exports.updateQty = async (req, res) => {
 //   }
 // }
 
+// exports.handleCartMerge = async (req, res) => {
+//   try {
+//     const { localCart } = req.body; // Array of items from local storage
+//     const user = await User.findById(req.user.id);
+
+//     if (!user) {
+//       return res.status(404).json({ msg: 'User not found' });
+//     }
+
+//     let totalCartAmount = user.cart.totalCartAmount || 0;
+//     let totalTaxes = user.cart.totalTaxes || 0;
+
+//     for (const localItem of localCart) {
+//       const { productId, quantity } = localItem;
+//       const existingItemIndex = user.cart.items.findIndex(item => item.productId === productId);
+
+//       const product = await Products.findById(productId);
+//       if (!product) {
+//         return res.status(404).json({ msg: `Product with ID ${productId} not found` });
+//       }
+
+//       const discountedPrice = product.price * 0.8;
+//       const itemSubtotal = discountedPrice * quantity;
+
+//       // Reverse calculate tax from subtotal
+//       const itemTax = (product.tax / (100 + product.tax)) * itemSubtotal;
+
+//       if (existingItemIndex > -1) {
+//         // Update quantity if the item already exists in the user's cart
+//         user.cart.items[existingItemIndex].quantity += quantity;
+//       } else {
+//         // Add new item to the user's cart
+//         user.cart.items.push({
+//           productId,
+//           quantity,
+//           productName: localItem.productName
+//         });
+//       }
+
+//       // Update totalCartAmount and totalTaxes
+//       totalCartAmount += itemSubtotal;
+//       totalTaxes += itemTax;
+//     }
+
+//     // Update the user's cart totals
+//     user.cart.totalCartAmount = Math.round(totalCartAmount);
+//     user.cart.totalTaxes = Math.round(totalTaxes);
+//     user.cart.isCouponCodeApplied = false
+
+//     // Save the updated user document
+//     await user.save();
+
+//     res.json(user.cart);
+//   } catch (err) {
+//     console.error('Error merging cart:', err.message);
+//     res.status(500).send('Server error');
+//   }
+// };
+
 exports.handleCartMerge = async (req, res) => {
   try {
-    const { localCart } = req.body; // Array of items from local storage
+    const { cart } = req.body;
     const user = await User.findById(req.user.id);
 
     if (!user) {
       return res.status(404).json({ msg: 'User not found' });
     }
+    user.cart.items=cart.items,
+    user.cart.totalCartAmount=cart.totalCartAmount,
+    user.cart.totalTaxes=cart.totalTaxes,
+    user.cart.couponCodeApplied=cart.couponCodeApplied
 
-    let totalCartAmount = user.cart.totalCartAmount || 0;
-    let totalTaxes = user.cart.totalTaxes || 0;
+    user.save()
 
-    for (const localItem of localCart) {
-      const { productId, quantity } = localItem;
-      const existingItemIndex = user.cart.items.findIndex(item => item.productId === productId);
-
-      const product = await Products.findById(productId);
-      if (!product) {
-        return res.status(404).json({ msg: `Product with ID ${productId} not found` });
-      }
-
-      const discountedPrice = product.price * 0.8;
-      const itemSubtotal = discountedPrice * quantity;
-
-      // Reverse calculate tax from subtotal
-      const itemTax = (product.tax / (100 + product.tax)) * itemSubtotal;
-
-      if (existingItemIndex > -1) {
-        // Update quantity if the item already exists in the user's cart
-        user.cart.items[existingItemIndex].quantity += quantity;
-      } else {
-        // Add new item to the user's cart
-        user.cart.items.push({
-          productId,
-          quantity,
-          productName: localItem.productName
-        });
-      }
-
-      // Update totalCartAmount and totalTaxes
-      totalCartAmount += itemSubtotal;
-      totalTaxes += itemTax;
-    }
-
-    // Update the user's cart totals
-    user.cart.totalCartAmount = Math.round(totalCartAmount);
-    user.cart.totalTaxes = Math.round(totalTaxes);
-    user.cart.isCouponCodeApplied = false
-
-    // Save the updated user document
-    await user.save();
 
     res.json(user.cart);
-  } catch (err) {
-    console.error('Error merging cart:', err.message);
+  } catch (error) {
+  console.error('Error merging cart:', err.message);
     res.status(500).send('Server error');
   }
-};
+}

@@ -1,6 +1,6 @@
 // const { PublishCommand } = require("@aws-sdk/client-sns");
 // const { snsClient } = require("../config/awsConfig");
-const jwt = require("jsonwebtoken");
+// const jwt = require("jsonwebtoken");
 const OTP = require("../models/OTP");
 const User = require("../models/User");
 const generateTokens = require("../utility/helper");

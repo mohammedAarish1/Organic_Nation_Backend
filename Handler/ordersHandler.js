@@ -27,8 +27,9 @@ exports.createOrder = async (req, res) => {
     paymentStatus,
     receiverDetails,
     merchantTransactionId,
-    isCouponCodeApplied,
-    isPickleCouponApplied, // temporary field will be removed once the pickle offer over
+    // isCouponCodeApplied,
+    // isPickleCouponApplied, // temporary field will be removed once the pickle offer over
+    couponCodeApplied,
     orderStatus, // New field
   } = req.body;
 
@@ -101,8 +102,9 @@ exports.createOrder = async (req, res) => {
         name: receiverName,
       },
       merchantTransactionId,
-      isCouponCodeApplied,
-      isPickleCouponApplied, // temporary field will be romved once the pickle offer over
+      // isCouponCodeApplied,
+      // isPickleCouponApplied, // temporary field will be romved once the pickle offer over
+      couponCodeApplied,
       orderStatus: orderStatus || "active", // Set default value if not provided
       invoiceNumber,
     });

@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Products = require("../models/Products.js");
+const Coupon = require("../models/Coupon.js");
 // const jwt = require('jsonwebtoken');
 // const mongoose = require('mongoose');
 
@@ -11,14 +12,24 @@ exports.validateCouponCode = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
+
+    if(user.cart.couponCodeApplied.length !==0){
+      return res.status(404).json({ error: "Not eligible" });
+    }
+
+    const coupon = await Coupon.findOne({ code: couponCode });
+    if (!coupon) {
+      return res.status(400).json({ error: "Invalid coupon code" });
+    }
+
     if (!["Friends", "Family", "Employee"].includes(user.role)) {
       return res
         .status(403)
         .json({ error: "User not authorized for this discount" });
     }
 
-    // 2. Validate coupon
-    const validCoupon = process.env.COUPON_CODE;
+    // 2. Validate coupon 
+    const validCoupon = coupon.code;
     if (validCoupon !== couponCode) {
       return res.status(400).json({ error: "Invalid coupon code" });
     }
@@ -60,11 +71,14 @@ exports.validateCouponCode = async (req, res) => {
       return;
     });
 
+  //  prepare coupon code object
+  const couponCodeInfo = { id: coupon._id, name: coupon.name };
+
     // 6. Update user's cart
     // user.cart.items = updatedItems;
     user.cart.totalCartAmount = Math.round(subtotalIncludingTax);
     user.cart.totalTaxes = Math.round(totalTax);
-    user.cart.isCouponCodeApplied = true;
+    user.cart.couponCodeApplied.push(couponCodeInfo);
 
     await user.save();
 
@@ -72,7 +86,7 @@ exports.validateCouponCode = async (req, res) => {
 
     const response = {
       message: "Coupon Code Applied Successfully",
-      isCouponCodeApplied: user.cart.isCouponCodeApplied,
+      couponCodeApplied: user.cart.couponCodeApplied,
     };
 
     res.json(response);
@@ -84,151 +98,160 @@ exports.validateCouponCode = async (req, res) => {
   }
 };
 
-exports.applyPickleCouponCode = async (req, res) => {
-  try {
-    const { userEmail, couponCode } = req.body;
+// exports.applyPickleCouponCode = async (req, res) => {
+//   try {
+//     const { userEmail, couponCode } = req.body;
 
-    // Verify coupon code
-    if (couponCode !== process.env.PICKLE_COUPON_CODE) {
-      return res.status(400).json({ error: "Invalid coupon code" });
-    }
+//     const coupon = await Coupon.findOne({ code: couponCode });
+//     console.log("coupon", coupon);
 
-    // Find user and populate cart
-    const user = await User.findOne({ email: userEmail }).populate(
-      "cart.items.productId"
-    );
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+//     // Verify coupon code
+//     if (!coupon) {
+//       return res.status(400).json({ error: "Invalid coupon code" });
+//     }
 
-    // Check if coupon is already applied
-    // if (user.isPickleCouponApplied()) {
-    //   return res.status(400).json({ error: "Coupon has already been applied" });
-    // }
+//     // Verify coupon code
+//     if (couponCode !== coupon.code) {
+//       return res.status(400).json({ error: "Invalid coupon code" });
+//     }
 
-    const { cart } = user;
+//     // Find user and populate cart
+//     const user = await User.findOne({ email: userEmail }).populate(
+//       "cart.items.productId"
+//     );
+//     if (!user) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
 
-    // Check if user has selected at least four pickles (considering quantity)
-    const pickleItems = cart.items.filter((item) =>
-      item.productName.includes("Pickle")
-    );
-    const totalPickleQuantity = pickleItems.reduce(
-      (sum, item) => sum + item.quantity,
-      0
-    );
+//     // Check if coupon is already applied
+//     // if (user.isPickleCouponApplied()) {
+//     //   return res.status(400).json({ error: "Coupon has already been applied" });
+//     // }
 
-    if (totalPickleQuantity < 4) {
-      return res
-        .status(400)
-        .json({
-          error: "Please select at least four pickles to apply the coupon",
-        });
-    }
+//     const { cart } = user;
 
-    // Get full product details
-    const products = await Promise.all(
-      cart.items.map((item) => Products.findById(item.productId))
-    );
+//     // Check if user has selected at least four pickles (considering quantity)
+//     const pickleItems = cart.items.filter((item) =>
+//       item.productName.includes("Pickle")
+//     );
+//     const totalPickleQuantity = pickleItems.reduce(
+//       (sum, item) => sum + item.quantity,
+//       0
+//     );
 
-    // Prepare for discount calculation
-    const pickleProducts = products.filter((product) =>
-      product.category.includes("Pickles")
-    );
-    let discountedPickles = [];
-    let remainingPickleQuantity = 4;
+//     if (totalPickleQuantity < 4) {
+//       return res.status(400).json({
+//         error: "Please select at least four pickles to apply the coupon",
+//       });
+//     }
 
-    // Sort pickle products by price (highest to lowest)
-    pickleProducts.sort((a, b) => a.price - b.price);
+//     // Get full product details
+//     const products = await Promise.all(
+//       cart.items.map((item) => Products.findById(item.productId))
+//     );
 
-    for (const pickle of pickleProducts) {
-      const cartItem = cart.items.find(
-        (item) => item.productId.toString() === pickle._id.toString()
-      );
-      const quantityToDiscount = Math.min(
-        cartItem.quantity,
-        remainingPickleQuantity
-      );
+//     // Prepare for discount calculation
+//     const pickleProducts = products.filter((product) =>
+//       product.category.includes("Pickles")
+//     );
+//     let discountedPickles = [];
+//     let remainingPickleQuantity = 4;
 
-      discountedPickles.push({
-        ...pickle.toObject(),
-        quantityDiscounted: quantityToDiscount,
-        quantityRegular: cartItem.quantity - quantityToDiscount,
-      });
+//     // Sort pickle products by price (highest to lowest)
+//     pickleProducts.sort((a, b) => a.price - b.price);
 
-      remainingPickleQuantity -= quantityToDiscount;
-      if (remainingPickleQuantity === 0) break;
-    }
+//     for (const pickle of pickleProducts) {
+//       const cartItem = cart.items.find(
+//         (item) => item.productId.toString() === pickle._id.toString()
+//       );
+//       const quantityToDiscount = Math.min(
+//         cartItem.quantity,
+//         remainingPickleQuantity
+//       );
 
-    const pickleTotal = discountedPickles.reduce(
-      (sum, pickle) => sum + pickle.price * pickle.quantityDiscounted,
-      0
-    );
-    const discountAmount = pickleTotal - 999;
-    const discountPercentage = (discountAmount / pickleTotal) * 100;
+//       discountedPickles.push({
+//         ...pickle.toObject(),
+//         quantityDiscounted: quantityToDiscount,
+//         quantityRegular: cartItem.quantity - quantityToDiscount,
+//       });
 
-    // Calculate new cart totals
-    let totalCartAmount = 0;
-    let totalTaxes = 0;
+//       remainingPickleQuantity -= quantityToDiscount;
+//       if (remainingPickleQuantity === 0) break;
+//     }
 
-    cart.items.forEach((item) => {
-      const product = products.find(
-        (p) => p._id.toString() === item.productId.toString()
-      );
-      let itemPrice = product.price * item.quantity;
-      let discountedPrice = itemPrice;
+//     const pickleTotal = discountedPickles.reduce(
+//       (sum, pickle) => sum + pickle.price * pickle.quantityDiscounted,
+//       0
+//     );
+//     const discountAmount = pickleTotal - 999;
+//     const discountPercentage = (discountAmount / pickleTotal) * 100;
 
-      if (product.category.includes("Pickles")) {
-        const discountedPickle = discountedPickles.find(
-          (p) => p._id.toString() === product._id.toString()
-        );
-        if (discountedPickle) {
-          // Apply coupon discount to the discounted quantity
-          const couponDiscountedAmount =
-            discountedPickle.price *
-            discountedPickle.quantityDiscounted *
-            (discountPercentage / 100);
-          // Apply regular product discount to the remaining quantity
-          const regularDiscountedAmount =
-            discountedPickle.price *
-            discountedPickle.quantityRegular *
-            (product.discount / 100);
-          discountedPrice =
-            itemPrice - couponDiscountedAmount - regularDiscountedAmount;
-        } else {
-          // For pickles not part of the coupon discount, apply regular product discount
-          discountedPrice = itemPrice - (itemPrice * product.discount) / 100;
-        }
-      } else {
-        // For non-pickle products, apply regular product discount
-        discountedPrice = itemPrice - (itemPrice * product.discount) / 100;
-      }
+//     // Calculate new cart totals
+//     let totalCartAmount = 0;
+//     let totalTaxes = 0;
 
-      const taxAmount = (discountedPrice * product.tax) / (100 + product.tax);
-      totalCartAmount += discountedPrice;
-      totalTaxes += taxAmount;
-    });
+//     cart.items.forEach((item) => {
+//       const product = products.find(
+//         (p) => p._id.toString() === item.productId.toString()
+//       );
+//       let itemPrice = product.price * item.quantity;
+//       let discountedPrice = itemPrice;
 
- // Apply the coupon
-//  user.applyPickleCoupon();
+//       if (product.category.includes("Pickles")) {
+//         const discountedPickle = discountedPickles.find(
+//           (p) => p._id.toString() === product._id.toString()
+//         );
+//         if (discountedPickle) {
+//           // Apply coupon discount to the discounted quantity
+//           const couponDiscountedAmount =
+//             discountedPickle.price *
+//             discountedPickle.quantityDiscounted *
+//             (discountPercentage / 100);
+//           // Apply regular product discount to the remaining quantity
+//           const regularDiscountedAmount =
+//             discountedPickle.price *
+//             discountedPickle.quantityRegular *
+//             (product.discount / 100);
+//           discountedPrice =
+//             itemPrice - couponDiscountedAmount - regularDiscountedAmount;
+//         } else {
+//           // For pickles not part of the coupon discount, apply regular product discount
+//           discountedPrice = itemPrice - (itemPrice * product.discount) / 100;
+//         }
+//       } else {
+//         // For non-pickle products, apply regular product discount
+//         discountedPrice = itemPrice - (itemPrice * product.discount) / 100;
+//       }
 
-    // Update user's cart
-    user.cart.totalCartAmount = Math.round(totalCartAmount);
-    user.cart.totalTaxes = Math.round(totalTaxes);
-    user.cart.isCouponCodeApplied=true
+//       const taxAmount = (discountedPrice * product.tax) / (100 + product.tax);
+//       totalCartAmount += discountedPrice;
+//       totalTaxes += taxAmount;
+//     });
 
-    await user.save();
+//     // Apply the coupon
+//     //  user.applyPickleCoupon();
 
-    res.json({
-      message: "Coupon applied successfully",
-      totalCartAmount: user.cart.totalCartAmount,
-      totalTaxes: user.cart.totalTaxes,
-      isCouponCodeApplied: true
-    });
-  } catch (error) {
-    console.error("Error applying coupon:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+//     // prepare coupon code object
+//     const couponCodeInfo = { id: coupon._id, name: coupon.name };
+
+//     // Update user's cart
+//     user.cart.totalCartAmount = Math.round(totalCartAmount);
+//     user.cart.totalTaxes = Math.round(totalTaxes);
+//     user.cart.couponCodeApplied.push(couponCodeInfo);
+
+//     await user.save();
+
+//     res.json({
+//       message: "Coupon applied successfully",
+//       totalCartAmount: user.cart.totalCartAmount,
+//       totalTaxes: user.cart.totalTaxes,
+//       isCouponCodeApplied: true,
+//     });
+//   } catch (error) {
+//     console.error("Error applying coupon:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
 
 // exports.applyPickleCouponCode = async (req, res) => {
 //   const { userEmail, cart, couponCode } = req.body;
@@ -330,7 +353,6 @@ exports.applyPickleCouponCode = async (req, res) => {
 //     console.log("Pickle Sets:", pickleSets);
 //     console.log("Remaining Pickles:", remainingPickles);
 
-
 //     if(user){
 //       user.cart.totalCartAmount=Math.round(totalCartAmount)
 //       user.cart.totalTaxes=Math.round(totalTaxes)
@@ -357,7 +379,6 @@ exports.applyPickleCouponCode = async (req, res) => {
 //       });
 //     }
 
-   
 //   } catch (error) {
 //     console.error("Error in applyPickleCouponCode:", error);
 //     res.status(500).json({
@@ -366,3 +387,200 @@ exports.applyPickleCouponCode = async (req, res) => {
 //     });
 //   }
 // };
+
+// test
+
+
+exports.applyPickleCouponCode = async (req, res) => {
+  try {
+    const { cart, userEmail, couponCode } = req.body;
+
+    // Find the coupon in the database
+    const coupon = await Coupon.findOne({ code: couponCode });
+    if (!coupon) {
+      return res.status(400).json({ error: "Invalid coupon code" });
+    }
+
+    
+    if(cart.couponCodeApplied.length !==0){
+      return res.status(404).json({ error: "Not eligible" });
+    }
+
+    // Calculate total quantity of pickles
+    const totalQuantityOfPickles = cart.items.reduce((total, item) => {
+      if (item.productName.toLowerCase().includes("pickle")) {
+        return total + item.quantity;
+      }
+      return total;
+    }, 0);
+
+    // console.log('totalQuantityOfPickles',totalQuantityOfPickles)
+    if (totalQuantityOfPickles < 4) {
+      return res
+        .status(400)
+        .json({ error: "Minimum 4 pickles required to apply this coupon" });
+    }
+
+    // Find user if userEmail is provided
+    let user = null;
+    if (userEmail) {
+      user = await User.findOne({ email: userEmail });
+    }
+
+    const PRICE_FOR_PICKEL_SETS = 999;
+    const taxRateOnPickle = 12;
+    // Get full product details and create pickle array
+    const pickleArray = [];
+    for (const item of cart.items) {
+      const product = await Products.findById(item.productId);
+      if (!product) {
+        return res
+          .status(400)
+          .json({ error: `Product not found: ${item.productName}` });
+      }
+      if (product.category.toLowerCase().includes("pickle")) {
+        pickleArray.push({
+          ...product.toObject(),
+          quantity: item.quantity,
+        });
+      }
+    }
+
+    // Sort pickle array by price in ascending order
+    pickleArray.sort((a, b) => a.price - b.price);
+    // console.log('pickleArray',pickleArray)
+
+    // Extract pickles in multiples of 4
+    let discountedPickles = [];
+    let remainingQuantity = Math.floor(totalQuantityOfPickles / 4) * 4;
+    let totalPickleSets = remainingQuantity / 4;
+
+    for (const pickle of pickleArray) {
+      if (remainingQuantity <= 0) break;
+      const quantityToAdd = Math.min(pickle.quantity, remainingQuantity);
+      discountedPickles.push({
+        ...pickle,
+        quantity: quantityToAdd,
+      });
+      remainingQuantity -= quantityToAdd;
+    }
+
+    // calculate the totalAmount and totalTaxes of pickles after regular discount that included for coupon discount
+    let totalPickleAmount = discountedPickles.reduce((total, product) => {
+      const discountedPrice = product.price * (1 - product.discount / 100);
+      return Math.round(total + discountedPrice * product.quantity);
+    }, 0);
+
+    let totalPickleTax = discountedPickles.reduce((total, product) => {
+      const discountedPrice = product.price * (1 - product.discount / 100);
+      const totalAmountWithTax = discountedPrice * product.quantity;
+
+      // Calculate the amount without tax
+      const amountWithoutTax = totalAmountWithTax / (1 + product.tax / 100);
+
+      // Calculate the tax amount
+      const taxAmount = totalAmountWithTax - amountWithoutTax;
+
+      return Math.round(total + taxAmount);
+    }, 0);
+
+    // calculate the new total price charged for pickle sets and included taxes
+    const priceChargedForPickles = PRICE_FOR_PICKEL_SETS * totalPickleSets;
+    const taxIncludedInNewPrice =
+      (priceChargedForPickles * taxRateOnPickle) / (100 + taxRateOnPickle);
+    // calculate the new totalCartAmount and newTotalTaxes
+    const newTotalCartAmount =
+      cart.totalCartAmount - totalPickleAmount + priceChargedForPickles;
+    const newTotalTaxes =
+      cart.totalTaxes - totalPickleTax + taxIncludedInNewPrice;
+
+
+      //  prepare coupon code object
+    const couponCodeInfo = { id: coupon._id, name: coupon.name };
+    cart.couponCodeApplied.push(couponCodeInfo)
+
+    if(user){
+      user.cart.totalCartAmount=newTotalCartAmount,
+      user.cart.totalTaxes=newTotalTaxes,
+      user.cart.couponCodeApplied=cart.couponCodeApplied
+
+      await user.save();
+    }
+
+    return res.json({
+      success: true,
+     totalCartAmount: newTotalCartAmount,
+     totalTax: newTotalTaxes,
+      couponCodeApplied:cart.couponCodeApplied,
+      message: "Coupon applied successfully",
+    });
+  } catch (error) {
+    console.error("Error applying coupon:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+//additional coupon discount
+exports.applyAdditionalDiscountCoupon = async (req, res) => {
+  try {
+    const { cart, userEmail, couponCode } = req.body;
+    if(cart.couponCodeApplied.length !==0){
+      return res.status(404).json({ error: "Not eligible" });
+    }
+
+    if(cart.totalCartAmount<1299){
+      return res.status(404).json({ error: "Not eligible" });
+    }
+
+    // Find the coupon in the database
+    const coupon = await Coupon.findOne({ code: couponCode });
+    if (!coupon) {
+      return res.status(400).json({ error: "Invalid coupon code" });
+    }
+
+    const DISCOUNT_PERCENTAGE=10
+
+    //calculate additional discount
+    const additionalDiscount=cart.totalCartAmount*DISCOUNT_PERCENTAGE/100
+    const additionalTaxDiscount=cart.totalTaxes*DISCOUNT_PERCENTAGE/100
+
+    //calculate new totalcartAmount and totalTaxes
+    const newTotalCartAmount=cart.totalCartAmount-additionalDiscount;
+    const newTotalTaxes=cart.totalTaxes-additionalTaxDiscount;
+
+    // Find user if userEmail is provided
+    let user = null;
+    if (userEmail) {
+      user = await User.findOne({ email: userEmail });
+    }
+
+    
+
+      //  prepare coupon code object
+    const couponCodeInfo = { id: coupon._id, name: coupon.name };
+    cart.couponCodeApplied.push(couponCodeInfo)
+
+    if(user){
+      user.cart.totalCartAmount=newTotalCartAmount,
+      user.cart.totalTaxes=newTotalTaxes,
+      user.cart.couponCodeApplied=cart.couponCodeApplied
+
+      await user.save();
+    }
+
+    return res.json({
+      success: true,
+     totalCartAmount: Math.round(newTotalCartAmount),
+     totalTax: Math.round(newTotalTaxes),
+      couponCodeApplied:cart.couponCodeApplied,
+      message: "Coupon applied successfully",
+    });
+  } catch (error) {
+    console.error("Error applying coupon:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+

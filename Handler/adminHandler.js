@@ -273,20 +273,20 @@ exports.generateInvoice = async (req, res) => {
             const discount = mrpTotal - this.subTotal;
             return discount;
         },
-        get discountRate() {
-            // Determine discount rate based on payment method and coupon code
-            if(order.isPickleCouponApplied){
-                return ''
-            }else{
-                if (order.paymentMethod === 'cash_on_delivery') {
-                    return order.isCouponCodeApplied ? '45%' : '20%';
-                } else if (order.paymentMethod === 'online_payment') {
-                    return order.isCouponCodeApplied ? '45% + 5%' : '20% + 5%'; // 20% + 5% for non-coupon and 45% + 5% for coupon
-                }
-            }
+        // get discountRate() {
+        //     // Determine discount rate based on payment method and coupon code
+        //     if(order.isPickleCouponApplied){
+        //         return ''
+        //     }else{
+        //         if (order.paymentMethod === 'cash_on_delivery') {
+        //             return order.isCouponCodeApplied ? '45%' : '20%';
+        //         } else if (order.paymentMethod === 'online_payment') {
+        //             return order.isCouponCodeApplied ? '45% + 5%' : '20% + 5%'; // 20% + 5% for non-coupon and 45% + 5% for coupon
+        //         }
+        //     }
            
-            return '0%'; // Default value if payment method is not recognized
-        },
+        //     return '0%'; // Default value if payment method is not recognized
+        // },
         // discountRate:order.paymentMethod==='cash_on_delivery' ? '':'+5%',
         subTotal: order.subTotal,
         taxAmount: order.taxAmount,
@@ -564,7 +564,7 @@ exports.generateSalesReport = async (req, res) => {
                 const buyer = await User.findOne({ email: order.userEmail });
 
                 worksheet.addRow([
-                    order.orderNo, invoiceDate, order.orderStatus, order._id.toString(), invoiceDate,
+                    order.invoiceNumber, invoiceDate, order.orderStatus, order._id.toString(), invoiceDate,
                     item['name-url'], item.hsnCode, item.unitPrice, discountPercentage, discountAmount,
                     priceAfterDiscount, item.quantity, subTotal, order.shippingFee,
                     invoiceAmount, taxExclusiveGross, totalTaxAmount,

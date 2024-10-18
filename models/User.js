@@ -1,5 +1,11 @@
 const mongoose = require("mongoose");
 
+
+const CouponDetailsSchema = new mongoose.Schema({
+  id: { type: mongoose.Schema.Types.ObjectId,ref:'Coupon', required: true },
+  name: { type: String, required: true },
+});
+
 const UserSchema = new mongoose.Schema(
   {
     googleId: { type: String, unique: true, sparse: true },
@@ -20,7 +26,8 @@ const UserSchema = new mongoose.Schema(
         ],
         totalCartAmount: { type: Number, default: 0 }, // Total amount for the cart
         totalTaxes: { type: Number, default: 0 }, // Total tax amount for the cart
-        isCouponCodeApplied: { type: Boolean, default: false },
+        // isCouponCodeApplied: { type: Boolean, default: false },
+        couponCodeApplied: [CouponDetailsSchema], // New array field for coupon codes
       },
       default: {
         items: [],
