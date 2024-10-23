@@ -5,10 +5,10 @@ const Coupon = require("../models/Coupon.js");
 // const mongoose = require('mongoose');
 
 exports.validateCouponCode = async (req, res) => {
-  const { userEmail, couponCode } = req.body;
+  const { phoneNumber, couponCode } = req.body;
   try {
     // 1. Find user
-    const user = await User.findOne({ email: userEmail });
+    const user = await User.findOne({ phoneNumber, });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -393,7 +393,7 @@ exports.validateCouponCode = async (req, res) => {
 
 exports.applyPickleCouponCode = async (req, res) => {
   try {
-    const { cart, userEmail, couponCode } = req.body;
+    const { cart, phoneNumber, couponCode } = req.body;
 
     // Find the coupon in the database
     const coupon = await Coupon.findOne({ code: couponCode });
@@ -423,8 +423,8 @@ exports.applyPickleCouponCode = async (req, res) => {
 
     // Find user if userEmail is provided
     let user = null;
-    if (userEmail) {
-      user = await User.findOne({ email: userEmail });
+    if (phoneNumber) {
+      user = await User.findOne({ phoneNumber: phoneNumber });
     }
 
     const PRICE_FOR_PICKEL_SETS = 999;
@@ -498,7 +498,6 @@ exports.applyPickleCouponCode = async (req, res) => {
       //  prepare coupon code object
     const couponCodeInfo = { id: coupon._id, name: coupon.name };
     cart.couponCodeApplied.push(couponCodeInfo)
-
     if(user){
       user.cart.totalCartAmount=newTotalCartAmount,
       user.cart.totalTaxes=newTotalTaxes,
@@ -524,7 +523,7 @@ exports.applyPickleCouponCode = async (req, res) => {
 //additional coupon discount
 exports.applyAdditionalDiscountCoupon = async (req, res) => {
   try {
-    const { cart, userEmail, couponCode } = req.body;
+    const { cart, phoneNumber, couponCode } = req.body;
     if(cart.couponCodeApplied.length !==0){
       return res.status(404).json({ error: "Not eligible" });
     }
@@ -551,8 +550,8 @@ exports.applyAdditionalDiscountCoupon = async (req, res) => {
 
     // Find user if userEmail is provided
     let user = null;
-    if (userEmail) {
-      user = await User.findOne({ email: userEmail });
+    if (phoneNumber) {
+      user = await User.findOne({ phoneNumber, });
     }
 
     

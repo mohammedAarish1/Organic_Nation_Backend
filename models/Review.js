@@ -9,8 +9,9 @@ const ReviewSchema = new mongoose.Schema({
   productName: { type: String, required: true },
   rating: { type: Number, required: true, min: 1, max: 5 },
   review: { type: String, required: true, maxlength: 100 },
-  userEmail: { type: String, required: true },
-  userName: { type: String, required: true },
+  userEmail: { type: String, },
+  userName: { type: String,  },
+  phoneNumber: { type: String, required: true },
 
 }, { timestamps: true });
 

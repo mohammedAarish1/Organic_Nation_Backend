@@ -3,7 +3,7 @@
 // const jwt = require("jsonwebtoken");
 const OTP = require("../models/OTP");
 const User = require("../models/User");
-const generateTokens = require("../utility/helper");
+const {generateTokens} = require("../utility/helper");
 const { default: axios } = require("axios");
 
 const generateOTP = () => {
@@ -61,7 +61,7 @@ exports.sendOTP = async (req, res) => {
 
   // ============ for testing 
 
-  // console.log('otp',otp);
+  // console.log('otp', otp);
   // res.json({ success: true, message: "OTP sent successfully" });
 
   // for testing ====================
@@ -118,18 +118,22 @@ exports.verifyOTP = async (req, res) => {
   if (isValid) {
     try {
       // Check if user exists
-      let user = await User.findOne({ phoneNumber });
+      let user;
+      user = await User.findOne({ phoneNumber });
 
       if (!user) {
         // If user doesn't exist, create a new one
-        return res.json({
-          success: true,
-          message: "OTP verified successfully",
+        user = new User({
+          phoneNumber,
         });
+
+
+        await user.save();
       }
 
       // Generate new tokens
-      const { accessToken, refreshToken } = generateTokens(user._id);
+      const { accessToken, refreshToken } = generateTokens(user?._id);
+
 
       // Update refresh token in database
       user.refreshToken = refreshToken;
@@ -138,22 +142,30 @@ exports.verifyOTP = async (req, res) => {
       // Set refresh token in HTTP-only cookie
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "development",
-        sameSite: "strict",
+        secure: true,
+        sameSite: "none",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
-      res.json({
+
+      res.status(201).json({
         accessToken,
         user: {
-          id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
+          id: user?._id,
+          firstName: user?.firstName || '',
+          lastName: user?.lastName || '',
+          email: user?.email || '',
+          phoneNumber: user?.phoneNumber || '',
+          cart: user?.cart || [],
+          addresses: user?.addresses || [],
         },
       });
     } catch (error) {
-      console.log("errr", error);
+      console.log('error', error.message)
+      res
+        .status(500)
+        .json({ message: "Error creating user", error: error.message });
+
     }
   } else {
     res.status(400).json({ success: false, message: "Invalid OTP" });

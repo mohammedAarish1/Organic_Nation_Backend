@@ -14,12 +14,12 @@ const OrderDetailSchema = new mongoose.Schema({
     isItemReturned: { type: Boolean, default: false },
     returnedQuantity: { type: Number, default: 0 }
   },
-  actualAmountPaid:{type:Number},  // it will include the actual amount paid for each item
+  actualAmountPaid: { type: Number },  // it will include the actual amount paid for each item
 });
 
 
 const CouponDetailsSchema = new mongoose.Schema({
-  id: { type: mongoose.Schema.Types.ObjectId,ref:'Coupon', required: true },
+  id: { type: mongoose.Schema.Types.ObjectId, ref: 'Coupon', required: true },
   name: { type: String, required: true },
 });
 
@@ -46,17 +46,18 @@ const OrderSchema = new mongoose.Schema({
     phoneNumber: { type: String, required: false }, // Receiver's phone number, optional
     name: { type: String, required: false } // Receiver's name, optional
   },
-  merchantTransactionId: { type: String, required: true },
+  merchantTransactionId: { type: String, },
   couponCodeApplied: [CouponDetailsSchema], // New array field for coupon codes
   // isCouponCodeApplied: { type: Boolean, default: false },
   // isPickleCouponApplied: { type: Boolean,default: false  }, // New field and will be removed once pickle offer over
   orderStatus: { type: String, default: 'active' }, // Order status with default value "active"
   invoiceNumber: { type: String, required: true, unique: true },
+  deliveryDate: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now }
 },
-{
-  strict: false // This allows fields not specified in the schema (will be removed once pickle offer over)
-}
+  {
+    strict: false // This allows fields not specified in the schema (will be removed once pickle offer over)
+  }
 );
 
 module.exports = mongoose.model('Order', OrderSchema);

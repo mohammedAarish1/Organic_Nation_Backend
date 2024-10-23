@@ -10,24 +10,17 @@ exports.addReview = async (req, res) => {
 
   const userId = req.user.id
 
-  const fullUser = await User.findById(userId);  // Assuming you have a User model
+  const fullUser = await User.findById(userId);  
 
   if (!fullUser) {
     return res.status(404).send('User not found');
   }
 
 
-  const userEmail = fullUser.email;
-  const firstName = fullUser.firstName;
-  const lastName = fullUser.lastName;
-
-
-
-
-  // Fetch the full user object
-
-
-
+  const userEmail = fullUser?.email || '';
+  const firstName = fullUser?.firstName || 'User';
+  const lastName = fullUser?.lastName || '';
+  const phoneNumber=fullUser?.phoneNumber  || '';
 
   try {
     const newReview = new Review({
@@ -35,6 +28,7 @@ exports.addReview = async (req, res) => {
       rating,
       review,
       userEmail,
+      phoneNumber,
       userName: firstName + " " + lastName
     });
 

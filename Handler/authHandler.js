@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { sendEmail } = require("../utility/emailService");
-const generateTokens = require("../utility/helper");
+const {generateTokens, address} = require("../utility/helper");
 
 // @route   GET /api/auth/google/callback
 // @desc    Google auth callback
@@ -223,11 +223,12 @@ exports.signup = async (req, res) => {
       accessToken,
       user: {
         id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        cart: user.cart,
+        firstName: user.firstName || '',
+        lastName: user.lastName ||'',
+        email: user.email ||'',
+        phoneNumber: user.phoneNumber ||'',
+        cart: user.cart ||[],
+        addresses:user.addresses|| []
       },
     });
   } catch (error) {
@@ -333,11 +334,12 @@ exports.refreshToken = async (req, res) => {
       accessToken: tokens.accessToken,
       user: {
         id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        cart: user.cart,
+        firstName: user.firstName || '',
+        lastName: user.lastName ||'',
+        email: user.email ||'',
+        phoneNumber: user.phoneNumber ||'',
+        cart: user.cart ||[],
+        addresses:user.addresses|| []
 
         // Add other necessary user fields
       },

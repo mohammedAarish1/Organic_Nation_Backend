@@ -8,6 +8,7 @@ const {
   generateInvoiceNumber,
 } = require("../utility/invoiceTemplates/generateInvoiceNumber.js");
 const { sendEmail } = require("../utility/emailService");
+const { address, updateStock } = require("../utility/helper.js");
 
 // const requireAuth = passport.authenticate('jwt', { session: false });
 
@@ -15,8 +16,12 @@ const { sendEmail } = require("../utility/emailService");
 // @desc    Create a new order
 exports.createOrder = async (req, res) => {
   const {
-    orderNo,
+    // orderNo,
+    firstName,
+    lastName,
     userEmail,
+    phoneNumber,
+    addressType,
     billingAddress,
     shippingAddress,
     orderDetails,
@@ -27,28 +32,80 @@ exports.createOrder = async (req, res) => {
     paymentStatus,
     receiverDetails,
     merchantTransactionId,
-    // isCouponCodeApplied,
-    // isPickleCouponApplied, // temporary field will be removed once the pickle offer over
     couponCodeApplied,
-    orderStatus, // New field
+    // orderStatus, // New field
   } = req.body;
 
   try {
-    let receiverPhoneNumber = receiverDetails?.phoneNumber;
-    let receiverName = receiverDetails?.name;
+
+    const user = await User.findOne({ phoneNumber: phoneNumber });
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    // Update user information if necessary
+    let updated = false;
+    if (firstName !== user.firstName) {
+      user.firstName = firstName;
+      updated = true;
+    }
+    if (lastName !== user.lastName) {
+      user.lastName = lastName;
+      updated = true;
+    }
+    if (userEmail !== user.email) {
+      user.email = userEmail;
+      updated = true;
+    }
+
+    // Save the user if any information was updated
+    if (updated) {
+      await user.save();
+    }
+
+    // ======================== handling the user addresses ==================
+
+    // Initialize addresses array if it doesn't exist
+    if (!user.addresses) {
+      user.addresses = [];
+    }
+
+    // Create a new address object
+    const newShippingAddress = {
+      addressType,
+      mainAddress: shippingAddress.address || '',
+      optionalAddress: shippingAddress.optionalAddress || '',
+      city: shippingAddress.city || '',
+      state: shippingAddress.state || '',
+      pinCode: shippingAddress.pinCode || '',
+      country: shippingAddress.country || 'India',
+      isDefault: false, // Adjust as needed
+    };
+
+
+    // Find the index of the existing address with the same addressType
+    const addressIndex = user.addresses.findIndex(
+      addr => addr.addressType === newShippingAddress.addressType
+    );
+
+    if (addressIndex === -1) {
+      // If address doesn't exist, add it as a new address
+      user.addresses.push(newShippingAddress);
+    } else {
+      // Update the existing address
+      user.addresses[addressIndex] = {
+        ...user.addresses[addressIndex],
+        ...newShippingAddress
+      };
+    }
+
+    await user.save();
+
+    // === handling the user addresses ending ==================
+
     // Generate the unique invoice number
     const invoiceNumber = await generateInvoiceNumber();
 
-    if (!receiverPhoneNumber || !receiverName) {
-      // If receiver's details are not provided, use user's phone number
-      const user = await User.findOne({ email: userEmail });
-      if (!user) {
-        return res.status(404).json({ msg: "User not found" });
-      }
-      receiverPhoneNumber = user.phoneNumber;
-      receiverName = `${user.firstName} ${user.lastName}`;
-    }
-    const userId = req.user.id;
 
     // =========== calculating the acutal amount paid for each item ================
 
@@ -79,64 +136,45 @@ exports.createOrder = async (req, res) => {
         item.unitPrice - individualItemDiscount;
       return {
         ...item,
-        actualAmountPaid: Math.round(actualAmountPaid), 
+        actualAmountPaid: Math.round(actualAmountPaid),
       };
     });
 
     // =========== calculating the acutal amount paid for each item end ========
 
+    // console.log('shippingAddress', shippingAddress)
+
+
     const newOrder = new Order({
-      user: userId,
-      orderNo,
+      user: user._id,
+      orderNo: "ON" + Date.now(),
       userEmail,
-      billingAddress,
-      shippingAddress,
+      phoneNumber,
+      shippingAddress: address(shippingAddress),
+      billingAddress: address(billingAddress),
       orderDetails: orderDetailsWithAcutalAmtPaid,
       subTotal,
       taxAmount,
       shippingFee,
       paymentMethod,
       paymentStatus,
-      receiverDetails: {
-        phoneNumber: receiverPhoneNumber,
-        name: receiverName,
-      },
+      receiverDetails,
       merchantTransactionId,
-      // isCouponCodeApplied,
-      // isPickleCouponApplied, // temporary field will be romved once the pickle offer over
       couponCodeApplied,
-      orderStatus: orderStatus || "active", // Set default value if not provided
+      orderStatus: "active", // Set default value if not provided
       invoiceNumber,
     });
 
     const savedOrder = await newOrder.save();
 
     if (savedOrder.paymentMethod === "cash_on_delivery") {
-      // Update stock availability for each product in orderDetails
-      const updateStockInDatabase = savedOrder.orderDetails.map(
-        async (detail) => {
-          const productId = detail.id;
-          const orderedQuantity = detail.quantity;
+     
 
-          // Find the product and update its stock
-          const product = await Products.findById(productId);
-          if (!product) {
-            throw new Error(`Product with ID ${productId} not found`);
-          }
-
-          // Check if sufficient stock is available
-          // if (product.availability < orderedQuantity) {
-          //   throw new Error(`Insufficient stock for product ID ${productId}`);
-          // }
-
-          // Update the product stock
-          product.availability -= orderedQuantity;
-          await product.save();
-        }
-      );
-
-      // Await all stock updates
-      await Promise.all(updateStockInDatabase);
+      savedOrder?.orderDetails.map(async(product)=>{
+        const productName = product['name-url'];
+        const quantity=product.quantity;
+        await updateStock(productName, quantity, 'add');
+      })
 
       //  Send order confirmation email
       await sendEmail(
@@ -145,7 +183,7 @@ exports.createOrder = async (req, res) => {
         "orderConfirmation",
         {
           orderNumber: savedOrder.orderNo,
-          customerName: receiverName,
+          customerName: firstName || '',
           totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
           // Add more template variables as needed
         }
@@ -157,8 +195,8 @@ exports.createOrder = async (req, res) => {
         "orderRecieved",
         {
           orderNumber: savedOrder.orderNo,
-          customerName: receiverName,
-          phoneNumber: receiverPhoneNumber,
+          customerName: firstName || '',
+          phoneNumber: savedOrder.phoneNumber ||'',
           email: savedOrder.userEmail,
           shippingAddress: savedOrder.shippingAddress,
           billingAddress: savedOrder.billingAddress,
@@ -180,7 +218,7 @@ exports.createOrder = async (req, res) => {
       .json({ message: "Order placed successfully", orderId: savedOrder._id });
     // res.json(savedOrder);
   } catch (err) {
-    // console.error('Error creating order:', err.message);
+    console.error('Error creating order:', err.message);
     res.status(500).send("Server error");
   }
 };
@@ -199,6 +237,13 @@ exports.cancelOrder = async (req, res) => {
     // Update order status to "cancelled"
     order.orderStatus = "cancelled";
     await order.save();
+
+    order?.orderDetails.map(async (product) => {
+      const productName = product['name-url'];
+      const quantity = product.quantity;
+
+      await updateStock(productName, quantity, 'cancel');
+    })
 
     res.json({ msg: "Order cancelled successfully" });
   } catch (err) {
