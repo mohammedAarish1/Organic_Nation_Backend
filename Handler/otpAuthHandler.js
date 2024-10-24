@@ -125,6 +125,7 @@ exports.verifyOTP = async (req, res) => {
         // If user doesn't exist, create a new one
         user = new User({
           phoneNumber,
+          email:null
         });
 
 

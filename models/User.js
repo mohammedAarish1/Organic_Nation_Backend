@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 
 const CouponDetailsSchema = new mongoose.Schema({
-  id: { type: mongoose.Schema.Types.ObjectId,ref:'Coupon', required: true },
+  id: { type: mongoose.Schema.Types.ObjectId, ref: 'Coupon', required: true },
   name: { type: String, required: true },
 });
 
@@ -14,17 +14,17 @@ const AddressSchema = new mongoose.Schema({
   city: { type: String, required: true },
   state: { type: String, required: true },
   pinCode: { type: String, required: true },
-  country: { type: String, default:'India' },
+  country: { type: String, default: 'India' },
   isDefault: { type: Boolean, default: false }, // To indicate the default address
 });
 
 const UserSchema = new mongoose.Schema(
   {
-    googleId: { type: String, unique: true, sparse: true },
+    googleId: { type: String, sparse: true },
     firstName: { type: String, },
-    lastName: { type: String,  },
-    phoneNumber: { type: String, required:true },
-    email: { type: String, unique: true },
+    lastName: { type: String, },
+    phoneNumber: { type: String, required: true },
+    email: { type: String, sparse: true, unique: true },
     // password: { type: String },
     createdAt: { type: Date, default: Date.now },
     cart: {
