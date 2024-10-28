@@ -7,14 +7,18 @@ const Coupon = require("../models/Coupon.js");
 exports.validateCouponCode = async (req, res) => {
   const { phoneNumber, couponCode } = req.body;
   try {
+    if (!phoneNumber) {
+      return res.status(400).json({ error: "Please log in to apply coupon code" });
+    }
+
     // 1. Find user
     const user = await User.findOne({ phoneNumber, });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    if(user.cart.couponCodeApplied.length !==0){
-      return res.status(404).json({ error: "Not eligible" });
+    if (user.cart.couponCodeApplied.length !== 0) {
+      return res.status(404).json({ error: "Not Applicable" });
     }
 
     const coupon = await Coupon.findOne({ code: couponCode });
@@ -32,6 +36,12 @@ exports.validateCouponCode = async (req, res) => {
     const validCoupon = coupon.code;
     if (validCoupon !== couponCode) {
       return res.status(400).json({ error: "Invalid coupon code" });
+    }
+
+    for (const item of user.cart.items) {
+      if (item.productName.toLowerCase().includes('combo')) {
+        return res.status(400).json({ error: "Coupon not applicable on combo products" });
+      }
     }
 
     // 3. Retrieve products
@@ -71,8 +81,8 @@ exports.validateCouponCode = async (req, res) => {
       return;
     });
 
-  //  prepare coupon code object
-  const couponCodeInfo = { id: coupon._id, name: coupon.name };
+    //  prepare coupon code object
+    const couponCodeInfo = { id: coupon._id, name: coupon.name };
 
     // 6. Update user's cart
     // user.cart.items = updatedItems;
@@ -401,14 +411,21 @@ exports.applyPickleCouponCode = async (req, res) => {
       return res.status(400).json({ error: "Invalid coupon code" });
     }
 
-    
-    if(cart.couponCodeApplied.length !==0){
+
+    if (cart.couponCodeApplied.length !== 0) {
       return res.status(404).json({ error: "Not eligible" });
     }
 
     // Calculate total quantity of pickles
+    // const totalQuantityOfPickles = cart.items.reduce((total, item) => {
+    //   if (item.productName.toLowerCase().includes("pickle")) {
+    //     return total + item.quantity;
+    //   }
+    //   return total;
+    // }, 0);
     const totalQuantityOfPickles = cart.items.reduce((total, item) => {
-      if (item.productName.toLowerCase().includes("pickle")) {
+      const productName = item.productName.toLowerCase();
+      if (productName.includes("pickle") && !productName.includes("combo")) {
         return total + item.quantity;
       }
       return total;
@@ -432,7 +449,7 @@ exports.applyPickleCouponCode = async (req, res) => {
     // Get full product details and create pickle array
     const pickleArray = [];
     for (const item of cart.items) {
-      const product = await Products.findById(item.productId);
+      const product = await Products.findOne({'name-url':item.productName});
       if (!product) {
         return res
           .status(400)
@@ -495,22 +512,22 @@ exports.applyPickleCouponCode = async (req, res) => {
       cart.totalTaxes - totalPickleTax + taxIncludedInNewPrice;
 
 
-      //  prepare coupon code object
+    //  prepare coupon code object
     const couponCodeInfo = { id: coupon._id, name: coupon.name };
     cart.couponCodeApplied.push(couponCodeInfo)
-    if(user){
-      user.cart.totalCartAmount=newTotalCartAmount,
-      user.cart.totalTaxes=newTotalTaxes,
-      user.cart.couponCodeApplied=cart.couponCodeApplied
+    if (user) {
+      user.cart.totalCartAmount = newTotalCartAmount,
+        user.cart.totalTaxes = newTotalTaxes,
+        user.cart.couponCodeApplied = cart.couponCodeApplied
 
       await user.save();
     }
 
     return res.json({
       success: true,
-     totalCartAmount: newTotalCartAmount,
-     totalTax: newTotalTaxes,
-      couponCodeApplied:cart.couponCodeApplied,
+      totalCartAmount: newTotalCartAmount,
+      totalTax: newTotalTaxes,
+      couponCodeApplied: cart.couponCodeApplied,
       message: "Coupon applied successfully",
     });
   } catch (error) {
@@ -520,16 +537,41 @@ exports.applyPickleCouponCode = async (req, res) => {
 };
 
 
-//additional coupon discount
+// =============================== additional 10%  coupon discount =================================
 exports.applyAdditionalDiscountCoupon = async (req, res) => {
   try {
     const { cart, phoneNumber, couponCode } = req.body;
-    if(cart.couponCodeApplied.length !==0){
+    if (cart.couponCodeApplied.length !== 0) {
       return res.status(404).json({ error: "Not eligible" });
     }
 
-    if(cart.totalCartAmount<1299){
-      return res.status(404).json({ error: "Not eligible" });
+    let comboProductsTotal = 0;
+    let comboProductsTax = 0;
+
+    for (const item of cart.items) {
+      const productName = item.productName.toLowerCase();
+      if (productName.includes("combo")) {
+        const product = await Products.findOne({ 'name-url': item.productName });
+        const discountAmount = Math.round(product.price * product.discount / 100);
+        const priceAfterDiscount = product.price - discountAmount;
+
+        // Calculate tax amount
+        const taxAmount = priceAfterDiscount - (priceAfterDiscount / (1 + product.tax / 100));
+
+
+        comboProductsTotal += priceAfterDiscount * item.quantity;
+        comboProductsTax += taxAmount * item.quantity;
+
+      }
+    }
+
+
+    const discountableAmount = cart.totalCartAmount - comboProductsTotal
+    const discountableTax = cart.totalTaxes - comboProductsTax
+
+    if (discountableAmount < 1299) {
+      return res.status(404).json({ error: "Add Products worth  1299 or more (Excluding Combo Products)" });
+
     }
 
     // Find the coupon in the database
@@ -538,41 +580,40 @@ exports.applyAdditionalDiscountCoupon = async (req, res) => {
       return res.status(400).json({ error: "Invalid coupon code" });
     }
 
-    const DISCOUNT_PERCENTAGE=10
+    const DISCOUNT_PERCENTAGE = 10
 
     //calculate additional discount
-    const additionalDiscount=cart.totalCartAmount*DISCOUNT_PERCENTAGE/100
-    const additionalTaxDiscount=cart.totalTaxes*DISCOUNT_PERCENTAGE/100
+    const additionalDiscount = discountableAmount * DISCOUNT_PERCENTAGE / 100
+    const additionalTaxDiscount = discountableTax * DISCOUNT_PERCENTAGE / 100
 
     //calculate new totalcartAmount and totalTaxes
-    const newTotalCartAmount=cart.totalCartAmount-additionalDiscount;
-    const newTotalTaxes=cart.totalTaxes-additionalTaxDiscount;
-
+    const newTotalCartAmount = cart.totalCartAmount - additionalDiscount;
+    const newTotalTaxes = cart.totalTaxes - additionalTaxDiscount;
     // Find user if userEmail is provided
     let user = null;
     if (phoneNumber) {
       user = await User.findOne({ phoneNumber, });
     }
 
-    
 
-      //  prepare coupon code object
+
+    //  prepare coupon code object
     const couponCodeInfo = { id: coupon._id, name: coupon.name };
     cart.couponCodeApplied.push(couponCodeInfo)
 
-    if(user){
-      user.cart.totalCartAmount=newTotalCartAmount,
-      user.cart.totalTaxes=newTotalTaxes,
-      user.cart.couponCodeApplied=cart.couponCodeApplied
+    if (user) {
+      user.cart.totalCartAmount = newTotalCartAmount,
+        user.cart.totalTaxes = newTotalTaxes,
+        user.cart.couponCodeApplied = cart.couponCodeApplied
 
       await user.save();
     }
 
     return res.json({
       success: true,
-     totalCartAmount: Math.round(newTotalCartAmount),
-     totalTax: Math.round(newTotalTaxes),
-      couponCodeApplied:cart.couponCodeApplied,
+      totalCartAmount: Math.round(newTotalCartAmount),
+      totalTax: Math.round(newTotalTaxes),
+      couponCodeApplied: cart.couponCodeApplied,
       message: "Coupon applied successfully",
     });
   } catch (error) {

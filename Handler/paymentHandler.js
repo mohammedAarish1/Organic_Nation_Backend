@@ -230,7 +230,7 @@ exports.checkPaymentStatus = async (req, res) => {
 
         // Generate JWT token with payment details
         const token = jwt.sign({
-            number: order.receiverDetails.phoneNumber,
+            number: order.phoneNumber,
             amount: order.subTotal + order.shippingFee,
             merchantTransactionId: order.merchantTransactionId
         }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -254,13 +254,13 @@ exports.checkPaymentStatus = async (req, res) => {
 
             // Update stock availability for each product in orderDetails
             const updateStockInDatabase = order.orderDetails.map(async (detail) => {
-                const productId = detail.id;
+                const productName = detail['name-url'];
                 const orderedQuantity = detail.quantity;
 
                 // Find the product and update its stock
-                const product = await Products.findById(productId);
+                const product = await Products.findOne({'name-url':productName});
                 if (!product) {
-                    throw new Error(`Product with ID ${productId} not found`);
+                    throw new Error(`Product with ID ${productName} not found`);
                 }
 
                 // Check if sufficient stock is available
@@ -283,8 +283,8 @@ exports.checkPaymentStatus = async (req, res) => {
                 "Order Confirmation",
                 "orderConfirmation",
                 {
-                    orderNumber: order.orderNo,
-                    customerName: order.receiverDetails.name,
+                    orderNumber: order.orderNo || '',
+                    customerName: order.receiverDetails?.name ||'',
                     totalAmount: order.subTotal + order.shippingFee,
                     // Add more template variables as needed
                 }
@@ -298,10 +298,10 @@ exports.checkPaymentStatus = async (req, res) => {
                 "Received Order",
                 "orderRecieved",
                 {
-                    orderNumber: order.orderNo,
-                    customerName: order.receiverDetails.name,
-                    phoneNumber: order.receiverDetails.phoneNumber,
-                    email: order.userEmail,
+                    orderNumber: order.orderNo ||'',
+                    customerName: order.receiverDetails?.name ||'',
+                    phoneNumber: order?.phoneNumber ||'',
+                    email: order.userEmail ||'',
                     shippingAddress: order.shippingAddress,
                     billingAddress: order.billingAddress,
                     // below line will convert the orderDetails array into plain strings 

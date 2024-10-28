@@ -11,6 +11,8 @@ exports.getAllBlogs = async (req, res) => {
         if (!blogs || blogs.length === 0) {
             return res.status(404).json({ message: 'No blogs found' });
         }
+        blogs.sort((a, b) => new Date(b.date) - new Date(a.date))
+
         res.json(blogs);
     } catch (error) {
         // console.error('Error fetching blogs:', error);
@@ -49,6 +51,8 @@ exports.getAllRecipes = async (req, res) => {
         if (!recipes || recipes.length === 0) {
             return res.status(404).json({ message: 'No recipes found' });
         }
+
+        // recipes.sort((a, b) => new Date(b.date) - new Date(a.date))
         res.json(recipes);
     } catch (error) {
         // console.error('Error fetching recipes:', error);

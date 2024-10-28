@@ -18,8 +18,8 @@ const {
 router.get("/", authMiddleware, getCart);
 router.post("/", authMiddleware, addItemToCart);
 router.delete("/", authMiddleware, clearCart);
-router.delete("/:itemId", authMiddleware, deleteSingleItem);
-router.put("/updateQuantity/:productId", authMiddleware, updateQty);
+router.delete("/:productName", authMiddleware, deleteSingleItem);
+router.put("/updateQuantity/:productName", authMiddleware, updateQty);
 router.post("/merge", authMiddleware, handleCartMerge);
 
 

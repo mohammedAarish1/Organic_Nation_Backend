@@ -18,6 +18,10 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  grossWeight: {
+    type: String,
+    required: true
+  },
   price: {
     type: Number,
     required: true
@@ -31,7 +35,7 @@ const productSchema = new mongoose.Schema({
     default: 0
   },
   'hsn-code': {
-    type: Number,
+    type: String,
     required: true,
     // default: 0
   },
