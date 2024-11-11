@@ -3,7 +3,7 @@
 // const jwt = require("jsonwebtoken");
 const OTP = require("../models/OTP");
 const User = require("../models/User");
-const {generateTokens} = require("../utility/helper");
+const {generateTokens, verifyOTP} = require("../utility/helper");
 const { default: axios } = require("axios");
 
 const generateOTP = () => {
@@ -69,7 +69,7 @@ exports.sendOTP = async (req, res) => {
   const message = `${otp} is your one-time-password for verification at Foodsbay India (Organic Nation). PLEASE DON'T SHARE IT WITH ANYONE.`;
 
   const params = message.replace(/ /g, "%20");
-  const URL = `http://foxxsms.net/sms//submitsms.jsp?user=Foodsbay&key=${process.env.SMS_KEY}&mobile=${phoneNumber}&message=${params}&senderid=${process.env.SMS_SENDER_ID}&accusage=1`;
+  const URL = `http://foxxsms.net/sms//submitsms.jsp?user=Foodsbay&key=${process.env.SMS_KEY}&mobile=${phoneNumber}&message=${params}&senderid=${process.env.SMS_SENDER_ID}&accusage=1&entityid=${process.env.SMS_ENTITY_ID}&tempid=${process.env.SMS_OTP_TEMP_ID}`;
   try {
     // const response=await axios.post(`http://foxxsms.net/sms//submitsms.jsp?user=Foodsbay&key=f2bf9f44deXX&mobile=${phoneNumber}&message=897543%20is%20your%20one-time-password%20for%20verification%20at%20Foodsbay%20India%20(Organic%20Nation).%20PLEASE%20DON%27T%20SHARE%20IT%20WITH%20ANYONE.&senderid=ORGNTN&accusage=1`)
     const response = await axios.post(URL);
@@ -98,16 +98,7 @@ exports.sendOTP = async (req, res) => {
 
 
 
-const verifyOTP = async (phoneNumber, otp) => {
-  const storedOTP = await OTP.findOne({ phoneNumber, otp });
-  if (!storedOTP) return false;
 
-  const isValid = new Date() - storedOTP.createdAt < 5 * 60 * 1000;
-  if (isValid) {
-    await OTP.deleteOne({ _id: storedOTP._id });
-  }
-  return isValid;
-};
 
 // routes
 
@@ -162,7 +153,6 @@ exports.verifyOTP = async (req, res) => {
         },
       });
     } catch (error) {
-      console.log('error', error.message)
       res
         .status(500)
         .json({ message: "Error creating user", error: error.message });

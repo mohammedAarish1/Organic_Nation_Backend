@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { sendEmail } = require("../utility/emailService");
-const {generateTokens, address} = require("../utility/helper");
+const { generateTokens, address } = require("../utility/helper");
 
 // @route   GET /api/auth/google/callback
 // @desc    Google auth callback
@@ -47,8 +47,7 @@ exports.googleCallback = async (req, res) => {
     if (!user.password) {
       // New user, redirect to collect phone number
       res.redirect(
-        `${
-          process.env.FRONTEND_URL
+        `${process.env.FRONTEND_URL
         }/collect-phone-number?token=${encodeURIComponent(refreshToken)}`
       );
     } else {
@@ -204,17 +203,17 @@ exports.signup = async (req, res) => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       // secure: process.env.NODE_ENV === "production",
-      secure:true,
+      secure: true,
       sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     await sendEmail(
-     user.email,
+      user.email,
       "Welcome To Organic Nation",
       "signUpConfirmation",
       {
-        userName:user.firstName,
+        userName: user.firstName,
         // Add more template variables as needed
       }
     );
@@ -224,11 +223,11 @@ exports.signup = async (req, res) => {
       user: {
         id: user._id,
         firstName: user.firstName || '',
-        lastName: user.lastName ||'',
-        email: user.email ||'',
-        phoneNumber: user.phoneNumber ||'',
-        cart: user.cart ||[],
-        addresses:user.addresses|| []
+        lastName: user.lastName || '',
+        email: user.email || '',
+        phoneNumber: user.phoneNumber || '',
+        cart: user.cart || [],
+        addresses: user.addresses || []
       },
     });
   } catch (error) {
@@ -335,11 +334,11 @@ exports.refreshToken = async (req, res) => {
       user: {
         id: user._id,
         firstName: user.firstName || '',
-        lastName: user.lastName ||'',
-        email: user.email ||'',
-        phoneNumber: user.phoneNumber ||'',
-        cart: user.cart ||[],
-        addresses:user.addresses|| []
+        lastName: user.lastName || '',
+        email: user.email || '',
+        phoneNumber: user.phoneNumber || '',
+        cart: user.cart || [],
+        addresses: user.addresses || []
 
         // Add other necessary user fields
       },
@@ -369,5 +368,27 @@ exports.logout = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error logging out", error: error.message });
+  }
+};
+
+
+// get user 
+exports.getUser = async (req, res) => {
+  try {
+    const userId = req.user.id
+
+    const user = await User.findById(userId).select("-password -refreshToken")
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+
+    return res.status(200).json({ user })
+
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error getting user", error: error.message });
   }
 };

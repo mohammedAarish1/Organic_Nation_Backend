@@ -8,7 +8,7 @@ exports.addReview = async (req, res) => {
 
   const { productName, rating, review } = req.body;
 
-  const userId = req.user.id
+  const userId = req.user.id;
 
   const fullUser = await User.findById(userId);  
 

@@ -35,7 +35,6 @@ async function sendEmail(to, subject, templateName, templateData) {
     try {
         const command = new SendEmailCommand(params);
         const result = await sesClient.send(command);
-        // console.log("Email sent successfully:", result.MessageId);
         return result;
     } catch (error) {
         throw error;

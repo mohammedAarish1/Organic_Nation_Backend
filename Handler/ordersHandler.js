@@ -1,5 +1,6 @@
 const Order = require("../models/Order");
 const ReturnItem = require("../models/ReturnItem");
+const PinCode = require('../models/PinCode.js');
 const User = require("../models/User");
 const Products = require("../models/Products.js");
 const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
@@ -8,7 +9,7 @@ const {
   generateInvoiceNumber,
 } = require("../utility/invoiceTemplates/generateInvoiceNumber.js");
 const { sendEmail } = require("../utility/emailService");
-const { address, updateStock } = require("../utility/helper.js");
+const { address, updateStock, sendOrderConfirmationMsg } = require("../utility/helper.js");
 
 // const requireAuth = passport.authenticate('jwt', { session: false });
 
@@ -142,7 +143,6 @@ exports.createOrder = async (req, res) => {
 
     // =========== calculating the acutal amount paid for each item end ========
 
-    // console.log('shippingAddress', shippingAddress)
 
 
     const newOrder = new Order({
@@ -168,23 +168,27 @@ exports.createOrder = async (req, res) => {
     const savedOrder = await newOrder.save();
 
     if (savedOrder.paymentMethod === "cash_on_delivery") {
-     
+      const orderNumber = savedOrder.orderNo;
+      const customerName = firstName || '';
+      const totalAmount = savedOrder.subTotal + savedOrder.shippingFee;
 
-      savedOrder?.orderDetails.map(async(product)=>{
+      savedOrder?.orderDetails.map(async (product) => {
         const productName = product['name-url'];
-        const quantity=product.quantity;
+        const quantity = product.quantity;
         await updateStock(productName, quantity, 'add');
       })
 
+      // send order confirmation message
+      const result = await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
       //  Send order confirmation email
       await sendEmail(
         savedOrder.userEmail,
         "Order Confirmation",
         "orderConfirmation",
         {
-          orderNumber: savedOrder.orderNo,
-          customerName: firstName || '',
-          totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
+          orderNumber,
+          customerName,
+          totalAmount,
           // Add more template variables as needed
         }
       );
@@ -319,7 +323,7 @@ exports.handleReturnItems = async (req, res) => {
     const {
       itemName,
       weight,
-      price,
+      // price,
       quantity,
       reason,
       returnOptions,
@@ -425,7 +429,7 @@ exports.handleReturnItems = async (req, res) => {
       invoiceNumber,
       itemName,
       weight,
-      price,
+      // price,
       quantity,
       reason,
       returnStatus: "requested",
@@ -439,6 +443,9 @@ exports.handleReturnItems = async (req, res) => {
         ifscCode,
       },
     });
+
+    await updateStock(itemName, quantity, 'return');
+
 
     await sendEmail(
       req.user.email,
@@ -624,6 +631,10 @@ exports.cancelReturnRequest = async (req, res) => {
     //    // Delete the return document
     //    await ReturnItem.findByIdAndDelete(returnId);
 
+
+    await updateStock(returnDocument.itemName, returnDocument.quantity, 'add');
+
+
     res.status(200).json({
       success: true,
       message: "Return request cancelled successfully",
@@ -638,3 +649,59 @@ exports.cancelReturnRequest = async (req, res) => {
     });
   }
 };
+
+
+
+// api endopoint for recent purchases
+exports.getRecentPurchases = async (req, res) => {
+  try {
+    // Fetch last 10 completed orders
+    const orders = await Order.aggregate([
+      { $match: { orderStatus: "completed" } },
+      { $sort: { createdAt: -1 } },
+      { $limit: 10 }
+    ]);
+
+    // Transform orders to create separate entries for each item
+
+    const recentOrders = [];
+    for (const order of orders) {
+
+      const userPincode = order.shippingAddress.match(/\d{6}/)[0];
+      const shippingAddPincodeDetails = await PinCode.findOne({ pinCode: userPincode });
+
+      const baseOrderInfo = {
+        userName: order.receiverDetails.name,
+        // state: order.billingAddress.split(' ').slice(-3, -2)[0], // Extracts state name
+        state: shippingAddPincodeDetails.state, // Extracts state name
+        createdAt: order.createdAt,
+        orderNo: order.orderNo
+      };
+
+      // Iterate over the orderDetails array and push items into the recentOrders array
+      for (const item of order.orderDetails) {
+        const orderItem = {
+          ...baseOrderInfo,
+          itemName: item['name-url'].split('-').join(' '),
+          quantity: item.quantity,
+          weight: item.weight,
+          itemImage: `https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/${item['name-url']}/front.png` // Assuming this is your image path format
+        };
+
+        recentOrders.push(orderItem);
+      }
+    }
+
+
+    // Sort all items by creation date and limit to most recent 20
+    const sortedOrders = recentOrders
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 20);
+
+
+    res.status(200).json(sortedOrders);
+  } catch (error) {
+    console.error('Error fetching recent orders:', error);
+    res.status(500).json({ message: "Error fetching recent orders" });
+  }
+}

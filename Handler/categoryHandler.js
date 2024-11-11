@@ -75,7 +75,6 @@ exports.getProduct = async (req, res) => {
     }
 
     // const productAddInfo = await ProductAdditionalInfo.findOne({ "name-url": product });
-    // console.log('product', productAddInfo)
 
     // Sending response with the found product
     res.json({ product: singleProduct });

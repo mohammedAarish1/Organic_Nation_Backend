@@ -52,7 +52,22 @@ const loginLimiter = rateLimit({
 
 
 // Configure multer for memory storage
-const upload = multer({ storage: multer.memoryStorage() });
+// const upload = multer({ storage: multer.memoryStorage() });
+
+// Configure multer with file filter
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+      fileSize: 5 * 1024 * 1024,
+    },
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Not an image! Please upload only images.'), false);
+      }
+    }
+  });
 
 
 const {
@@ -68,7 +83,8 @@ const {
     deleteDocument,
     generateSalesReport,
     getTotalReturns,
-    updateReturnStatus
+    updateReturnStatus,
+    updateProductData
 } = require("../Handler/adminHandler.js");
 
 
@@ -82,6 +98,9 @@ router.post("/orders/invoice", requireAuth, generateInvoice);
 router.put("/orders/update-status", requireAuth, updateOrderStatus);
 router.put("/orders/update/payment-status", requireAuth, updatePaymentStatus);
 router.post("/products/add", upload.array('images', 5), addNewProductInDatabase);
+router.put("/products/update/:id",  upload.array('images'), updateProductData);
+
+
 router.delete("/delete/:collection/:id", requireAuth, deleteDocument);
 router.post("/generate-report",requireAuth, generateSalesReport);
 router.get("/returns",requireAuth, getTotalReturns);

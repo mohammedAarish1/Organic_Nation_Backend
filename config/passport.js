@@ -34,7 +34,6 @@ passport.use(new JwtStrategy(opts, (jwt_payload, done) => {
 
 // to authenticate the admin
 // passport.use('jwt-admin', new JwtStrategy(opts, (jwt_payload, done) => {
-//   console.log('jwt_payload', jwt_payload)
 //   Admin.find(jwt_payload.username)
 //     .then(admin => {
 //       if (admin && admin[0].role === 'admin') {

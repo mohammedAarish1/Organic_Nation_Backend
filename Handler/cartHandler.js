@@ -241,7 +241,6 @@ exports.updateQty = async (req, res) => {
       totalCartAmount += itemSubtotal;
       totalTaxes += itemTax;
     }
-    // console.log('totalCartAmount',totalCartAmount)
     // Update the user's cart totals
     user.cart.totalCartAmount = Math.round(totalCartAmount);
     user.cart.totalTaxes = Math.round(totalTaxes);

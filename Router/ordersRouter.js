@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const passport = require('passport');
+// const passport = require('passport');
 const multer = require('multer');
 
-const requireAuth = passport.authenticate('jwt', { session: false });
+// const requireAuth = passport.authenticate('jwt', { session: false });
 // Configure multer for handling file uploads
 // const upload = multer({ storage: multer.memoryStorage() });
 
@@ -36,6 +36,7 @@ const {
     handleReturnItems,
     getAllReturnItmes,
     cancelReturnRequest,
+    getRecentPurchases,
 } = require("../Handler/ordersHandler.js");
 const authMiddleware = require("../middleware/authMiddleware.js");
 
@@ -46,6 +47,9 @@ router.get("/:orderId", getOrderById);
 router.post("/add-return-item", authMiddleware, upload, handleReturnItems)
 router.get("/all/return-items", authMiddleware, getAllReturnItmes)
 router.delete('/cancel-return/:returnId', authMiddleware, cancelReturnRequest);
+
+// for recent purchase notification
+router.get('/recent/purchases',  getRecentPurchases);
 
 
 

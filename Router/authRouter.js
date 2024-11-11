@@ -14,7 +14,8 @@ const {
     signup,
     login,
     refreshToken,
-    logout
+    logout,
+    getUser
 } = require("../Handler/authHandler.js");
 
 // Define the route for getting products by category
@@ -35,5 +36,6 @@ router.post("/user/signup", signup);
 router.post("/user/login", login);
 router.post("/user/refresh", refreshToken);
 router.post("/user/logout", logout);
+router.get("/user", authMiddleware,getUser);
 
 module.exports = router;

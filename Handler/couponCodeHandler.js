@@ -113,7 +113,6 @@ exports.validateCouponCode = async (req, res) => {
 //     const { userEmail, couponCode } = req.body;
 
 //     const coupon = await Coupon.findOne({ code: couponCode });
-//     console.log("coupon", coupon);
 
 //     // Verify coupon code
 //     if (!coupon) {
@@ -358,10 +357,6 @@ exports.validateCouponCode = async (req, res) => {
 //     totalCartAmount = Math.round(totalCartAmount * 100) / 100;
 //     totalTaxes = Math.round(totalTaxes * 100) / 100;
 
-//     console.log("Total Cart Amount:", totalCartAmount);
-//     console.log("Total Taxes:", totalTaxes);
-//     console.log("Pickle Sets:", pickleSets);
-//     console.log("Remaining Pickles:", remainingPickles);
 
 //     if(user){
 //       user.cart.totalCartAmount=Math.round(totalCartAmount)
@@ -431,7 +426,6 @@ exports.applyPickleCouponCode = async (req, res) => {
       return total;
     }, 0);
 
-    // console.log('totalQuantityOfPickles',totalQuantityOfPickles)
     if (totalQuantityOfPickles < 4) {
       return res
         .status(400)
@@ -465,7 +459,6 @@ exports.applyPickleCouponCode = async (req, res) => {
 
     // Sort pickle array by price in ascending order
     pickleArray.sort((a, b) => a.price - b.price);
-    // console.log('pickleArray',pickleArray)
 
     // Extract pickles in multiples of 4
     let discountedPickles = [];

@@ -4,6 +4,7 @@ const Order = require('../models/Order');
 const Products = require('../models/Products.js')
 const jwt = require('jsonwebtoken');
 const { sendEmail } = require("../utility/emailService");
+const { sendOrderConfirmationMsg } = require("../utility/helper.js");
 
 
 
@@ -147,7 +148,6 @@ exports.getPaymentDone = async (req, res) => {
 //             case 'PAYMENT_SUCCESS':
 //                 order.paymentStatus = 'PAID';
 //                 await order.save();
-//                 // console.log('Payment successful', { merchantTransactionId });
 //                 break;
 //             case 'PAYMENT_ERROR':
 //             case 'PAYMENT_DECLINED':
@@ -246,19 +246,23 @@ exports.checkPaymentStatus = async (req, res) => {
 
 
         if (response.data.success) {
+
+            const orderNumber = order.orderNo || '';
+            const customerName = order.receiverDetails?.name || '';
+            const totalAmount = order.subTotal + order.shippingFee;
+
+
             order.paymentStatus = 'PAID';
             await order.save(); // Save the updated order
             const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}`
 
-
-
             // Update stock availability for each product in orderDetails
-            const updateStockInDatabase = order.orderDetails.map(async (detail) => {
+            const updateStockInDatabase = order.orderDetails?.map(async (detail) => {
                 const productName = detail['name-url'];
                 const orderedQuantity = detail.quantity;
 
                 // Find the product and update its stock
-                const product = await Products.findOne({'name-url':productName});
+                const product = await Products.findOne({ 'name-url': productName });
                 if (!product) {
                     throw new Error(`Product with ID ${productName} not found`);
                 }
@@ -276,6 +280,8 @@ exports.checkPaymentStatus = async (req, res) => {
             // Await all stock updates
             await Promise.all(updateStockInDatabase);
 
+            //send order confirmation message
+            const result = await sendOrderConfirmationMsg(customerName, totalAmount, order.phoneNumber)
 
             //  Send order confirmation email
             await sendEmail(
@@ -283,9 +289,9 @@ exports.checkPaymentStatus = async (req, res) => {
                 "Order Confirmation",
                 "orderConfirmation",
                 {
-                    orderNumber: order.orderNo || '',
-                    customerName: order.receiverDetails?.name ||'',
-                    totalAmount: order.subTotal + order.shippingFee,
+                    orderNumber,
+                    customerName,
+                    totalAmount,
                     // Add more template variables as needed
                 }
             );
@@ -298,10 +304,10 @@ exports.checkPaymentStatus = async (req, res) => {
                 "Received Order",
                 "orderRecieved",
                 {
-                    orderNumber: order.orderNo ||'',
-                    customerName: order.receiverDetails?.name ||'',
-                    phoneNumber: order?.phoneNumber ||'',
-                    email: order.userEmail ||'',
+                    orderNumber: order.orderNo || '',
+                    customerName: order.receiverDetails?.name || '',
+                    phoneNumber: order?.phoneNumber || '',
+                    email: order.userEmail || '',
                     shippingAddress: order.shippingAddress,
                     billingAddress: order.billingAddress,
                     // below line will convert the orderDetails array into plain strings 

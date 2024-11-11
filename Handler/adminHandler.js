@@ -23,6 +23,24 @@ const ReturnItem = require('../models/ReturnItem.js');
 
 
 // Helper function to upload file to S3
+const uploadToS3 = async (file, productName) => {
+    const sanitizedProductName = productName.replace(/\s+/g, '-');
+
+    const params = {
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: `Organic-Nation-Images/${sanitizedProductName}/${file.originalname}`,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+        ACL: 'public-read'
+    };
+
+    // return s3.upload(params).promise();
+    await s3Client.send(new PutObjectCommand(params));
+    return `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/Organic-Nation-Images/${sanitizedProductName}/${file.originalname}`;
+};
+
+
+// Helper function to upload file to S3
 async function uploadFileToS3(file) {
     const fileName = `Organic-Nation-Images/${Date.now()}-${crypto.randomBytes(8).toString('hex')}-${file.originalname}`;
 
@@ -37,17 +55,6 @@ async function uploadFileToS3(file) {
     await s3Client.send(new PutObjectCommand(uploadParams));
     return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
 }
-
-// CSRF protection
-// const csrfProtection = csrf({ cookie: true });
-
-
-
-// Rate limiting
-// const loginLimiter = rateLimit({
-//     windowMs: 15 * 60 * 1000, // 15 minutes
-//     max: 5 // limit each IP to 5 requests per windowMs
-// });
 
 
 // Creating a new admin
@@ -284,7 +291,7 @@ exports.generateInvoice = async (req, res) => {
         //             return order.isCouponCodeApplied ? '45% + 5%' : '20% + 5%'; // 20% + 5% for non-coupon and 45% + 5% for coupon
         //         }
         //     }
-           
+
         //     return '0%'; // Default value if payment method is not recognized
         // },
         // discountRate:order.paymentMethod==='cash_on_delivery' ? '':'+5%',
@@ -313,17 +320,22 @@ exports.generateInvoice = async (req, res) => {
 // update order status
 
 exports.updateOrderStatus = async (req, res) => {
-    const { orderId, status } = req.body;
+    const { orderId, status, deliveryDate } = req.body;
+
 
     if (!orderId || !status) {
         return res.status(400).json({ error: 'Order ID and status are required' });
     }
 
+
     try {
         const updatedOrder = await Order.findByIdAndUpdate(
             orderId,
-            { orderStatus: status },
-            { new: true, runValidators: true }
+            {
+                orderStatus: status,
+                deliveryDate: deliveryDate || null
+            },
+            { new: true, runValidators: false }
         );
 
 
@@ -368,7 +380,6 @@ exports.updateOrderStatus = async (req, res) => {
         res.json({ message: 'Order status updated successfully' });
     } catch (error) {
 
-
         res.status(500).json({ error: 'Internal server error' });
 
 
@@ -396,7 +407,7 @@ exports.updatePaymentStatus = async (req, res) => {
 
         if (!updatedOrder) {
             return res.status(404).json({ error: 'Order not found' });
-        } 
+        }
 
         res.json({ message: 'Payment status updated successfully' });
     } catch (error) {
@@ -523,7 +534,7 @@ exports.generateSalesReport = async (req, res) => {
         // Add headers
         worksheet.addRow([
             'Invoice Number', 'Invoice Date', 'Order Status', 'Order Id', 'Order Date',
-            'Item Description', 'HSN', 'MRP', 'Discount %', 'Discount Amount',
+            'Item Description', 'Item Returned', 'HSN', 'MRP', 'Discount %', 'Discount Amount',
             'Price After Discount', 'Quantity', 'Sub Total', 'Shipping Charges',
             'Invoice Amount', 'Tax Exclusive Gross', 'Total Tax Amount',
             'Cgst Rate', 'Sgst Rate', 'Utgst Rate', 'Igst Rate',
@@ -565,7 +576,7 @@ exports.generateSalesReport = async (req, res) => {
 
                 worksheet.addRow([
                     order.invoiceNumber, invoiceDate, order.orderStatus, order._id.toString(), invoiceDate,
-                    item['name-url'], item.hsnCode, item.unitPrice, discountPercentage, discountAmount,
+                    item['name-url'], item.returnInfo.isItemReturned ? 'Yes' : 'No', item.hsnCode, item.unitPrice, discountPercentage, discountAmount,
                     priceAfterDiscount, item.quantity, subTotal, order.shippingFee,
                     invoiceAmount, taxExclusiveGross, totalTaxAmount,
                     cgstRate, sgstRate, 0, igstRate,
@@ -676,4 +687,127 @@ exports.updateReturnStatus = async (req, res) => {
 
     }
 
+}
+
+
+exports.updateProductData = async (req, res) => {
+    // Start mongoose session for transaction
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const productId = req.params.id;
+        const updateData = req.body;
+
+
+        // Validate productId
+        if (!mongoose.Types.ObjectId.isValid(productId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid product ID format'
+            });
+        }
+
+        // Find the existing product
+        const existingProduct = await Products.findById(productId).session(session);
+        if (!existingProduct) {
+            await session.abortTransaction();
+            return res.status(404).json({
+                success: false,
+                message: 'Product not found'
+            });
+        }
+
+        let newImageUrls = [];
+        // Handle image uploads if there are any new images
+        if (req.files?.length > 0) {
+            try {
+                const uploadPromises = req.files.map(file => uploadToS3(file, updateData.name || existingProduct.name));
+                const uploadResults = await Promise.all(uploadPromises);
+                newImageUrls = uploadResults;
+            } catch (uploadError) {
+                await session.abortTransaction();
+                throw new Error('Image upload failed: ' + uploadError.message);
+            }
+        }
+
+        // Prepare the update object with type checking and validation
+        const productUpdate = {
+            name: updateData.name?.trim(),
+            'name-url': updateData.name?.trim().replace(/\s+/g, '-'),
+            weight: updateData.weight?.trim(),
+            price: parseFloat(updateData.price) || existingProduct.price,
+            discount: parseFloat(updateData.discount) || existingProduct.discount,
+            tax: parseFloat(updateData.tax) || existingProduct.tax,
+            'hsn-code': updateData.hsnCode?.trim(),
+            category: updateData.category?.trim(),
+            'category-url': updateData.category?.trim().replace(/\s+/g, '-'),
+            description: updateData.description?.trim(),
+            availability: updateData.availability || existingProduct.availability,
+            // img: [...(updateData.deleteImages ? [] : existingProduct.img), ...newImageUrls],
+            img: [...existingProduct.img, ...newImageUrls],
+            meta: {
+                buy: parseInt(updateData.buy) || 0,
+                get: parseInt(updateData.get) || 0,
+                season_special: updateData.season_special === 'true' || updateData.season_special === true,
+                new_arrivals: updateData.new_arrivals === 'true' || updateData.new_arrivals === true,
+                best_seller: updateData.best_seller === 'true' || updateData.best_seller === true,
+                deal_of_the_day: updateData.deal_of_the_day === 'true' || updateData.deal_of_the_day === true
+            }
+        };
+
+        // If deleteImages is true, delete old images from S3
+        //   if (updateData.deleteImages === 'true' && existingProduct.img.length > 0) {
+        //     try {
+        //       const deletePromises = existingProduct.img.map(imageUrl => deleteFromS3(imageUrl));
+        //       await Promise.all(deletePromises);
+        //     } catch (deleteError) {
+        //       await session.abortTransaction();
+        //       throw new Error('Failed to delete old images: ' + deleteError.message);
+        //     }
+        //   }
+
+        // Update the product with optimistic concurrency control
+        const updatedProduct = await Products.findOneAndUpdate(
+            {
+                _id: productId,
+                updatedAt: existingProduct.updatedAt // Ensure no concurrent updates
+            },
+            productUpdate,
+            {
+                new: true,
+                runValidators: true,
+                session
+            }
+        );
+
+        if (!updatedProduct) {
+            await session.abortTransaction();
+            return res.status(409).json({
+                success: false,
+                message: 'Product was updated by another request. Please refresh and try again.'
+            });
+        }
+
+        // Commit the transaction
+        await session.commitTransaction();
+
+        res.json({
+            success: true,
+            message: 'Product updated successfully',
+            product: updatedProduct
+        });
+
+    } catch (error) {
+        await session.abortTransaction();
+
+        console.error('Error updating product:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating product',
+            error: error.message
+        });
+    } finally {
+        session.endSession();
+    }
 }
