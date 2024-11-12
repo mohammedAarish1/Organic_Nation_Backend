@@ -61,39 +61,39 @@ exports.sendOTP = async (req, res) => {
 
   // ============ for testing 
 
-  console.log('otp', otp);
-  res.json({ success: true, message: "OTP sent successfully" });
+  // console.log('otp', otp);
+  // res.json({ success: true, message: "OTP sent successfully" });
 
   // for testing ====================
 
-  // const message = `${otp} is your one-time-password for verification at Foodsbay India (Organic Nation). PLEASE DON'T SHARE IT WITH ANYONE.`;
+  const message = `${otp} is your one-time-password for verification at Foodsbay India (Organic Nation). PLEASE DON'T SHARE IT WITH ANYONE.`;
 
-  // const params = message.replace(/ /g, "%20");
-  // const URL = `http://foxxsms.net/sms//submitsms.jsp?user=Foodsbay&key=${process.env.SMS_KEY}&mobile=${phoneNumber}&message=${params}&senderid=${process.env.SMS_SENDER_ID}&accusage=1&entityid=${process.env.SMS_ENTITY_ID}&tempid=${process.env.SMS_OTP_TEMP_ID}`;
-  // try {
-  //   // const response=await axios.post(`http://foxxsms.net/sms//submitsms.jsp?user=Foodsbay&key=f2bf9f44deXX&mobile=${phoneNumber}&message=897543%20is%20your%20one-time-password%20for%20verification%20at%20Foodsbay%20India%20(Organic%20Nation).%20PLEASE%20DON%27T%20SHARE%20IT%20WITH%20ANYONE.&senderid=ORGNTN&accusage=1`)
-  //   const response = await axios.post(URL);
+  const params = message.replace(/ /g, "%20");
+  const URL = `http://foxxsms.net/sms//submitsms.jsp?user=Foodsbay&key=${process.env.SMS_KEY}&mobile=${phoneNumber}&message=${params}&senderid=${process.env.SMS_SENDER_ID}&accusage=1&entityid=${process.env.SMS_ENTITY_ID}&tempid=${process.env.SMS_OTP_TEMP_ID}`;
+  try {
+    // const response=await axios.post(`http://foxxsms.net/sms//submitsms.jsp?user=Foodsbay&key=f2bf9f44deXX&mobile=${phoneNumber}&message=897543%20is%20your%20one-time-password%20for%20verification%20at%20Foodsbay%20India%20(Organic%20Nation).%20PLEASE%20DON%27T%20SHARE%20IT%20WITH%20ANYONE.&senderid=ORGNTN&accusage=1`)
+    const response = await axios.post(URL);
 
-  //   const responseData=response.data.trim().split(','); // converted it into an array since response.data is in text format
-  //   const dataObj = {
-  //     status: responseData[0], // sent or fail
-  //     message: responseData[1], // success or invalid
-  //     messageId: responseData[2],
-  //     clientId: responseData[3],
-  //     phoneNumber: responseData[4]
-  // };
+    const responseData=response.data.trim().split(','); // converted it into an array since response.data is in text format
+    const dataObj = {
+      status: responseData[0], // sent or fail
+      message: responseData[1], // success or invalid
+      messageId: responseData[2],
+      clientId: responseData[3],
+      phoneNumber: responseData[4]
+  };
 
 
 
-  //   if(dataObj.status==='sent' && dataObj.message==='success'){
+    if(dataObj.status==='sent' && dataObj.message==='success'){
 
-  //     res.json({ success: true, message: "OTP sent successfully" });
-  //   }else{
-  //     res.status(400).json({success:false, message:dataObj?.message})
-  //   }
-  // } catch (error) {
-  //   res.status(500).json({ success: false, message: "Failed to send OTP" });
-  // }
+      res.json({ success: true, message: "OTP sent successfully" });
+    }else{
+      res.status(400).json({success:false, message:dataObj?.message})
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to send OTP" });
+  }
 };
 
 

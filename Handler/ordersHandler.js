@@ -179,7 +179,7 @@ exports.createOrder = async (req, res) => {
       })
 
       // send order confirmation message
-      // const result = await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
+      const result = await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
       //  Send order confirmation email
       await sendEmail(
         savedOrder.userEmail,
@@ -193,28 +193,28 @@ exports.createOrder = async (req, res) => {
         }
       );
       //  Send order receiving email to sales.foodsbay@gmail.com
-      // await sendEmail(
-      //   'sales.foodsbay@gmail.com',
-      //   "Received Order",
-      //   "orderRecieved",
-      //   {
-      //     orderNumber: savedOrder.orderNo,
-      //     customerName: firstName || '',
-      //     phoneNumber: savedOrder.phoneNumber ||'',
-      //     email: savedOrder.userEmail,
-      //     shippingAddress: address(savedOrder.shippingAddress),
-      //     billingAddress: address(savedOrder.billingAddress),
-      //     // below line will convert the orderDetails array into plain strings
-      //     // orderDetails: savedOrder.orderDetails.map(item => `${item[0]},${item[3]},${item[2]}`).join(','),
-      //     orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
-      //     subTotal: savedOrder.subTotal,
-      //     shippingFee: savedOrder.shippingFee,
-      //     totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
-      //     paymentMethod: savedOrder.paymentMethod,
-      //     paymentStatus: savedOrder.paymentStatus,
-      //     // Add more template variables as needed
-      //   }
-      // );
+      await sendEmail(
+        'sales.foodsbay@gmail.com',
+        "Received Order",
+        "orderRecieved",
+        {
+          orderNumber: savedOrder.orderNo,
+          customerName: firstName || '',
+          phoneNumber: savedOrder.phoneNumber ||'',
+          email: savedOrder.userEmail,
+          shippingAddress: address(savedOrder.shippingAddress),
+          billingAddress: address(savedOrder.billingAddress),
+          // below line will convert the orderDetails array into plain strings
+          // orderDetails: savedOrder.orderDetails.map(item => `${item[0]},${item[3]},${item[2]}`).join(','),
+          orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
+          subTotal: savedOrder.subTotal,
+          shippingFee: savedOrder.shippingFee,
+          totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
+          paymentMethod: savedOrder.paymentMethod,
+          paymentStatus: savedOrder.paymentStatus,
+          // Add more template variables as needed
+        }
+      );
     }
 
     res
