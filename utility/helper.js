@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const Products = require('../models/Products');
 const OTP = require('../models/OTP');
 const { default: axios } = require('axios');
+const { default: mongoose } = require('mongoose');
 
 // Token generation utility
 
@@ -35,19 +36,43 @@ const generateTokens = (userId) => {
 
 
 // to convert the address object into plain string 
-const address = (obj) => {
-  let result = '';
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      const value = obj[key];
-      if (Array.isArray(value)) {
-        result += value.flat().join(' ') + ' ';
-      } else {
-        result += value + ' ';
-      }
-    }
-  }
-  return result.trim();
+// const address = (obj) => {
+//   const { ObjectId } = mongoose.Types;
+//   let result = '';
+  
+//   for (const key in obj) {
+//     if (obj.hasOwnProperty(key) && key !== '_id') {  // Skip _id field
+//       const value = obj[key];
+
+//       // Check if value is an ObjectId and convert it to string if so
+//       const valueToString = value instanceof ObjectId ? value.toString() : value;
+
+//       if (Array.isArray(valueToString)) {
+//         result += valueToString.flat().join(' ') + ' ';
+//       } else {
+//         result += valueToString + ' ';
+//       }
+//     }
+//   }
+
+//   return result.trim();
+// }
+
+
+function address(addressObj) {
+  const parts = [
+      addressObj.mainAddress,
+      addressObj.optionalAddress,
+      addressObj.city,
+      addressObj.state,
+      addressObj.pinCode,
+      addressObj.country
+  ];
+
+  // Filter out empty/null values and join with commas and spaces
+  return parts
+      .filter(part => part && part.toString().trim() !== '')
+      .join(', ');
 }
 
 

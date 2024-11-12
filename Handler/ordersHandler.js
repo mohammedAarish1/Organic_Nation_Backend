@@ -43,7 +43,6 @@ exports.createOrder = async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
-
     // Update user information if necessary
     let updated = false;
     if (firstName !== user.firstName) {
@@ -74,7 +73,7 @@ exports.createOrder = async (req, res) => {
     // Create a new address object
     const newShippingAddress = {
       addressType,
-      mainAddress: shippingAddress.address || '',
+      mainAddress: shippingAddress.mainAddress || '',
       optionalAddress: shippingAddress.optionalAddress || '',
       city: shippingAddress.city || '',
       state: shippingAddress.state || '',
@@ -144,14 +143,15 @@ exports.createOrder = async (req, res) => {
     // =========== calculating the acutal amount paid for each item end ========
 
 
-
     const newOrder = new Order({
       user: user._id,
       orderNo: "ON" + Date.now(),
       userEmail,
       phoneNumber,
-      shippingAddress: address(shippingAddress),
-      billingAddress: address(billingAddress),
+      // shippingAddress: address(shippingAddress),
+      shippingAddress: shippingAddress,
+      // billingAddress: address(billingAddress),
+      billingAddress: billingAddress,
       orderDetails: orderDetailsWithAcutalAmtPaid,
       subTotal,
       taxAmount,
@@ -179,7 +179,7 @@ exports.createOrder = async (req, res) => {
       })
 
       // send order confirmation message
-      const result = await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
+      // const result = await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
       //  Send order confirmation email
       await sendEmail(
         savedOrder.userEmail,
@@ -193,28 +193,28 @@ exports.createOrder = async (req, res) => {
         }
       );
       //  Send order receiving email to sales.foodsbay@gmail.com
-      await sendEmail(
-        'sales.foodsbay@gmail.com',
-        "Received Order",
-        "orderRecieved",
-        {
-          orderNumber: savedOrder.orderNo,
-          customerName: firstName || '',
-          phoneNumber: savedOrder.phoneNumber ||'',
-          email: savedOrder.userEmail,
-          shippingAddress: savedOrder.shippingAddress,
-          billingAddress: savedOrder.billingAddress,
-          // below line will convert the orderDetails array into plain strings
-          // orderDetails: savedOrder.orderDetails.map(item => `${item[0]},${item[3]},${item[2]}`).join(','),
-          orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
-          subTotal: savedOrder.subTotal,
-          shippingFee: savedOrder.shippingFee,
-          totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
-          paymentMethod: savedOrder.paymentMethod,
-          paymentStatus: savedOrder.paymentStatus,
-          // Add more template variables as needed
-        }
-      );
+      // await sendEmail(
+      //   'sales.foodsbay@gmail.com',
+      //   "Received Order",
+      //   "orderRecieved",
+      //   {
+      //     orderNumber: savedOrder.orderNo,
+      //     customerName: firstName || '',
+      //     phoneNumber: savedOrder.phoneNumber ||'',
+      //     email: savedOrder.userEmail,
+      //     shippingAddress: address(savedOrder.shippingAddress),
+      //     billingAddress: address(savedOrder.billingAddress),
+      //     // below line will convert the orderDetails array into plain strings
+      //     // orderDetails: savedOrder.orderDetails.map(item => `${item[0]},${item[3]},${item[2]}`).join(','),
+      //     orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
+      //     subTotal: savedOrder.subTotal,
+      //     shippingFee: savedOrder.shippingFee,
+      //     totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
+      //     paymentMethod: savedOrder.paymentMethod,
+      //     paymentStatus: savedOrder.paymentStatus,
+      //     // Add more template variables as needed
+      //   }
+      // );
     }
 
     res
@@ -457,8 +457,8 @@ exports.handleReturnItems = async (req, res) => {
         itemName: itemName.replace(/-/g, " "),
         quantity: quantity,
         returnAddress: order.shippingAddress
-          ? order.shippingAddress
-          : order.billingAddress,
+          ? address(order.shippingAddress)
+          : address(order.billingAddress),
         // Add more template variables as needed
       }
     );
@@ -667,13 +667,11 @@ exports.getRecentPurchases = async (req, res) => {
     const recentOrders = [];
     for (const order of orders) {
 
-      const userPincode = order.shippingAddress.match(/\d{6}/)[0];
-      const shippingAddPincodeDetails = await PinCode.findOne({ pinCode: userPincode });
 
       const baseOrderInfo = {
         userName: order.receiverDetails.name,
         // state: order.billingAddress.split(' ').slice(-3, -2)[0], // Extracts state name
-        state: shippingAddPincodeDetails.state, // Extracts state name
+        state: order.shippingAddress.state, // Extracts state name
         createdAt: order.createdAt,
         orderNo: order.orderNo
       };
@@ -704,4 +702,4 @@ exports.getRecentPurchases = async (req, res) => {
     console.error('Error fetching recent orders:', error);
     res.status(500).json({ message: "Error fetching recent orders" });
   }
-}
+};

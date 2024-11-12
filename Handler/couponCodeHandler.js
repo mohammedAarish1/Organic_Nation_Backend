@@ -364,7 +364,6 @@ exports.validateCouponCode = async (req, res) => {
 //       user.cart.isCouponCodeApplied=true
 
 //       await user.save();
-//       // console.log('user',user)
 //       res.json({
 //         success: true,
 //         message: "Coupon applied successfully",

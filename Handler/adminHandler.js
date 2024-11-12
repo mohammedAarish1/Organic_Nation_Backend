@@ -18,6 +18,7 @@ const { sendEmail } = require("../utility/emailService");
 const { generateInvoice } = require('../utility/invoiceTemplates/generateInvoice');
 const { s3Client } = require('../config/awsConfig.js');
 const ReturnItem = require('../models/ReturnItem.js');
+const { address } = require('../utility/helper.js');
 // const path = require('path');
 
 
@@ -66,7 +67,6 @@ async function uploadFileToS3(file) {
 //       secretKey
 //     });
 //     await admin.save();
-//     console.log('Admin created successfully');
 //   } catch (error) {
 //     console.error('Error creating admin:', error);
 //   }
@@ -227,6 +227,8 @@ exports.generateInvoice = async (req, res) => {
     }
 
 
+    const billingAddress = address(order.billingAddress)
+    const shippingAddress = address(order.shippingAddress)
     // Prepare the order data for the invoice
 
     const invoiceData = {
@@ -235,14 +237,13 @@ exports.generateInvoice = async (req, res) => {
         receiverName: order.receiverDetails.name,
         receiverPhone: 'Contact Number: ' + order.receiverDetails.phoneNumber,
         receiverEmail: 'Email: ' + order.userEmail,
-        billingAddress: order.billingAddress,
-        shippingAddress: order.shippingAddress,
+        billingAddress,
+        shippingAddress,
         orderDetails: order.orderDetails.map((item, index) => {
             // Calculate unit price excluding tax
             const unitPriceExclTax = item.unitPrice / (1 + item.tax / 100);
-
             // Determine tax type and tax rate based on location
-            const isUP = order.shippingAddress.includes('Uttar Pradesh') || order.billingAddress.includes('Uttar Pradesh');
+            const isUP = order.shippingAddress?.state.toLowerCase() === 'uttar pradesh' || order.billingAddress.state.toLowerCase() === 'uttar pradesh';
             const taxType = isUP ? ['CGST', 'SGST'] : ['IGST'];
             const taxRate = isUP ? item.tax / 2 : item.tax;
 
@@ -560,19 +561,19 @@ exports.generateSalesReport = async (req, res) => {
                 const totalTaxAmount = Math.round((taxExclusiveGross * (item.tax / 100)) * 100) / 100;
 
                 let cgstRate = 0, sgstRate = 0, igstRate = 0;
-                if (order.shippingAddress.includes('Uttar Pradesh') || order.billingAddress.includes('Uttar Pradesh')) {
+                if (order.shippingAddress.state.toLowerCase()==='uttar pradesh' || order.billingAddress.state.toLowerCase()==='uttar pradesh') {
                     cgstRate = sgstRate = item.tax / 2;
                 } else {
                     igstRate = item.tax;
                 }
 
-                const shippingAddPincode = order.shippingAddress.match(/\d{6}/)[0];
-                const shippingAddPincodeDetails = await PinCode.findOne({ pinCode: shippingAddPincode });
+                // const shippingAddPincode = order.shippingAddress.pinCode;
+                // const shippingAddPincodeDetails = await PinCode.findOne({ pinCode: shippingAddPincode });
 
-                const billingAddPincode = order.billingAddress.match(/\d{6}/)[0];
-                const billingAddPincodeDetails = await PinCode.findOne({ pinCode: billingAddPincode });
+                // const billingAddPincode = order.billingAddress.pinCode;
+                // const billingAddPincodeDetails = await PinCode.findOne({ pinCode: billingAddPincode });
 
-                const buyer = await User.findOne({ email: order.userEmail });
+                const buyer = await User.findOne({ email: order.userEmail.toLowerCase()});
 
                 worksheet.addRow([
                     order.invoiceNumber, invoiceDate, order.orderStatus, order._id.toString(), invoiceDate,
@@ -583,9 +584,9 @@ exports.generateSalesReport = async (req, res) => {
                     cgstRate ? Math.round((totalTaxAmount / 2) * 100) / 100 : 0, sgstRate ? Math.round((totalTaxAmount / 2) * 100) / 100 : 0, igstRate ? Math.round(totalTaxAmount * 100) / 100 : 0,
                     'Noida', 'UTTAR PRADESH', 'IN', '201301',
                     'NOIDA', 'UTTAR PRADESH', 'IN', '201301',
-                    shippingAddPincodeDetails ? shippingAddPincodeDetails.city : '', shippingAddPincodeDetails ? shippingAddPincodeDetails.state : '', 'IN', shippingAddPincode,
+                    order.shippingAddress?.city || '', order.shippingAddress?.state || '', 'IN', order.shippingAddress?.pinCode ||'',
                     order.paymentMethod,
-                    billingAddPincodeDetails ? billingAddPincodeDetails.city : '', billingAddPincodeDetails ? billingAddPincodeDetails.state : '', 'IN', billingAddPincode,
+                    order.billingAddress.city || '', order.billingAddress.state || '', 'IN', order.billingAddress?.pinCode||'',
                     buyer ? buyer.firstName + ' ' + buyer.lastName : ''
                 ]);
             }

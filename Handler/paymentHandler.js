@@ -4,7 +4,7 @@ const Order = require('../models/Order');
 const Products = require('../models/Products.js')
 const jwt = require('jsonwebtoken');
 const { sendEmail } = require("../utility/emailService");
-const { sendOrderConfirmationMsg } = require("../utility/helper.js");
+const { sendOrderConfirmationMsg, address } = require("../utility/helper.js");
 
 
 
@@ -308,8 +308,8 @@ exports.checkPaymentStatus = async (req, res) => {
                     customerName: order.receiverDetails?.name || '',
                     phoneNumber: order?.phoneNumber || '',
                     email: order.userEmail || '',
-                    shippingAddress: order.shippingAddress,
-                    billingAddress: order.billingAddress,
+                    shippingAddress: address(order.shippingAddress),
+                    billingAddress: address(order.billingAddress),
                     // below line will convert the orderDetails array into plain strings 
                     orderDetails: order.orderDetails.map(item => `Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
                     subTotal: order.subTotal,

@@ -1,6 +1,17 @@
 const mongoose = require('mongoose');
 
 
+// schema for addresses
+const AddressSchema = new mongoose.Schema({
+  mainAddress: { type: String, required: true },
+  optionalAddress: { type: String, },
+  city: { type: String, required: true },
+  state: { type: String, required: true },
+  pinCode: { type: String, required: true },
+  country: { type: String, default: 'India' },
+});
+
+
 // Define the schema for order details
 const OrderDetailSchema = new mongoose.Schema({
   id: { type: mongoose.Schema.Types.ObjectId, required: true },
@@ -31,8 +42,16 @@ const OrderSchema = new mongoose.Schema({
   },
   orderNo: { type: String, required: true, unique: true },
   userEmail: { type: String, required: true },
-  billingAddress: { type: String, required: true },
-  shippingAddress: { type: String, required: true },
+  // billingAddress: { type: String, required: true },
+   billingAddress: { 
+    type:  AddressSchema,
+    required: true 
+  },
+  // shippingAddress: { type: String, required: true },
+  shippingAddress: { 
+    type:  AddressSchema,
+    required: true 
+  },
   orderDetails: {
     type: [OrderDetailSchema], // Array of OrderDetailSchema objects
     required: true
