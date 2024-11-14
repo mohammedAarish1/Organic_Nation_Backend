@@ -97,8 +97,8 @@ router.get("/queries", requireAuth, getAllUserQueries);
 router.post("/orders/invoice", requireAuth, generateInvoice);
 router.put("/orders/update-status", requireAuth, updateOrderStatus);
 router.put("/orders/update/payment-status", requireAuth, updatePaymentStatus);
-router.post("/products/add", upload.array('images', 5), addNewProductInDatabase);
-router.put("/products/update/:id",  upload.array('images'), updateProductData);
+router.post("/products/add", upload.array('newImages', 5), addNewProductInDatabase);
+router.put("/products/update/:id",  upload.array('newImages'), updateProductData);
 
 
 router.delete("/delete/:collection/:id", requireAuth, deleteDocument);

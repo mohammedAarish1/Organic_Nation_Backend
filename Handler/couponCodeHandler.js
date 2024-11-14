@@ -46,28 +46,28 @@ exports.validateCouponCode = async (req, res) => {
 
     // 3. Retrieve products
     // const productIds = user.cart.items.map(item => mongoose.Types.ObjectId(item.productId));
-    const productIds = user.cart.items.map((item) => item.productId);
+    const productNames = user.cart.items.map((item) => item.productName);
 
-    const products = await Products.find({ _id: { $in: productIds } });
+    const products = await Products.find({ ['name-url']: { $in: productNames } });
+
 
     // 4. Calculate totals
     let subtotalIncludingTax = 0;
     let totalTax = 0;
 
     const updatedItems = user.cart.items.map((item) => {
-      const product = products.find(
-        (p) => p._id.toString() === item.productId.toString()
-      );
+      const product = products.find((p) => p['name-url'] === item.productName);
+
 
       if (!product) {
-        throw new Error(`Product not found for item ${item.productId}`);
+        throw new Error(`Product not found for item ${item.productName}`);
       }
 
       if (
         typeof product.price !== "number" ||
         typeof product.tax !== "number"
       ) {
-        throw new Error(`Invalid product data for item ${item.productId}`);
+        throw new Error(`Invalid product data for item ${item.productName}`);
       }
 
       const quantity = item.quantity;
@@ -442,7 +442,7 @@ exports.applyPickleCouponCode = async (req, res) => {
     // Get full product details and create pickle array
     const pickleArray = [];
     for (const item of cart.items) {
-      const product = await Products.findOne({'name-url':item.productName});
+      const product = await Products.findOne({ 'name-url': item.productName });
       if (!product) {
         return res
           .status(400)

@@ -6,7 +6,7 @@ const User = require('../models/User');
 const Products = require('../models/Products.js')
 const PinCode = require('../models/PinCode.js');
 const ContactedUser = require('../models/ContactedUser');
-const { PutObjectCommand } = require("@aws-sdk/client-s3");
+const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const ExcelJS = require('exceljs');
 
 const crypto = require('crypto');
@@ -40,25 +40,47 @@ const uploadToS3 = async (file, productName) => {
     return `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/Organic-Nation-Images/${sanitizedProductName}/${file.originalname}`;
 };
 
+// Helper to delete file from S3
+const deleteFromS3 = async (imageUrl) => {
+    // Extract the key from the URL
+    const key = imageUrl.split('.com/')[1];
 
-// Helper function to upload file to S3
-async function uploadFileToS3(file) {
-    const fileName = `Organic-Nation-Images/${Date.now()}-${crypto.randomBytes(8).toString('hex')}-${file.originalname}`;
-
-    const uploadParams = {
+    // Define the parameters for the delete operation
+    const params = {
         Bucket: process.env.AWS_BUCKET_NAME,
-        Key: fileName,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-        ACL: 'public-read',
+        Key: key
     };
 
-    await s3Client.send(new PutObjectCommand(uploadParams));
-    return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
-}
+    // Create the DeleteObjectCommand
+    const deleteCommand = new DeleteObjectCommand(params);
+
+    // Send the delete command using the S3 client
+    try {
+        await s3Client.send(deleteCommand);
+    } catch (error) {
+        throw error; // Rethrow the error if needed
+    }
+};
 
 
-// Creating a new admin
+// Helper function to upload file to S3
+// async function uploadFileToS3(file) {
+//     const fileName = `Organic-Nation-Images/${Date.now()}-${crypto.randomBytes(8).toString('hex')}-${file.originalname}`;
+
+//     const uploadParams = {
+//         Bucket: process.env.AWS_BUCKET_NAME,
+//         Key: fileName,
+//         Body: file.buffer,
+//         ContentType: file.mimetype,
+//         ACL: 'public-read',
+//     };
+
+//     await s3Client.send(new PutObjectCommand(uploadParams));
+//     return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
+// }
+
+
+// Creating a new admin 
 // const createAdmin = async (username, password, secretKey) => {
 //   try {
 //     const admin = new Admin({
@@ -422,22 +444,36 @@ exports.updatePaymentStatus = async (req, res) => {
 
 
 // add a new product in the database
-
 exports.addNewProductInDatabase = async (req, res) => {
     try {
-        const { name, weight, price, discount, tax, hsnCode, category, description, availability, ...metaFields } = req.body;
-        const imageUrls = await Promise.all(req.files?.map(uploadFileToS3));
+        const { name, weight, grossWeight,price, discount, tax, hsnCode, category, description, availability, ...metaFields } = req.body;
 
-
-        if (imageUrls.length === 0) {
-            return res.status(400).json({ error: 'No image uploaded' })
+        let imageUrls;
+        // Upload new images if any
+        if (req.files?.length > 0) {
+            try {
+                const uploadPromises = req.files.map(file =>
+                    uploadToS3(file, name)
+                );
+                 imageUrls = await Promise.all(uploadPromises);
+            } catch (uploadError) {
+                await session.abortTransaction();
+                throw new Error('Image upload failed: ' + uploadError.message);
+            }
+        }else{
+            return res.status(401).json({
+                success: false,
+                message: 'At lease one image is required'
+            });
         }
 
+
         const newProduct = new Products({
-            product_id: 0,
+            product_id: Math.random(),
             name,
             'name-url': name.replace(/\s+/g, '-'),
             weight,
+            grossWeight,
             price: parseInt(price),
             discount: parseInt(discount),
             tax: parseInt(tax),
@@ -457,7 +493,7 @@ exports.addNewProductInDatabase = async (req, res) => {
             }
         });
         await newProduct.save();
-        res.status(201).json(newProduct);
+        res.status(201).json({success:true,message:'Product Added Successfully'});
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -561,7 +597,7 @@ exports.generateSalesReport = async (req, res) => {
                 const totalTaxAmount = Math.round((taxExclusiveGross * (item.tax / 100)) * 100) / 100;
 
                 let cgstRate = 0, sgstRate = 0, igstRate = 0;
-                if (order.shippingAddress.state.toLowerCase()==='uttar pradesh' || order.billingAddress.state.toLowerCase()==='uttar pradesh') {
+                if (order.shippingAddress.state.toLowerCase() === 'uttar pradesh' || order.billingAddress.state.toLowerCase() === 'uttar pradesh') {
                     cgstRate = sgstRate = item.tax / 2;
                 } else {
                     igstRate = item.tax;
@@ -573,7 +609,7 @@ exports.generateSalesReport = async (req, res) => {
                 // const billingAddPincode = order.billingAddress.pinCode;
                 // const billingAddPincodeDetails = await PinCode.findOne({ pinCode: billingAddPincode });
 
-                const buyer = await User.findOne({ email: order.userEmail.toLowerCase()});
+                const buyer = await User.findOne({ email: order.userEmail.toLowerCase() });
 
                 worksheet.addRow([
                     order.invoiceNumber, invoiceDate, order.orderStatus, order._id.toString(), invoiceDate,
@@ -584,9 +620,9 @@ exports.generateSalesReport = async (req, res) => {
                     cgstRate ? Math.round((totalTaxAmount / 2) * 100) / 100 : 0, sgstRate ? Math.round((totalTaxAmount / 2) * 100) / 100 : 0, igstRate ? Math.round(totalTaxAmount * 100) / 100 : 0,
                     'Noida', 'UTTAR PRADESH', 'IN', '201301',
                     'NOIDA', 'UTTAR PRADESH', 'IN', '201301',
-                    order.shippingAddress?.city || '', order.shippingAddress?.state || '', 'IN', order.shippingAddress?.pinCode ||'',
+                    order.shippingAddress?.city || '', order.shippingAddress?.state || '', 'IN', order.shippingAddress?.pinCode || '',
                     order.paymentMethod,
-                    order.billingAddress.city || '', order.billingAddress.state || '', 'IN', order.billingAddress?.pinCode||'',
+                    order.billingAddress.city || '', order.billingAddress.state || '', 'IN', order.billingAddress?.pinCode || '',
                     buyer ? buyer.firstName + ' ' + buyer.lastName : ''
                 ]);
             }
@@ -690,16 +726,139 @@ exports.updateReturnStatus = async (req, res) => {
 
 }
 
+// edit or modify the existing product data
+// exports.updateProductData = async (req, res) => {
+//     // Start mongoose session for transaction
+//     const session = await mongoose.startSession();
+//     session.startTransaction();
 
+//     try {
+//         const productId = req.params.id;
+//         const updateData = req.body;
+
+
+//         // Validate productId
+//         if (!mongoose.Types.ObjectId.isValid(productId)) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: 'Invalid product ID format'
+//             });
+//         }
+
+//         // Find the existing product
+//         const existingProduct = await Products.findById(productId).session(session);
+//         if (!existingProduct) {
+//             await session.abortTransaction();
+//             return res.status(404).json({
+//                 success: false,
+//                 message: 'Product not found'
+//             });
+//         }
+
+//         let newImageUrls = [];
+//         // Handle image uploads if there are any new images
+//         if (req.files?.length > 0) {
+//             try {
+//                 const uploadPromises = req.files.map(file => uploadToS3(file, updateData.name || existingProduct.name));
+//                 const uploadResults = await Promise.all(uploadPromises);
+//                 newImageUrls = uploadResults;
+//             } catch (uploadError) {
+//                 await session.abortTransaction();
+//                 throw new Error('Image upload failed: ' + uploadError.message);
+//             }
+//         }
+
+//         // Prepare the update object with type checking and validation
+//         const productUpdate = {
+//             name: updateData.name?.trim(),
+//             'name-url': updateData.name?.trim().replace(/\s+/g, '-'),
+//             weight: updateData.weight?.trim(),
+//             price: parseFloat(updateData.price) || existingProduct.price,
+//             discount: parseFloat(updateData.discount) || existingProduct.discount,
+//             tax: parseFloat(updateData.tax) || existingProduct.tax,
+//             'hsn-code': updateData.hsnCode?.trim(),
+//             category: updateData.category?.trim(),
+//             'category-url': updateData.category?.trim().replace(/\s+/g, '-'),
+//             description: updateData.description?.trim(),
+//             availability: updateData.availability || existingProduct.availability,
+//             // img: [...(updateData.deleteImages ? [] : existingProduct.img), ...newImageUrls],
+//             img: [...existingProduct.img, ...newImageUrls],
+//             meta: {
+//                 buy: parseInt(updateData.buy) || 0,
+//                 get: parseInt(updateData.get) || 0,
+//                 season_special: updateData.season_special === 'true' || updateData.season_special === true,
+//                 new_arrivals: updateData.new_arrivals === 'true' || updateData.new_arrivals === true,
+//                 best_seller: updateData.best_seller === 'true' || updateData.best_seller === true,
+//                 deal_of_the_day: updateData.deal_of_the_day === 'true' || updateData.deal_of_the_day === true
+//             }
+//         };
+
+//         // If deleteImages is true, delete old images from S3
+//         //   if (updateData.deleteImages === 'true' && existingProduct.img.length > 0) {
+//         //     try {
+//         //       const deletePromises = existingProduct.img.map(imageUrl => deleteFromS3(imageUrl));
+//         //       await Promise.all(deletePromises);
+//         //     } catch (deleteError) {
+//         //       await session.abortTransaction();
+//         //       throw new Error('Failed to delete old images: ' + deleteError.message);
+//         //     }
+//         //   }
+
+//         // Update the product with optimistic concurrency control
+//         const updatedProduct = await Products.findOneAndUpdate(
+//             {
+//                 _id: productId,
+//                 updatedAt: existingProduct.updatedAt // Ensure no concurrent updates
+//             },
+//             productUpdate,
+//             {
+//                 new: true,
+//                 runValidators: true,
+//                 session
+//             }
+//         );
+
+//         if (!updatedProduct) {
+//             await session.abortTransaction();
+//             return res.status(409).json({
+//                 success: false,
+//                 message: 'Product was updated by another request. Please refresh and try again.'
+//             });
+//         }
+
+//         // Commit the transaction
+//         await session.commitTransaction();
+
+//         res.json({
+//             success: true,
+//             message: 'Product updated successfully',
+//             product: updatedProduct
+//         });
+
+//     } catch (error) {
+//         await session.abortTransaction();
+
+//         console.error('Error updating product:', error);
+//         res.status(500).json({
+//             success: false,
+//             message: 'Error updating product',
+//             error: error.message
+//         });
+//     } finally {
+//         session.endSession();
+//     }
+// }
+
+// route for updating product data
 exports.updateProductData = async (req, res) => {
-    // Start mongoose session for transaction
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
         const productId = req.params.id;
         const updateData = req.body;
-
+        const existingImages = JSON.parse(updateData.existingImages || '[]');
+        const removedImages = JSON.parse(updateData.removedImages || '[]');
 
         // Validate productId
         if (!mongoose.Types.ObjectId.isValid(productId)) {
@@ -719,60 +878,108 @@ exports.updateProductData = async (req, res) => {
             });
         }
 
-        let newImageUrls = [];
-        // Handle image uploads if there are any new images
+        // Handle image management
+        let finalImageUrls = [...existingImages]; // Start with existing images that weren't removed
+
+        // Delete removed images from S3
+        if (removedImages.length > 0) {
+            try {
+                const deletePromises = removedImages.map(imageUrl => deleteFromS3(imageUrl));
+                await Promise.all(deletePromises);
+            } catch (deleteError) {
+                await session.abortTransaction();
+                throw new Error('Failed to delete old images: ' + deleteError.message);
+            }
+        }
+
+        // Upload new images if any
         if (req.files?.length > 0) {
             try {
-                const uploadPromises = req.files.map(file => uploadToS3(file, updateData.name || existingProduct.name));
-                const uploadResults = await Promise.all(uploadPromises);
-                newImageUrls = uploadResults;
+                const uploadPromises = req.files.map(file =>
+                    uploadToS3(file, updateData.name || existingProduct.name)
+                );
+                const newImageUrls = await Promise.all(uploadPromises);
+                finalImageUrls = [...finalImageUrls, ...newImageUrls];
             } catch (uploadError) {
                 await session.abortTransaction();
                 throw new Error('Image upload failed: ' + uploadError.message);
             }
         }
 
-        // Prepare the update object with type checking and validation
-        const productUpdate = {
-            name: updateData.name?.trim(),
-            'name-url': updateData.name?.trim().replace(/\s+/g, '-'),
-            weight: updateData.weight?.trim(),
-            price: parseFloat(updateData.price) || existingProduct.price,
-            discount: parseFloat(updateData.discount) || existingProduct.discount,
-            tax: parseFloat(updateData.tax) || existingProduct.tax,
-            'hsn-code': updateData.hsnCode?.trim(),
-            category: updateData.category?.trim(),
-            'category-url': updateData.category?.trim().replace(/\s+/g, '-'),
-            description: updateData.description?.trim(),
-            availability: updateData.availability || existingProduct.availability,
-            // img: [...(updateData.deleteImages ? [] : existingProduct.img), ...newImageUrls],
-            img: [...existingProduct.img, ...newImageUrls],
-            meta: {
-                buy: parseInt(updateData.buy) || 0,
-                get: parseInt(updateData.get) || 0,
-                season_special: updateData.season_special === 'true' || updateData.season_special === true,
-                new_arrivals: updateData.new_arrivals === 'true' || updateData.new_arrivals === true,
-                best_seller: updateData.best_seller === 'true' || updateData.best_seller === true,
-                deal_of_the_day: updateData.deal_of_the_day === 'true' || updateData.deal_of_the_day === true
+        // Prepare the update object, only including fields that are provided
+        const productUpdate = {};
+
+        // Helper function to set field if it exists in updateData
+        const setIfExists = (field, value, transform = (x) => x) => {
+            if (value !== undefined && value !== null && value !== '') {
+                productUpdate[field] = transform(value);
             }
         };
 
-        // If deleteImages is true, delete old images from S3
-        //   if (updateData.deleteImages === 'true' && existingProduct.img.length > 0) {
-        //     try {
-        //       const deletePromises = existingProduct.img.map(imageUrl => deleteFromS3(imageUrl));
-        //       await Promise.all(deletePromises);
-        //     } catch (deleteError) {
-        //       await session.abortTransaction();
-        //       throw new Error('Failed to delete old images: ' + deleteError.message);
-        //     }
-        //   }
+        // Basic fields
+        setIfExists('name', updateData.name?.trim());
+        if (productUpdate.name) {
+            productUpdate['name-url'] = productUpdate.name.replace(/\s+/g, '-');
+        }
+
+        setIfExists('weight', updateData.weight?.trim());
+        setIfExists('price', updateData.price, parseFloat);
+        setIfExists('discount', updateData.discount, parseFloat);
+        setIfExists('tax', updateData.tax, parseFloat);
+        setIfExists('hsn-code', updateData.hsnCode?.trim());
+        setIfExists('category', updateData.category?.trim());
+        if (productUpdate.category) {
+            productUpdate['category-url'] = productUpdate.category.replace(/\s+/g, '-');
+        }
+
+        setIfExists('description', updateData.description?.trim());
+        setIfExists('availability', updateData.availability, parseInt);
+
+        // Always update images array if there are any changes
+        if (finalImageUrls.length > 0 || removedImages.length > 0) {
+            productUpdate.img = finalImageUrls;
+        }
+
+        // Meta fields - only update if any meta field is provided
+        const metaFields = ['buy', 'get', 'season_special', 'new_arrivals', 'best_seller', 'deal_of_the_day'];
+        const hasMetaUpdates = metaFields.some(field => updateData[field] !== undefined);
+
+        if (hasMetaUpdates) {
+            productUpdate.meta = {
+                ...existingProduct.meta, // Keep existing meta values
+                buy: updateData.buy !== undefined ? parseInt(updateData.buy) || 0 : existingProduct.meta.buy,
+                get: updateData.get !== undefined ? parseInt(updateData.get) || 0 : existingProduct.meta.get,
+                season_special: updateData.season_special !== undefined ?
+                    updateData.season_special === 'true' || updateData.season_special === true :
+                    existingProduct.meta.season_special,
+                new_arrivals: updateData.new_arrivals !== undefined ?
+                    updateData.new_arrivals === 'true' || updateData.new_arrivals === true :
+                    existingProduct.meta.new_arrivals,
+                best_seller: updateData.best_seller !== undefined ?
+                    updateData.best_seller === 'true' || updateData.best_seller === true :
+                    existingProduct.meta.best_seller,
+                deal_of_the_day: updateData.deal_of_the_day !== undefined ?
+                    updateData.deal_of_the_day === 'true' || updateData.deal_of_the_day === true :
+                    existingProduct.meta.deal_of_the_day
+            };
+        }
+
+
+        // If no fields to update, return success without making database call
+        if (Object.keys(productUpdate).length === 0) {
+            await session.commitTransaction();
+            return res.json({
+                success: true,
+                message: 'No fields to update',
+                product: existingProduct
+            });
+        }
 
         // Update the product with optimistic concurrency control
         const updatedProduct = await Products.findOneAndUpdate(
             {
                 _id: productId,
-                updatedAt: existingProduct.updatedAt // Ensure no concurrent updates
+                updatedAt: existingProduct.updatedAt
             },
             productUpdate,
             {
@@ -790,18 +997,16 @@ exports.updateProductData = async (req, res) => {
             });
         }
 
-        // Commit the transaction
         await session.commitTransaction();
 
         res.json({
             success: true,
             message: 'Product updated successfully',
-            product: updatedProduct
+            // product: updatedProduct
         });
 
     } catch (error) {
         await session.abortTransaction();
-
         console.error('Error updating product:', error);
         res.status(500).json({
             success: false,
@@ -811,4 +1016,4 @@ exports.updateProductData = async (req, res) => {
     } finally {
         session.endSession();
     }
-}
+};
