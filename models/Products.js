@@ -59,6 +59,12 @@ const productSchema = new mongoose.Schema({
     type: [String],
     required: true
   },
+  // img: [{
+  //   blur: String,
+  //   sm: String,
+  //   md: String,
+  //   lg: String
+  // }],
   meta: {
     buy: {
       type: Number,

@@ -2,12 +2,21 @@ const mongoose = require('mongoose');
 
 
 // schema for addresses
-const AddressSchema = new mongoose.Schema({
+const shippingAddressSchema = new mongoose.Schema({
   mainAddress: { type: String, required: true },
   optionalAddress: { type: String, },
   city: { type: String, required: true },
   state: { type: String, required: true },
   pinCode: { type: String, required: true },
+  country: { type: String, default: 'India' },
+});
+
+const billingAddressSchema = new mongoose.Schema({
+  mainAddress: { type: String, },
+  optionalAddress: { type: String, },
+  city: { type: String,  },
+  state: { type: String,  },
+  pinCode: { type: String,  },
   country: { type: String, default: 'India' },
 });
 
@@ -44,12 +53,12 @@ const OrderSchema = new mongoose.Schema({
   userEmail: { type: String, required: true },
   // billingAddress: { type: String, required: true },
    billingAddress: { 
-    type:  AddressSchema,
+    type:  billingAddressSchema,
     required: true 
   },
   // shippingAddress: { type: String, required: true },
   shippingAddress: { 
-    type:  AddressSchema,
+    type:  shippingAddressSchema,
     required: true 
   },
   orderDetails: {

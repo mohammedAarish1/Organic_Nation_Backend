@@ -19,6 +19,7 @@ const { generateInvoice } = require('../utility/invoiceTemplates/generateInvoice
 const { s3Client } = require('../config/awsConfig.js');
 const ReturnItem = require('../models/ReturnItem.js');
 const { address } = require('../utility/helper.js');
+const { processImage } = require('../utility/processImage.js');
 // const path = require('path');
 
 
@@ -114,7 +115,6 @@ const verifyAdmin = async (username, password, secretKey) => {
 exports.adminLogin = async (req, res) => {
     const { username, password, secretKey } = req.body;
 
-
     // Check if all required fields are provided
     if (!username || !password || !secretKey) {
         return res.status(400).json({ message: 'All fields are required' });
@@ -152,9 +152,6 @@ exports.adminLogin = async (req, res) => {
     //     maxAge: 3600000 // 1 hour
     // });
 
-
-    // Generate CSRF token
-    // csrf({ cookie: true })(req, res, () => { });
 
 
     res.json({ message: 'Login successful', token });
@@ -441,7 +438,34 @@ exports.updatePaymentStatus = async (req, res) => {
 
 }
 
+// update user status
+exports.updateUserStatus = async (req, res) => {
+    const { userId } = req.params
+    const { status } = req.body;
+    if (!userId && !status) {
+        return res.status(400).json({ error: 'user ID and status are required' });
+    };
 
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            {
+                role: status,
+            },
+            { new: true, runValidators: false }
+        );
+
+
+        if (!updatedUser) {
+            return res.status(404).json({ error: 'User not found' });
+        };
+
+        res.status(200).json({ message: 'Status Updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+
+}
 
 // add a new product in the database
 exports.addNewProductInDatabase = async (req, res) => {
@@ -1017,3 +1041,55 @@ exports.updateProductData = async (req, res) => {
         session.endSession();
     }
 };
+
+
+
+
+// experiment images
+
+exports.handleOptimizinImages=async (req, res) => {
+    try {
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ error: 'No files uploaded' });
+      }
+  
+      const productId = req.body.productId || Date.now().toString(); // Fallback if no productId provided
+  
+     
+      
+  
+      const processedImages = await Promise.all(
+        req.files.map(file => {
+          return processImage(file, productId);
+        })
+      );
+
+
+    //   const product=await Products.find({['name-url']:productId})
+
+      const updatedProduct = await Products.findOneAndUpdate(
+        {['name-url']:productId}, // Query criteria
+        { img: processedImages }, // Fields to update
+        { new: true } // Return the updated document
+      );
+  
+      if (!updatedProduct) {
+        throw new Error("Product not found");
+      }
+  
+  
+      // Return the processed image paths
+      res.json({ 
+        success: true, 
+        imagePaths: processedImages 
+      });
+  
+    } catch (error) {
+      console.error('Upload error:', error);
+      res.status(500).json({ 
+        error: 'Failed to process images',
+        details: error.message 
+      });
+    }
+  }
+// experiment images

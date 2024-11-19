@@ -7,9 +7,6 @@ const multer = require('multer');
 const requireAuth = passport.authenticate('jwt-admin', { session: false });
 
 
-
-
-
 // const verifyAdminToken = async (req, res, next) => {
 //     const token = req.cookies.adminToken;
 
@@ -46,7 +43,7 @@ const requireAuth = passport.authenticate('jwt-admin', { session: false });
 
 // Rate limiting
 const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 1 * 60 * 1000, // 15 minutes
     max: 5 // limit each IP to 5 requests per windowMs
 });
 
@@ -84,8 +81,11 @@ const {
     generateSalesReport,
     getTotalReturns,
     updateReturnStatus,
-    updateProductData
+    updateProductData,
+    updateUserStatus,
+    handleOptimizinImages
 } = require("../Handler/adminHandler.js");
+const { processImage } = require("../utility/processImage.js");
 
 
 
@@ -97,6 +97,10 @@ router.get("/queries", requireAuth, getAllUserQueries);
 router.post("/orders/invoice", requireAuth, generateInvoice);
 router.put("/orders/update-status", requireAuth, updateOrderStatus);
 router.put("/orders/update/payment-status", requireAuth, updatePaymentStatus);
+
+router.put("/orders/update/user-status/:userId", requireAuth, updateUserStatus);
+
+
 router.post("/products/add", upload.array('newImages', 5), addNewProductInDatabase);
 router.put("/products/update/:id",  upload.array('newImages'), updateProductData);
 
@@ -105,6 +109,15 @@ router.delete("/delete/:collection/:id", requireAuth, deleteDocument);
 router.post("/generate-report",requireAuth, generateSalesReport);
 router.get("/returns",requireAuth, getTotalReturns);
 router.put("/returns/update/return-status", requireAuth, updateReturnStatus);
+
+
+
+// experiment for images =============
+
+router.post('/product/upload/optimized/images', upload.array('images', 5), handleOptimizinImages);
+
+
+// experiment =============
 
 
 module.exports = router;
