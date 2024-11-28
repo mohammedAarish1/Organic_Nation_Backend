@@ -80,9 +80,9 @@ exports.validateCouponCode = async (req, res) => {
     }
 
     // check if totalcartamount is above 1000
-    if (user.cart.totalCartAmount < 1000) {
-      return res.status(400).json({ error: "Please add products worth ₹1000 or more" })
-    }
+    // if (user.cart.totalCartAmount < 1000) {
+    //   return res.status(400).json({ error: "Please add products worth ₹1000 or more" })
+    // }
 
 
     if (user.cart.couponCodeApplied.length !== 0) {
