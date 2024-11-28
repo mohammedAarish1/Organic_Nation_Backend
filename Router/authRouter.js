@@ -15,7 +15,8 @@ const {
     login,
     refreshToken,
     logout,
-    getUser
+    getUser,
+    isReferralCodeExist
 } = require("../Handler/authHandler.js");
 
 // Define the route for getting products by category
@@ -37,5 +38,7 @@ router.post("/user/login", login);
 router.post("/user/refresh", refreshToken);
 router.post("/user/logout", logout);
 router.get("/user", authMiddleware,getUser);
+
+router.post("/user/exist", isReferralCodeExist);
 
 module.exports = router;

@@ -79,6 +79,7 @@ const {
     addNewProductInDatabase,
     deleteDocument,
     generateSalesReport,
+    generateUsersReport,
     getTotalReturns,
     updateReturnStatus,
     updateProductData,
@@ -106,7 +107,8 @@ router.put("/products/update/:id",  upload.array('newImages'), updateProductData
 
 
 router.delete("/delete/:collection/:id", requireAuth, deleteDocument);
-router.post("/generate-report",requireAuth, generateSalesReport);
+router.post("/generate/sales/report",requireAuth, generateSalesReport);
+router.post("/generate/users/report",requireAuth, generateUsersReport);
 router.get("/returns",requireAuth, getTotalReturns);
 router.put("/returns/update/return-status", requireAuth, updateReturnStatus);
 

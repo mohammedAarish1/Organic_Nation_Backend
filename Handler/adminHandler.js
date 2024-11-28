@@ -470,7 +470,7 @@ exports.updateUserStatus = async (req, res) => {
 // add a new product in the database
 exports.addNewProductInDatabase = async (req, res) => {
     try {
-        const { name, weight, grossWeight,price, discount, tax, hsnCode, category, description, availability, ...metaFields } = req.body;
+        const { name, weight, grossWeight, price, discount, tax, hsnCode, category, description, availability, ...metaFields } = req.body;
 
         let imageUrls;
         // Upload new images if any
@@ -479,12 +479,12 @@ exports.addNewProductInDatabase = async (req, res) => {
                 const uploadPromises = req.files.map(file =>
                     uploadToS3(file, name)
                 );
-                 imageUrls = await Promise.all(uploadPromises);
+                imageUrls = await Promise.all(uploadPromises);
             } catch (uploadError) {
                 await session.abortTransaction();
                 throw new Error('Image upload failed: ' + uploadError.message);
             }
-        }else{
+        } else {
             return res.status(401).json({
                 success: false,
                 message: 'At lease one image is required'
@@ -517,7 +517,7 @@ exports.addNewProductInDatabase = async (req, res) => {
             }
         });
         await newProduct.save();
-        res.status(201).json({success:true,message:'Product Added Successfully'});
+        res.status(201).json({ success: true, message: 'Product Added Successfully' });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -665,6 +665,51 @@ exports.generateSalesReport = async (req, res) => {
     }
 }
 
+// export all users details
+exports.generateUsersReport = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.body;
+
+        // Validate date inputs
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            return res.status(400).json({ message: 'Invalid date format. Please use YYYY-MM-DD format.' });
+        }
+
+        // Set the time to the start and end of the day
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+
+        const users = await User.find({
+            createdAt: { $gte: start, $lte: end }
+        });
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('User Report');
+
+        // Add headers
+        worksheet.addRow(['Date', 'Name', 'Email', 'Phone Number']);
+
+        for (const user of users) {
+            const date = new Date(user.createdAt).toLocaleDateString('en-GB');
+            worksheet.addRow([date, user.firstName + ' ' + user.lastName, user.email, user.phoneNumber])
+        }
+
+        // Generate Excel file
+        const buffer = await workbook.xlsx.writeBuffer();
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=UserReport.xlsx');
+        res.send(buffer);
+
+    } catch (error) {
+        console.error('Error generating report:', error);
+        res.status(500).json({ message: 'Error generating report', error: error.message });
+    }
+}
 
 
 // get all returns
@@ -1047,49 +1092,49 @@ exports.updateProductData = async (req, res) => {
 
 // experiment images
 
-exports.handleOptimizinImages=async (req, res) => {
+exports.handleOptimizinImages = async (req, res) => {
     try {
-      if (!req.files || req.files.length === 0) {
-        return res.status(400).json({ error: 'No files uploaded' });
-      }
-  
-      const productId = req.body.productId || Date.now().toString(); // Fallback if no productId provided
-  
-     
-      
-  
-      const processedImages = await Promise.all(
-        req.files.map(file => {
-          return processImage(file, productId);
-        })
-      );
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ error: 'No files uploaded' });
+        }
+
+        const productId = req.body.productId || Date.now().toString(); // Fallback if no productId provided
 
 
-    //   const product=await Products.find({['name-url']:productId})
 
-      const updatedProduct = await Products.findOneAndUpdate(
-        {['name-url']:productId}, // Query criteria
-        { img: processedImages }, // Fields to update
-        { new: true } // Return the updated document
-      );
-  
-      if (!updatedProduct) {
-        throw new Error("Product not found");
-      }
-  
-  
-      // Return the processed image paths
-      res.json({ 
-        success: true, 
-        imagePaths: processedImages 
-      });
-  
+
+        const processedImages = await Promise.all(
+            req.files.map(file => {
+                return processImage(file, productId);
+            })
+        );
+
+
+        //   const product=await Products.find({['name-url']:productId})
+
+        const updatedProduct = await Products.findOneAndUpdate(
+            { ['name-url']: productId }, // Query criteria
+            { img: processedImages }, // Fields to update
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedProduct) {
+            throw new Error("Product not found");
+        }
+
+
+        // Return the processed image paths
+        res.json({
+            success: true,
+            imagePaths: processedImages
+        });
+
     } catch (error) {
-      console.error('Upload error:', error);
-      res.status(500).json({ 
-        error: 'Failed to process images',
-        details: error.message 
-      });
+        console.error('Upload error:', error);
+        res.status(500).json({
+            error: 'Failed to process images',
+            details: error.message
+        });
     }
-  }
+}
 // experiment images

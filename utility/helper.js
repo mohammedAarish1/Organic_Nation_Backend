@@ -1,8 +1,12 @@
 const jwt = require('jsonwebtoken');
 const Products = require('../models/Products');
 const OTP = require('../models/OTP');
+const crypto = require('crypto');
+const Coupon = require("../models/Coupon.js");
 const { default: axios } = require('axios');
 const { default: mongoose } = require('mongoose');
+const User = require('../models/User.js');
+const { sendEmail } = require('./emailService.js');
 
 // Token generation utility
 
@@ -39,7 +43,7 @@ const generateTokens = (userId) => {
 // const address = (obj) => {
 //   const { ObjectId } = mongoose.Types;
 //   let result = '';
-  
+
 //   for (const key in obj) {
 //     if (obj.hasOwnProperty(key) && key !== '_id') {  // Skip _id field
 //       const value = obj[key];
@@ -61,18 +65,18 @@ const generateTokens = (userId) => {
 
 function address(addressObj) {
   const parts = [
-      addressObj.mainAddress,
-      addressObj.optionalAddress,
-      addressObj.city,
-      addressObj.state,
-      addressObj.pinCode,
-      addressObj.country
+    addressObj.mainAddress,
+    addressObj.optionalAddress,
+    addressObj.city,
+    addressObj.state,
+    addressObj.pinCode,
+    addressObj.country
   ];
 
   // Filter out empty/null values and join with commas and spaces
   return parts
-      .filter(part => part && part.toString().trim() !== '')
-      .join(', ');
+    .filter(part => part && part.toString().trim() !== '')
+    .join(', ');
 }
 
 
@@ -187,4 +191,214 @@ const sendOrderConfirmationMsg = async (name, amount, phoneNumber) => {
   }
 };
 
-module.exports = { verifyOTP, generateTokens, address, updateStock, extractWeight, removeExtraSpaces, sendOrderConfirmationMsg };
+// ========================================= referral code related functions ======================================== //
+
+// generate unique coupon for the referrer and referred
+
+// utils/generateReferra  lCode.js
+const generateUniqueCode = () => {
+  return crypto.randomBytes(4).toString('hex').toUpperCase(); // Generates a 6-character referral code
+}
+
+
+// create a unique referral code
+const createReferralCoupon = async (userId, type) => {
+
+  const expirationDate = new Date();
+  expirationDate.setDate(expirationDate.getDate() + 7); // Set expiration to 3 days from now
+  const localDate = new Date(expirationDate).toLocaleDateString('en-IN') // for showing it to the user in the format DD/MM/YYYY
+  
+  const coupon = new Coupon({
+    code: generateUniqueCode(),
+    name: `Referral ${type === 'referrer' ? 'Bonus' : 'Welcome'} Coupon`,
+    description: `Get ₹100 off on all orders above ₹999 - (Valid till ${localDate})`,
+    type: 'referral',
+    value: 100,
+    minOrderValue: 999,
+    status: 'active',
+    isReferralCoupon: true,
+    expiresAt: expirationDate
+  });
+
+  await coupon.save();
+  return coupon;
+};
+
+
+// Separate function to handle referral rewards
+const handleReferralReward = async (userId, orderId) => {
+  try {
+    const user = await User.findById(userId);
+
+    // If this user was referred by someone, give the referrer their reward
+    if (user.referredBy) {
+      const referrer = await User.findOne({ referralCode: user.referredBy });
+
+      if (!referrer) {
+        console.error('Referrer not found for referral code:', user.referredBy);
+        return;
+      }
+
+      // Check if referrer already got reward for this user
+      const existingReward = referrer.referralCoupons.find(
+        coupon => coupon.type === 'referrer' &&
+          coupon.orderId?.toString() === orderId.toString()
+      );
+
+      if (!existingReward) {
+        // Create coupon for referrer
+        const referrerCoupon = await createReferralCoupon(referrer._id, 'referrer');
+
+        referrer.referralCoupons.push({
+          couponId: referrerCoupon._id,
+          orderId: orderId,
+          type: 'referrer',
+          isUsed: false
+        });
+
+        await referrer.save();
+
+        // Optionally send notification to referrer about their reward
+        try {
+          await sendEmail(
+            referrer?.email,
+            "You've Earned a Referral Reward!",
+            "couponInformation",
+            {
+              customerName: `${referrer.firstName || ''} ${referrer.lastName || ''}`.trim(),
+              couponValue: '₹100',
+              couponCode: referrerCoupon.code,
+              minOrderValue: '₹999',
+              // Add more template variables as needed
+            }
+          );
+        } catch (emailError) {
+          console.error('Error sending referral reward email:', emailError);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error handling referral reward:', error);
+    throw error;
+  }
+};
+
+
+
+// Function to expire coupons
+const expireCoupons = async () => {
+  try {
+    const now = new Date();  // Get the current date/time
+
+    // Expire coupons that are active and past their expiration date
+    const expiredCoupons = await Coupon.updateMany(
+      {
+        status: 'active',
+        expiresAt: { $lt: now }  // Expiration condition
+      },
+      {
+        $set: { status: 'expired' }  // Update to expired
+      }
+    );
+
+    // Log how many coupons were updated
+
+  } catch (error) {
+    // Log any errors that occur in the cron job
+    console.error('Error expiring coupons:', error);
+    // Optionally, send error to a monitoring service (e.g., Sentry, Datadog)
+  }
+};
+
+
+
+// update coupon status
+const updateCouponStatus = async (couponId, status) => {
+  try {
+      // Update the coupon status
+      const coupon = await Coupon.findById(couponId);
+      if (coupon) {
+        coupon.status = status;
+        await coupon.save();
+      }
+  } catch (error) {
+    console.error('Error marking coupon as used:', error);
+    throw error;
+  }
+}
+
+// 4. Add a function to handle coupon usage 
+// const markCouponAsUsed = async (couponId, userId) => {
+//   try {
+//     // Update the coupon status
+//     const coupon = await Coupon.findById(couponId);
+//     if (coupon && coupon.status === 'active') {
+//       coupon.status = 'used';
+//       await coupon.save();
+//     }
+
+    
+//     // Update the user's referralCoupons array
+//     const user = await User.findById(userId);
+//     const referralCoupon = user.referralCoupons.find(
+//       rc => rc.couponId.toString() === couponId.toString()
+//     );
+    
+//     if (referralCoupon) {
+//       referralCoupon.isUsed = true;
+//       await user.save();
+//     }
+//   } catch (error) {
+//     console.error('Error marking coupon as used:', error);
+//     throw error;
+//   }
+// };
+
+
+const markCouponActive = async (couponId, userId) => {
+  try {
+    // Update the coupon status
+    const coupon = await Coupon.findById(couponId);
+    if (coupon && coupon.status === 'used') {
+      coupon.status = 'active';
+      await coupon.save();
+    }
+
+    
+    // Update the user's referralCoupons array
+    const user = await User.findById(userId);
+    const referralCoupon = user.referralCoupons.find(
+      rc => rc.couponId.toString() === couponId.toString()
+    );
+    
+    if (referralCoupon) {
+      referralCoupon.isUsed = false;
+      await user.save();
+    }
+  } catch (error) {
+    console.error('Error marking coupon as active:', error);
+    throw error;
+  }
+};
+
+
+// =========================================  Ended ======================================== //
+
+
+
+module.exports = {
+  verifyOTP,
+  generateTokens,
+  address,
+  updateStock,
+  extractWeight,
+  removeExtraSpaces,
+  sendOrderConfirmationMsg,
+  generateUniqueCode,
+  createReferralCoupon,
+  handleReferralReward,
+  expireCoupons,
+  updateCouponStatus,
+  // markCouponAsUsed,
+  markCouponActive
+};

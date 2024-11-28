@@ -1,6 +1,7 @@
 const User = require('../models/User');
-const passport = require('passport');
+// const passport = require('passport');
 const Products = require('../models/Products.js');
+const { updateCouponStatus } = require('../utility/helper.js');
 
 
 // Middleware to protect routes
@@ -47,8 +48,17 @@ exports.addItemToCart = async (req, res) => {
       };
     }
 
+    // making referral code active again if user add a new product after using the coupon code 
+    if (user.referralCoupons.length > 0) {
+      for (let coupon of user.referralCoupons) {
+        if(!coupon.isUsed){
+          await updateCouponStatus(coupon.couponId, 'active')
+        }
+      }
+    }
+
     // Fetch product information
-    const product = await Products.findOne({'name-url':productName});
+    const product = await Products.findOne({ 'name-url': productName });
     if (!product) {
       return res.status(404).json({ msg: 'Product not found' });
     }
@@ -83,7 +93,7 @@ exports.addItemToCart = async (req, res) => {
 
     // Iterate over each item in the cart to recalculate the totals
     for (const item of user.cart.items) {
-      const product = await Products.findOne({'name-url':item.productName})
+      const product = await Products.findOne({ 'name-url': item.productName })
       const discountedPrice = product.price * (1 - product.discount / 100);
       const itemSubtotal = discountedPrice * item.quantity;
 
@@ -131,6 +141,16 @@ exports.clearCart = async (req, res) => {
     user.cart.couponCodeApplied = []
 
 
+
+  // making referral code active again if user add a new product after using the coupon code 
+  // if (user.referralCoupons.length > 0) {
+  //   for (let coupon of user.referralCoupons) {
+  //     if (coupon.isUsed) {
+  //       await markCouponActive(coupon.couponId, user._id)
+  //     }
+  //   }
+  // }
+
     // Save the updated user document
     await user.save();
 
@@ -168,7 +188,7 @@ exports.deleteSingleItem = async (req, res) => {
 
     // Iterate over each remaining item in the cart to recalculate the totals
     for (const item of user.cart.items) {
-      const product = await Products.findOne({'name-url':item.productName});
+      const product = await Products.findOne({ 'name-url': item.productName });
       const discountedPrice = product.price * (1 - product.discount / 100);
       const itemSubtotal = discountedPrice * item.quantity;
 
@@ -185,6 +205,16 @@ exports.deleteSingleItem = async (req, res) => {
     // user.cart.isCouponCodeApplied = false
     user.cart.couponCodeApplied = []
 
+
+
+  // making referral code active again if user add a new product after using the coupon code 
+  if (user.referralCoupons.length > 0) {
+    for (let coupon of user.referralCoupons) {
+      if(!coupon.isUsed){
+        await updateCouponStatus(coupon.couponId, 'active')
+      }
+    }
+  }
 
     // Save the updated user document
     await user.save();
@@ -231,7 +261,7 @@ exports.updateQty = async (req, res) => {
 
     // Iterate over each item in the cart to recalculate the totals
     for (const item of user.cart.items) {
-      const product = await Products.findOne({'name-url':item.productName});
+      const product = await Products.findOne({ 'name-url': item.productName });
       const discountedPrice = product.price * (1 - product.discount / 100);
       const itemSubtotal = discountedPrice * item.quantity;
 
@@ -246,6 +276,16 @@ exports.updateQty = async (req, res) => {
     user.cart.totalTaxes = Math.round(totalTaxes);
     // user.cart.isCouponCodeApplied = false
     user.cart.couponCodeApplied = []
+
+
+  // making referral code active again if user add a new product after using the coupon code 
+  if (user.referralCoupons.length > 0) {
+    for (let coupon of user.referralCoupons) {
+      if(!coupon.isUsed){
+        await updateCouponStatus(coupon.couponId, 'active')
+      }
+    }
+  }
 
     // Save the updated user document
     await user.save();
@@ -267,17 +307,17 @@ exports.handleCartMerge = async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: 'User not found' });
     }
-    user.cart.items=cart.items,
-    user.cart.totalCartAmount=cart.totalCartAmount,
-    user.cart.totalTaxes=cart.totalTaxes,
-    user.cart.couponCodeApplied=cart.couponCodeApplied
+    user.cart.items = cart.items,
+      user.cart.totalCartAmount = cart.totalCartAmount,
+      user.cart.totalTaxes = cart.totalTaxes,
+      user.cart.couponCodeApplied = cart.couponCodeApplied
 
     user.save()
 
 
     res.json(user.cart);
   } catch (error) {
-  console.error('Error merging cart:', err.message);
+    console.error('Error merging cart:', err.message);
     res.status(500).send('Server error');
   }
 }

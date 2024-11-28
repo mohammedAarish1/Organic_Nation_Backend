@@ -227,7 +227,9 @@ exports.signup = async (req, res) => {
         email: user.email || '',
         phoneNumber: user.phoneNumber || '',
         cart: user.cart || [],
-        addresses: user.addresses || []
+        addresses: user.addresses || [],
+        referralCode:user.referralCode||'',
+        referralCoupons: user.referralCoupons || []
       },
     });
   } catch (error) {
@@ -284,6 +286,9 @@ exports.login = async (req, res) => {
         email: user.email,
         phoneNumber: user.phoneNumber,
         cart: user.cart,
+        addresses: user.addresses || [],
+        referralCode:user.referralCode||'',
+        referralCoupons: user.referralCoupons || []
       },
     });
   } catch (error) {
@@ -338,8 +343,9 @@ exports.refreshToken = async (req, res) => {
         email: user.email || '',
         phoneNumber: user.phoneNumber || '',
         cart: user.cart || [],
-        addresses: user.addresses || []
-
+        addresses: user.addresses || [],
+        referralCode:user.referralCode||'',
+        referralCoupons: user.referralCoupons || []
         // Add other necessary user fields
       },
     });
@@ -392,3 +398,26 @@ exports.getUser = async (req, res) => {
       .json({ message: "Error getting user", error: error.message });
   }
 };
+
+
+// check if a referral code (user) exist in the database 
+exports.isReferralCodeExist = async (req, res) => {
+  try {
+    const {referralCode} = req.body;
+
+
+    if (!referralCode) {
+      return res.status(400).json({ message: "Referral code is required" })
+    }
+
+    const isExist=await User.findOne({ referralCode,})
+
+    if (!isExist) {
+      return res.status(201).json({exist:false, message: "Referral code does not exist" })
+    }
+
+    return res.status(200).json({exist:true, message: "Referral code exist" })
+  } catch (error) {
+    return res.status(500).json({ message: "Error checking referral code", error: error.message });
+  }
+}

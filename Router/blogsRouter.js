@@ -10,9 +10,9 @@ const {
 } = require("../Handler/blogsHandler.js");
 
 router.get("/", getAllBlogs);
-router.get("/:id", getSingleBlog);
+router.get("/:titleUrl", getSingleBlog);
 router.get("/posts", getAllRecipes);
-router.get("/:id", getSingleRecipe);
+router.get("/recipes/:titleUrl", getSingleRecipe);
 
 
 

@@ -6,24 +6,38 @@ const couponSchema = new mongoose.Schema({
   description: { type: String },
   type: { 
     type: String, 
-    enum: ['percentage', 'fixed', 'bundle'], 
+    enum: ['percentage', 'fixed', 'bundle','referral'], 
     required: true 
   },
-//   discountValue: { type: Number },
-//   bundleDetails: {
-//     category: { type: String },
-//     quantity: { type: Number },
-//     fixedPrice: { type: Number }
-//   },
-//   minPurchaseAmount: { type: Number, default: 0 },
-//   maxDiscountAmount: { type: Number },
-//   startDate: { type: Date, required: true },
-//   endDate: { type: Date, required: true },
-  isActive: { type: Boolean, default: true },
-//   usageLimit: { type: Number, default: null },
-//   usageCount: { type: Number, default: 0 },
+
+  value: { type: Number,default: null  }, // Amount of discount
+  minOrderValue: { type: Number,default: null }, // Minimum order value required
+  isReferralCoupon: { type: Boolean, default: false },
+
+  status: {
+    type: String,
+    enum: ['active', 'used', 'expired'],
+    default: 'active'
+  },
+
+  expiresAt: { type: Date, required: true,default: null }, // New field for expiration
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
+
+
+// Add a method to check if coupon is expired
+couponSchema.methods.isExpired = function() {
+  return this.expiresAt < new Date();
+};
+
+// Add pre-save middleware to update status if expired
+// couponSchema.pre('save', function(next) {
+//   if (this.expiresAt < new Date()) {
+//     this.status = 'expired';
+//   }
+//   next();
+// });
+
 
 module.exports = mongoose.model('Coupon', couponSchema);

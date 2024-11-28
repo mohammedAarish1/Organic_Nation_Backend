@@ -1,14 +1,70 @@
 const User = require("../models/User");
 const Products = require("../models/Products.js");
 const Coupon = require("../models/Coupon.js");
+const { expireCoupons, updateCouponStatus } = require("../utility/helper.js");
+const cron = require('node-cron');
 // const jwt = require('jsonwebtoken');
 // const mongoose = require('mongoose');
 
+
+
+// Set up the scheduled task with node-cron
+cron.schedule('0 0 * * *', async () => {
+  try {
+
+    // Run the coupon expiration function
+    await expireCoupons();
+  } catch (error) {
+    console.error('Error running cron job for coupon expiration:', error);
+    // You can also send the error to monitoring services here
+  }
+}, {
+  scheduled: true,
+  timezone: "Asia/Kolkata"  // Set the timezone for cron job to run at midnight IST
+});
+
+
+// get single coupon code details suing coupon id
+exports.getSingleCouponUsingId = async (req, res) => {
+  try {
+    const { couponId } = req.params;
+    const coupon = await Coupon.findById(couponId);
+    if (!coupon) {
+      return res.status(404).json({ message: "Coupon not found" });
+    }
+    res.json(coupon);
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching coupon" });
+  }
+}
+// get single coupon code details suing coupon id
+exports.getSingleCouponUsingCode = async (req, res) => {
+  try {
+    const { code } = req.params;
+    const coupon = await Coupon.findOne({ code });
+    if (!coupon) {
+      return res.status(404).json({ message: "Coupon not found" });
+    }
+
+    res.json(coupon);
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching coupon" });
+  }
+}
+
+
+
+// family coupon
 exports.validateCouponCode = async (req, res) => {
   const { phoneNumber, couponCode } = req.body;
   try {
+    const coupon = await Coupon.findOne({ code: couponCode });
+    if (!coupon) {
+      return res.status(400).json({ error: "Invalid coupon code" });
+    }
+
     if (!phoneNumber) {
-      return res.status(400).json({ error: "Please log in to apply coupon code" });
+      return res.status(400).json({ error: "Please log in to apply this coupon code" });
     }
 
     // 1. Find user
@@ -17,19 +73,27 @@ exports.validateCouponCode = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
+
+    // check user's cart if they added anything
+    if (user.cart.items.length === 0) {
+      return res.status(400).json({ error: "Your cart is empty" });
+    }
+
+    // check if totalcartamount is above 1000
+    if (user.cart.totalCartAmount < 1000) {
+      return res.status(400).json({ error: "Please add products worth ₹1000 or more" })
+    }
+
+
     if (user.cart.couponCodeApplied.length !== 0) {
       return res.status(404).json({ error: "Not Applicable" });
     }
 
-    const coupon = await Coupon.findOne({ code: couponCode });
-    if (!coupon) {
-      return res.status(400).json({ error: "Invalid coupon code" });
-    }
 
     if (!["Friends", "Family", "Employee"].includes(user.role)) {
       return res
         .status(403)
-        .json({ error: "User not authorized for this discount" });
+        .json({ error: "You are not authorized for this discount" });
     }
 
     // 2. Validate coupon 
@@ -399,6 +463,15 @@ exports.applyPickleCouponCode = async (req, res) => {
   try {
     const { cart, phoneNumber, couponCode } = req.body;
 
+    // checking if cart is empty
+    const isEmpty = cart => Object.keys(cart).length === 0 && cart.constructor === Object;
+
+
+    if (isEmpty(cart)) {
+      return res.status(400).json({ error: "Your cart is empty !" });
+
+    }
+
     // Find the coupon in the database
     const coupon = await Coupon.findOne({ code: couponCode });
     if (!coupon) {
@@ -411,12 +484,6 @@ exports.applyPickleCouponCode = async (req, res) => {
     }
 
     // Calculate total quantity of pickles
-    // const totalQuantityOfPickles = cart.items.reduce((total, item) => {
-    //   if (item.productName.toLowerCase().includes("pickle")) {
-    //     return total + item.quantity;
-    //   }
-    //   return total;
-    // }, 0);
     const totalQuantityOfPickles = cart.items.reduce((total, item) => {
       const productName = item.productName.toLowerCase();
       if (productName.includes("pickle") && !productName.includes("combo")) {
@@ -533,6 +600,16 @@ exports.applyPickleCouponCode = async (req, res) => {
 exports.applyAdditionalDiscountCoupon = async (req, res) => {
   try {
     const { cart, phoneNumber, couponCode } = req.body;
+
+    const isEmpty = cart => Object.keys(cart).length === 0 && cart.constructor === Object;
+
+
+    if (isEmpty(cart)) {
+      return res.status(400).json({ error: "Your cart is empty !" });
+
+    }
+
+
     if (cart.couponCodeApplied.length !== 0) {
       return res.status(404).json({ error: "Not eligible" });
     }
@@ -613,6 +690,98 @@ exports.applyAdditionalDiscountCoupon = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// ================================ api for referral coupon code discount ==================================
+exports.applyReferralCodeDiscount = async (req, res) => {
+  const { phoneNumber, couponId } = req.body;
+  try {
+
+
+    if (!couponId || !phoneNumber) {
+      return res.status(400).json({ error: "Invalid request" });
+    }
+
+    // 1. find coupon code in database
+    const coupon = await Coupon.findById(couponId);
+    if (!coupon) {
+      return res.status(400).json({ error: "Invalid coupon code" });
+    }
+
+    // 2.  Find the user
+    const user = await User.findOne({ phoneNumber, });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // 3.  check if the coupon code is already expired or used
+    if (coupon.status !== 'active') {
+      return res.status(400).json({ error: `This coupon code is already ${coupon.status}` });
+    }
+
+
+    // 4. check user's cart if they added anything
+    if (user.cart.items.length === 0) {
+      return res.status(400).json({ error: "Your cart is empty" });
+    }
+
+    // 5. check if totalcartamount is above 999
+    if (user.cart.totalCartAmount < coupon.minOrderValue) {
+      return res.status(400).json({ error: "Minimum order value should be 999" })
+    }
+
+    // 6. chekcing if user already used any other the coupon code
+    if (user.cart.couponCodeApplied.length !== 0) {
+      return res.status(404).json({ error: "You can use only one coupon at one time" });
+    }
+
+    // 7. chekcing if user added any combo product
+    for (const item of user.cart.items) {
+      if (item.productName.toLowerCase().includes('combo')) {
+        return res.status(400).json({ error: "Coupon not applicable on combo products" });
+      }
+    }
+
+
+    const totalCartValue = user.cart.totalCartAmount // current total value of cart
+    const totalTaxValue = user.cart.totalTaxes // current total tax value of cart
+
+
+    // 8. calculating the tax percentage in current total value of the cart
+    const totalTaxInPercentage = Math.round(totalTaxValue / totalCartValue * 100)
+
+    // 9. calculating the tax to be deducted after deducting the discount
+    const taxToDeduct = Math.round(coupon.value * totalTaxInPercentage / 100)
+
+    // 10. calculating new total cart value and new total tax value
+    const newTotalCartAmount = totalCartValue - coupon.value
+    const newTotalTaxes = totalTaxValue - taxToDeduct
+
+    // 11.  prepare coupon code object
+    const couponCodeInfo = { id: coupon._id, name: coupon.name };
+
+    // 12. Update user's cart
+    user.cart.totalCartAmount = Math.round(newTotalCartAmount);
+    user.cart.totalTaxes = Math.round(newTotalTaxes);
+    user.cart.couponCodeApplied.push(couponCodeInfo);
+
+    await user.save();
+    await updateCouponStatus(coupon._id, 'used');
+    
+    // 13. Prepare response
+    const response = {
+      message: "Coupon Code Applied Successfully",
+      couponCodeApplied: user.cart.couponCodeApplied,
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error("Error in coupon validation:", error);
+    res.status(500).json({
+      error: error.message || "An error occurred during coupon validation",
+    });
+  }
+};
+
 
 
 

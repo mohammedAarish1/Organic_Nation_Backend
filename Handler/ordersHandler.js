@@ -9,7 +9,8 @@ const {
   generateInvoiceNumber,
 } = require("../utility/invoiceTemplates/generateInvoiceNumber.js");
 const { sendEmail } = require("../utility/emailService");
-const { address, updateStock, sendOrderConfirmationMsg } = require("../utility/helper.js");
+const { address, updateStock, sendOrderConfirmationMsg, handleReferralReward } = require("../utility/helper.js");
+const Coupon = require("../models/Coupon.js");
 
 // const requireAuth = passport.authenticate('jwt', { session: false });
 
@@ -34,7 +35,6 @@ exports.createOrder = async (req, res) => {
     receiverDetails,
     merchantTransactionId,
     couponCodeApplied,
-    // orderStatus, // New field
   } = req.body;
 
   try {
@@ -101,7 +101,7 @@ exports.createOrder = async (req, res) => {
 
     await user.save();
 
-    // === handling the user addresses ending ==================
+    // === handling the user addresses ends ==================
 
     // Generate the unique invoice number
     const invoiceNumber = await generateInvoiceNumber();
@@ -140,7 +140,7 @@ exports.createOrder = async (req, res) => {
       };
     });
 
-    // =========== calculating the acutal amount paid for each item end ========
+    // =========== calculating the acutal amount paid for each item ends ========
 
 
     const newOrder = new Order({
@@ -148,9 +148,7 @@ exports.createOrder = async (req, res) => {
       orderNo: "ON" + Date.now(),
       userEmail,
       phoneNumber,
-      // shippingAddress: address(shippingAddress),
       shippingAddress: shippingAddress,
-      // billingAddress: address(billingAddress),
       billingAddress: billingAddress,
       orderDetails: orderDetailsWithAcutalAmtPaid,
       subTotal,
@@ -161,25 +159,72 @@ exports.createOrder = async (req, res) => {
       receiverDetails,
       merchantTransactionId,
       couponCodeApplied,
-      orderStatus: "active", // Set default value if not provided
+      orderStatus: "active",
       invoiceNumber,
     });
 
     const savedOrder = await newOrder.save();
+
+
+
 
     if (savedOrder.paymentMethod === "cash_on_delivery") {
       const orderNumber = savedOrder.orderNo;
       const customerName = firstName || '';
       const totalAmount = savedOrder.subTotal + savedOrder.shippingFee;
 
+      // updating the stock
       savedOrder?.orderDetails.map(async (product) => {
         const productName = product['name-url'];
         const quantity = product.quantity;
         await updateStock(productName, quantity, 'add');
       })
 
+
+      // give referral rewards to the referrer after successful order creation
+      if (user.referredBy) {
+        try {
+          // Only process referral reward if:
+          // 1. It's the user's first order
+          const userOrderCount = await Order.countDocuments({
+            user: user._id,
+            orderStatus: { $ne: "cancelled" } // Don't count cancelled orders
+          });
+
+          // 2. The order amount meets minimum requirement (₹499)
+          const orderTotal = subTotal + shippingFee;
+
+
+          if (userOrderCount === 1 && orderTotal >= 499) {
+            // Process referral reward
+            await handleReferralReward(user._id, savedOrder._id);
+          }
+        } catch (referralError) {
+          // Log the error but don't fail the order creation
+          console.error('Error processing referral reward:', referralError);
+          // Optionally notify admin about the failed referral processing
+        }
+      }
+
+
+      // update the referral coupon as used if user uses any referral coupon code
+      if (couponCodeApplied?.length > 0) {
+        for (let coupon of couponCodeApplied) {
+          const couponDetails = await Coupon.findById(coupon.id)
+          if (couponDetails.type === 'referral') {
+            const referralCoupon = user.referralCoupons.find(
+              rc => rc.couponId.toString() === couponDetails._id.toString()
+            );
+
+            if (referralCoupon) {
+              referralCoupon.isUsed = true;
+              await user.save();
+            }
+          }
+        }
+      };
       // send order confirmation message
-      const result = await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
+      // const result = await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
       //  Send order confirmation email
       await sendEmail(
         savedOrder.userEmail,
@@ -204,15 +249,12 @@ exports.createOrder = async (req, res) => {
           email: savedOrder.userEmail,
           shippingAddress: address(savedOrder.shippingAddress),
           billingAddress: address(savedOrder.billingAddress),
-          // below line will convert the orderDetails array into plain strings
-          // orderDetails: savedOrder.orderDetails.map(item => `${item[0]},${item[3]},${item[2]}`).join(','),
           orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
           subTotal: savedOrder.subTotal,
           shippingFee: savedOrder.shippingFee,
           totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
           paymentMethod: savedOrder.paymentMethod,
           paymentStatus: savedOrder.paymentStatus,
-          // Add more template variables as needed
         }
       );
     }

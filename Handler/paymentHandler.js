@@ -4,7 +4,9 @@ const Order = require('../models/Order');
 const Products = require('../models/Products.js')
 const jwt = require('jsonwebtoken');
 const { sendEmail } = require("../utility/emailService");
-const { sendOrderConfirmationMsg, address } = require("../utility/helper.js");
+const { sendOrderConfirmationMsg, address, handleReferralReward } = require("../utility/helper.js");
+const User = require("../models/User.js");
+const Coupon = require("../models/Coupon.js");
 
 
 
@@ -255,6 +257,51 @@ exports.checkPaymentStatus = async (req, res) => {
             order.paymentStatus = 'PAID';
             await order.save(); // Save the updated order
             const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}`
+
+            // get the user
+            const user = await User.findOne({ phoneNumber: order.phoneNumber });
+
+            // give referral rewards to the referrer after successful order creation
+            if (user?.referredBy) {
+                try {
+                    // Only process referral reward if:
+                    // 1. It's the user's first order
+                    const userOrderCount = await Order.countDocuments({
+                        user: user._id,
+                        orderStatus: { $ne: "cancelled" } // Don't count cancelled orders
+                    });
+
+
+
+                    if (userOrderCount === 1 && totalAmount >= 499) {
+                        // Process referral reward
+                        await handleReferralReward(user._id, order._id);
+                    }
+                } catch (referralError) {
+                    // Log the error but don't fail the order creation
+                    console.error('Error processing referral reward:', referralError);
+                    // Optionally notify admin about the failed referral processing
+                }
+            }
+
+
+            // update the referral coupon as used if user uses any referral coupon code
+            if (order.couponCodeApplied?.length > 0) {
+                for (let coupon of order.couponCodeApplied) {
+                    const couponDetails = await Coupon.findById(coupon.id)
+                    if (couponDetails.type === 'referral') {
+                        const referralCoupon = user?.referralCoupons.find(
+                            rc => rc.couponId.toString() === couponDetails._id.toString()
+                        );
+
+                        if (referralCoupon) {
+                            referralCoupon.isUsed = true;
+                            await user.save();
+                        }
+                    }
+                }
+            };
+
 
             // Update stock availability for each product in orderDetails
             const updateStockInDatabase = order.orderDetails?.map(async (detail) => {

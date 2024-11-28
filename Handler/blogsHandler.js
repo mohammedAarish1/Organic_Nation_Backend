@@ -24,11 +24,9 @@ exports.getAllBlogs = async (req, res) => {
 // Get blog by ID
 exports.getSingleBlog = async (req, res) => {
     try {
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-            return res.status(400).json({ message: 'Invalid blog ID' });
-        }
 
-        const blog = await Blog.findById(req.params.id);
+        const { titleUrl } = req.params;
+        const blog = await Blog.findOne({ ['title-url']: titleUrl });
         if (!blog) {
             return res.status(404).json({ message: 'Blog not found' });
         }
@@ -65,11 +63,9 @@ exports.getAllRecipes = async (req, res) => {
 // Get recipe by ID
 exports.getSingleRecipe = async (req, res) => {
     try {
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-            return res.status(400).json({ message: 'Invalid recipe ID' });
-        }
 
-        const recipe = await Recipe.findById(req.params.id);
+        const { titleUrl } = req.params
+        const recipe = await Recipe.findOne({ ['title-url']: titleUrl });
         if (!recipe) {
             return res.status(404).json({ message: 'Recipe not found' });
         }

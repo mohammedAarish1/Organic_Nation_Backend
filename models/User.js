@@ -55,6 +55,24 @@ const UserSchema = new mongoose.Schema(
     refreshToken: { type: String, default: null },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
+     // Added new referral-related fields
+    referralCode: { 
+      type: String, 
+      unique: true,
+      sparse: true  // Allows null values while maintaining uniqueness
+    },
+    referredBy: { 
+      type: String,  // Will store referral code of the referrer
+      sparse: true,
+      default:null
+    },
+    referralCoupons: [{
+      couponId: { type: mongoose.Schema.Types.ObjectId, ref: 'Coupon' },
+      orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },  // Order that triggered this coupon
+      isUsed: { type: Boolean, default: false },
+      type: { type: String, enum: ['referrer', 'referred'], required: true }, // Indicates if this user was referrer or referred
+      createdAt: { type: Date, default: Date.now }
+    }],
   },
 );
 
