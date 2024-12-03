@@ -224,7 +224,7 @@ exports.createOrder = async (req, res) => {
         }
       };
       // send order confirmation message
-      // const result = await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
+      const result = await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
       //  Send order confirmation email
       await sendEmail(
         savedOrder.userEmail,
