@@ -84,7 +84,8 @@ const {
     updateReturnStatus,
     updateProductData,
     updateUserStatus,
-    handleOptimizinImages
+    handleOptimizinImages,
+    updateInvoiceNumber
 } = require("../Handler/adminHandler.js");
 const { processImage } = require("../utility/processImage.js");
 
@@ -111,6 +112,7 @@ router.post("/generate/sales/report",requireAuth, generateSalesReport);
 router.post("/generate/users/report",requireAuth, generateUsersReport);
 router.get("/returns",requireAuth, getTotalReturns);
 router.put("/returns/update/return-status", requireAuth, updateReturnStatus);
+router.put("/update/invoice/number/:orderId", requireAuth, updateInvoiceNumber);
 
 
 

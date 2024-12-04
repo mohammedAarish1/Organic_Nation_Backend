@@ -1087,7 +1087,45 @@ exports.updateProductData = async (req, res) => {
     }
 };
 
-
+// update invoice number
+exports.updateInvoiceNumber=async (req, res) => {
+    const { orderId } = req.params;  // Get the order ID from the URL params
+    const { invoiceNumber } = req.body;  // Get the new invoice number from the request body
+  
+    if (!invoiceNumber) {
+      return res.status(400).json({ error: 'Invoice number is required' });
+    }
+    try {
+      // Step 1: Check if the invoice number already exists (except for the current order)
+      const existingInvoice = await Order.findOne({ invoiceNumber, _id: { $ne: orderId } });
+      if (existingInvoice) {
+        return res.status(400).json({ error: 'Invoice number already exists' });
+      }
+  
+      // Step 2: Find the order by ID and update the invoice number
+      const updatedOrder = await Order.findByIdAndUpdate(
+        orderId,
+        { invoiceNumber },
+        { new: true, runValidators: true } // Return updated document and validate
+      );
+  
+      if (!updatedOrder) {
+        return res.status(404).json({ error: 'Order not found' });
+      }
+  
+      res.status(200).json({
+        success:true,
+        message: 'Invoice number updated successfully',
+        // updatedOrder,
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: 'An error occurred while updating the invoice number',
+        details: error.message,
+      });
+    }
+  };
+  
 
 
 // experiment images
