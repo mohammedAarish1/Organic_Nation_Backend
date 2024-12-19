@@ -190,8 +190,10 @@ exports.getPaymentDone = async (req, res) => {
 
 
 exports.checkPaymentStatus = async (req, res) => {
+    console.log('Received payment status check request:', req.query);
     const merchantTransactionId = req.query.id
-
+    console.log('merchantTransactionId', merchantTransactionId)
+    console.log('merchantId', merchantId)
 
     if (!merchantTransactionId) {
         return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=TransactionIdMissing`);
@@ -214,6 +216,9 @@ exports.checkPaymentStatus = async (req, res) => {
             'X-MERCHANT-ID': `${merchantId}`
         }
     };
+
+    console.log('Making request to payment service with URL:', options.url);
+    console.log('Request headers:', options.headers);
 
 
     // CHECK PAYMENT STATUS
@@ -238,6 +243,8 @@ exports.checkPaymentStatus = async (req, res) => {
         }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         const response = await axios.request(options);
+
+        console.log('Payment API response:', response?.data);
 
         // Simulate a failure response
         // const response = {
@@ -374,6 +381,8 @@ exports.checkPaymentStatus = async (req, res) => {
             return res.redirect(url)
         }
     } catch (error) {
+        console.error('Error occurred while processing payment status:', error.message);
+        console.error('Error stack trace:', error.stack);
         return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=InternalServerError`);
     }
 
