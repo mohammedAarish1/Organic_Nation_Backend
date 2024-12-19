@@ -5,7 +5,7 @@ let isConnected = false;
 
 const connectToMongoDB = async () => {
   if (isConnected) {
-    console.log('Using existing database connection');
+    // console.log('Using existing database connection');
     return;
   }
 
