@@ -252,11 +252,12 @@ exports.checkPaymentStatus = async (req, res) => {
             const orderNumber = order.orderNo || '';
             const customerName = order.receiverDetails?.name || '';
             const totalAmount = order.subTotal + order.shippingFee;
+            const orderId=order._id;
 
 
             order.paymentStatus = 'PAID';
             await order.save(); // Save the updated order
-            const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}`
+            const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}&orderId=${orderId}`
 
             // get the user
             const user = await User.findOne({ phoneNumber: order.phoneNumber });
