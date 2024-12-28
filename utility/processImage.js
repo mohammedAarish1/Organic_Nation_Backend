@@ -1,7 +1,7 @@
 const Sharp = require('sharp')
 const { s3Client } = require('../config/awsConfig.js');
 const { PutObjectCommand } = require("@aws-sdk/client-s3");
-
+const path = require('path');
 
 
 // const processImage = async (file, productId) => {
@@ -69,8 +69,8 @@ const processImage = async (file, productId) => {
     try {
         // Use file.buffer instead of file.arrayBuffer since multer provides buffer directly
         const imageBuffer = file.buffer;
-        const filename = `${productId}-${file.originalname.toLowerCase()}`;
-
+        const originalFilename = `${file.originalname.toLowerCase()}`;
+        const filename = path.parse(originalFilename).name;
         // Generate sizes
         const sizes = [
             { width: 320, prefix: 'sm' },
@@ -116,14 +116,14 @@ const processImage = async (file, productId) => {
 
             }));
 
-            return `https://organic-nation-product-images.s3.amazonaws.com/products/${prefix}/${filename}.webp`; // Return the path
+            return `https://organic-nation-product-images.s3.amazonaws.com/products/${productId}/${prefix}/${filename}.webp`; // Return the path
         });
 
         const paths = await Promise.all(uploadPromises);
 
-        // Return the image paths
+        // Return the image paths 
         return {
-            blur: `https://organic-nation-product-images.s3.amazonaws.com/products/blur/${filename}.webp`,
+            blur: `https://organic-nation-product-images.s3.amazonaws.com/products/${productId}/blur/${filename}.webp`,
             sm: paths[0],
             md: paths[1],
             lg: paths[2]

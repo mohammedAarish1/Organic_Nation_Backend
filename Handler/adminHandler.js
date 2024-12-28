@@ -1147,7 +1147,7 @@ exports.handleOptimizinImages = async (req, res) => {
             })
         );
 
-
+// console.log('processedImages',processedImages)
         //   const product=await Products.find({['name-url']:productId})
 
         const updatedProduct = await Products.findOneAndUpdate(
@@ -1159,7 +1159,6 @@ exports.handleOptimizinImages = async (req, res) => {
         if (!updatedProduct) {
             throw new Error("Product not found");
         }
-
 
         // Return the processed image paths
         res.json({

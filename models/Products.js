@@ -55,16 +55,16 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  img: {
-    type: [String],
-    required: true
-  },
-  // img: [{
-  //   blur: String,
-  //   sm: String,
-  //   md: String,
-  //   lg: String
-  // }],
+  // img: {
+  //   type: [String],
+  //   required: true
+  // },
+  img: [{
+    blur: String,
+    sm: String,
+    md: String,
+    lg: String
+  }],
   meta: {
     buy: {
       type: Number,
