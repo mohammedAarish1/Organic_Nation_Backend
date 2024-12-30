@@ -1,23 +1,25 @@
 const MainBanners = require("../models/MainBanners")
-const { PutObjectCommand } = require("@aws-sdk/client-s3");
-const { s3Client } = require('../config/awsConfig.js');
+// const { PutObjectCommand } = require("@aws-sdk/client-s3");
+// const { s3Client } = require('../config/awsConfig.js');
+const { processImage } = require("../utility/processImage.js");
+const path = require('path');
 
 
 
-const uploadToS3 = async (file, Bucket, Key) => {
+// const uploadToS3 = async (file, Bucket, Key) => {
 
-    const params = {
-        Bucket,
-        Key: `${Key}/${file.originalname}`,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-        ACL: 'public-read'
-    };
+//     const params = {
+//         Bucket,
+//         Key: `${Key}/${file.originalname}`,
+//         Body: file.buffer,
+//         ContentType: file.mimetype,
+//         ACL: 'public-read'
+//     };
 
-    // return s3.upload(params).promise();
-    await s3Client.send(new PutObjectCommand(params));
-    return `https://${Bucket}.s3.ap-south-1.amazonaws.com/${Key}/${file.originalname}`;
-};
+//     // return s3.upload(params).promise();
+//     await s3Client.send(new PutObjectCommand(params));
+//     return `https://${Bucket}.s3.ap-south-1.amazonaws.com/${Key}/${file.originalname}`;
+// };
 
 // ==================== get all banners ===============================
 exports.getAllMainBanners = async (req, res) => {
@@ -50,33 +52,38 @@ exports.addNewBanner = async (req, res) => {
             return res.status(401).json({ error: 'Order number already exist' })
         }
 
-        let bannerUrl;
+        let bannerImage;
 
         if (!file) {
             return res.status(400).json({ success: false, message: 'Image is required' })
         } else {
-            const Bucket = process.env.AWS_BUCKET_NAME_OTHER_IMAGES
-            const Key = `main_banners`
-            try {
-                bannerUrl = await uploadToS3(file, Bucket, Key)  // uploading image
-            } catch (uploadError) {
-                throw new Error('Image upload failed: ' + uploadError.message);
-            }
-
+            const sizes = [
+                { width: 640, prefix: 'sm' },  // Small size for mobile view
+                { width: 1024, prefix: 'md' }, // Medium size for tablet or smaller laptop view
+                { width: 1519, prefix: 'lg' }, // Original size for desktop/laptop view
+            ];
+            const bucket = process.env.AWS_BUCKET_NAME_OTHER_IMAGES
+            const newFolder=path.parse(file.originalname.toLowerCase()).name
+            const key = `homepage-banners/${newFolder}`
+            // try {
+            //     bannerUrl = await uploadToS3(file, Bucket, Key)  // uploading image
+            // } catch (uploadError) {
+            //     throw new Error('Image upload failed: ' + uploadError.message);
+            // }
+             bannerImage = await processImage(sizes,bucket,key,file);;
         }
 
         // Create a new banner document
         const newBanner = new MainBanners({
             title,
             description,
-            image: bannerUrl,
+            image: bannerImage,
             redirectionUrl,
             order
         });
 
         // Save the banner to the database
         await newBanner.save();
-
         res.status(201).json({
             success: true,
             message: 'Banner created successfully',

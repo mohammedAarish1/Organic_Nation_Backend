@@ -20,6 +20,7 @@ const { s3Client } = require('../config/awsConfig.js');
 const ReturnItem = require('../models/ReturnItem.js');
 const { address } = require('../utility/helper.js');
 const { processImage } = require('../utility/processImage.js');
+const MainBanners = require('../models/MainBanners.js');
 // const path = require('path');
 
 
@@ -1088,67 +1089,62 @@ exports.updateProductData = async (req, res) => {
 };
 
 // update invoice number
-exports.updateInvoiceNumber=async (req, res) => {
+exports.updateInvoiceNumber = async (req, res) => {
     const { orderId } = req.params;  // Get the order ID from the URL params
     const { invoiceNumber } = req.body;  // Get the new invoice number from the request body
-  
+
     if (!invoiceNumber) {
-      return res.status(400).json({ error: 'Invoice number is required' });
+        return res.status(400).json({ error: 'Invoice number is required' });
     }
     try {
-      // Step 1: Check if the invoice number already exists (except for the current order)
-      const existingInvoice = await Order.findOne({ invoiceNumber, _id: { $ne: orderId } });
-      if (existingInvoice) {
-        return res.status(400).json({ error: 'Invoice number already exists' });
-      }
-  
-      // Step 2: Find the order by ID and update the invoice number
-      const updatedOrder = await Order.findByIdAndUpdate(
-        orderId,
-        { invoiceNumber },
-        { new: true, runValidators: true } // Return updated document and validate
-      );
-  
-      if (!updatedOrder) {
-        return res.status(404).json({ error: 'Order not found' });
-      }
-  
-      res.status(200).json({
-        success:true,
-        message: 'Invoice number updated successfully',
-        // updatedOrder,
-      });
+        // Step 1: Check if the invoice number already exists (except for the current order)
+        const existingInvoice = await Order.findOne({ invoiceNumber, _id: { $ne: orderId } });
+        if (existingInvoice) {
+            return res.status(400).json({ error: 'Invoice number already exists' });
+        }
+
+        // Step 2: Find the order by ID and update the invoice number
+        const updatedOrder = await Order.findByIdAndUpdate(
+            orderId,
+            { invoiceNumber },
+            { new: true, runValidators: true } // Return updated document and validate
+        );
+
+        if (!updatedOrder) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Invoice number updated successfully',
+            // updatedOrder,
+        });
     } catch (error) {
-      res.status(500).json({
-        error: 'An error occurred while updating the invoice number',
-        details: error.message,
-      });
+        res.status(500).json({
+            error: 'An error occurred while updating the invoice number',
+            details: error.message,
+        });
     }
-  };
-  
+};
 
 
-// experiment images
+
+// API for optimizing website images (internal usage)
+
+// for product imagesm ---
 
 exports.handleOptimizinImages = async (req, res) => {
     try {
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ error: 'No files uploaded' });
         }
-
         const productId = req.body.productId || Date.now().toString(); // Fallback if no productId provided
-
-
-
 
         const processedImages = await Promise.all(
             req.files.map(file => {
                 return processImage(file, productId);
             })
         );
-
-// console.log('processedImages',processedImages)
-        //   const product=await Products.find({['name-url']:productId})
 
         const updatedProduct = await Products.findOneAndUpdate(
             { ['name-url']: productId }, // Query criteria
@@ -1174,4 +1170,49 @@ exports.handleOptimizinImages = async (req, res) => {
         });
     }
 }
-// experiment images
+
+// for banners
+
+// exports.handleOptimizingBannerImages = async (req, res) => {
+//     try {
+//         if (!req.files || req.files.length === 0) {
+//             return res.status(400).json({ error: 'No files uploaded' });
+//         }
+//         const bannerId = req.body.productId || Date.now().toString(); // Fallback if no productId provided
+//         const processedImages = await Promise.all(
+//             req.files.map(file => {
+//                 return processImage(file, bannerId);
+//             })
+//         );
+
+//         const finalProcessed=processedImages[0]
+//         console.log('finalProcessed',finalProcessed)
+
+//         const updatedProduct = await MainBanners.findOneAndUpdate(
+//             { _id: bannerId }, // Query criteria
+//             { image: finalProcessed }, // Fields to update
+//             { new: true } // Return the updated document
+//         );
+
+//         if (!updatedProduct) {
+//             throw new Error("Product not found");
+//         }
+
+//         console.log('done..')
+//         // Return the processed image paths
+//         res.json({
+//             success: true,
+//             imagePaths: finalProcessed
+//         });
+
+//     } catch (error) {
+//         console.error('Upload error:', error);
+//         res.status(500).json({
+//             error: 'Failed to process images',
+//             details: error.message
+//         });
+//     }
+// }
+
+
+// API for optimizing website images (internal usage) ended--

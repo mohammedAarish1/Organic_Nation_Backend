@@ -4,11 +4,14 @@ const { PutObjectCommand } = require("@aws-sdk/client-s3");
 const path = require('path');
 
 
-// const processImage = async (file, productId) => {
-//     try {
-//         const imageBuffer = await file.arrayBuffer();
-//         const filename = `${productId}-${file.name.toLowerCase()}`;
 
+// for product images
+// const processImage2 = async (file, productId) => {
+//     try {
+//         // Use file.buffer instead of file.arrayBuffer since multer provides buffer directly
+//         const imageBuffer = file.buffer;
+//         const originalFilename = `${file.originalname.toLowerCase()}`;
+//         const filename = path.parse(originalFilename).name;
 //         // Generate sizes
 //         const sizes = [
 //             { width: 320, prefix: 'sm' },
@@ -20,15 +23,18 @@ const path = require('path');
 //         const blurredBuffer = await Sharp(imageBuffer)
 //             .resize(20) // Tiny size for blur placeholder
 //             .blur(10)
+//             .webp({ quality: 20 }) // Lower quality for placeholder
 //             .toBuffer();
 
 //         // Upload blur placeholder
 //         await s3Client.send(new PutObjectCommand({
 //             Bucket: process.env.AWS_BUCKET_NAME,
-//             Key: `products/blur/${filename}`,
+//             Key: `products/${productId}/blur/${filename}.webp`, // Add .webp extension
 //             Body: blurredBuffer,
 //             ContentType: 'image/webp',
-//             CacheControl: 'public, max-age=31536000'
+//             CacheControl: 'public, max-age=31536000',
+//             ACL: 'public-read'
+
 //         }));
 
 //         // Process and upload each size
@@ -43,21 +49,25 @@ const path = require('path');
 
 //             await s3Client.send(new PutObjectCommand({
 //                 Bucket: process.env.AWS_BUCKET_NAME,
-//                 Key: `products/${prefix}/${filename}`,
+//                 Key: `products/${productId}/${prefix}/${filename}.webp`, // Add .webp extension
 //                 Body: processedBuffer,
 //                 ContentType: 'image/webp',
-//                 CacheControl: 'public, max-age=31536000'
+//                 CacheControl: 'public, max-age=31536000',
+//                 ACL: 'public-read'
+
 //             }));
+
+//             return `https://organic-nation-product-images.s3.amazonaws.com/products/${productId}/${prefix}/${filename}.webp`; // Return the path
 //         });
 
-//         await Promise.all(uploadPromises);
+//         const paths = await Promise.all(uploadPromises);
 
-//         // Return the image paths
+//         // Return the image paths 
 //         return {
-//             blur: `products/blur/${filename}`,
-//             sm: `products/sm/${filename}`,
-//             md: `products/md/${filename}`,
-//             lg: `products/lg/${filename}`
+//             blur: `https://organic-nation-product-images.s3.amazonaws.com/products/${productId}/blur/${filename}.webp`,
+//             sm: paths[0],
+//             md: paths[1],
+//             lg: paths[2]
 //         };
 //     } catch (error) {
 //         console.error('Error processing image:', error);
@@ -65,74 +75,75 @@ const path = require('path');
 //     }
 // };
 
-const processImage = async (file, productId) => {
+// for banner images
+const processImage = async (sizes,bucket,key,file) => {
     try {
         // Use file.buffer instead of file.arrayBuffer since multer provides buffer directly
         const imageBuffer = file.buffer;
         const originalFilename = `${file.originalname.toLowerCase()}`;
         const filename = path.parse(originalFilename).name;
-        // Generate sizes
-        const sizes = [
-            { width: 320, prefix: 'sm' },
-            { width: 640, prefix: 'md' },
-            { width: 960, prefix: 'lg' }
-        ];
 
-        // Generate blur placeholder
+        // Generate sizes for banner images (you can adjust these sizes based on your requirements)
+        // const sizes = [
+        //     { width: 640, prefix: 'sm' },  // Small size for mobile view
+        //     { width: 1024, prefix: 'md' }, // Medium size for tablet or smaller laptop view
+        //     { width: 1519, prefix: 'lg' }, // Original size for desktop/laptop view
+        // ];
+
+        // Generate blur placeholder for the banner image
         const blurredBuffer = await Sharp(imageBuffer)
             .resize(20) // Tiny size for blur placeholder
             .blur(10)
             .webp({ quality: 20 }) // Lower quality for placeholder
             .toBuffer();
 
-        // Upload blur placeholder
+        // Upload blur placeholder to S3
         await s3Client.send(new PutObjectCommand({
-            Bucket: process.env.AWS_BUCKET_NAME,
-            Key: `products/${productId}/blur/${filename}.webp`, // Add .webp extension
+            Bucket: bucket,
+            Key: `${key}/blur/${filename}.webp`, // Add .webp extension
             Body: blurredBuffer,
             ContentType: 'image/webp',
             CacheControl: 'public, max-age=31536000',
-            ACL: 'public-read'
-
+            ACL: 'public-read',
         }));
 
-        // Process and upload each size
+        // Process and upload each size (small, medium, large)
         const uploadPromises = sizes.map(async ({ width, prefix }) => {
             const processedBuffer = await Sharp(imageBuffer)
                 .resize(width, null, {
                     withoutEnlargement: true,
                     fit: 'contain'
                 })
-                .webp({ quality: 80 })
+                .webp({ quality: 80 }) // 80% quality for the main images
                 .toBuffer();
 
             await s3Client.send(new PutObjectCommand({
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: `products/${productId}/${prefix}/${filename}.webp`, // Add .webp extension
+                Bucket: bucket,
+                Key: `${key}/${prefix}/${filename}.webp`, // Add .webp extension
                 Body: processedBuffer,
                 ContentType: 'image/webp',
                 CacheControl: 'public, max-age=31536000',
-                ACL: 'public-read'
-
+                ACL: 'public-read',
             }));
 
-            return `https://organic-nation-product-images.s3.amazonaws.com/products/${productId}/${prefix}/${filename}.webp`; // Return the path
+            return `https://${bucket}.s3.amazonaws.com/${key}/${prefix}/${filename}.webp`; // Return the path
         });
 
         const paths = await Promise.all(uploadPromises);
 
-        // Return the image paths 
+        // Return the image paths for the banner (blur, sm, md, lg)
         return {
-            blur: `https://organic-nation-product-images.s3.amazonaws.com/products/${productId}/blur/${filename}.webp`,
+            blur: `https://${bucket}.s3.amazonaws.com/${key}/blur/${filename}.webp`,
             sm: paths[0],
             md: paths[1],
-            lg: paths[2]
+            lg: paths[2],
         };
     } catch (error) {
-        console.error('Error processing image:', error);
+        console.error('Error processing banner image:', error);
         throw error;
     }
 };
+
 
 
 module.exports = { processImage };
