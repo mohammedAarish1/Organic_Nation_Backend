@@ -79,7 +79,7 @@ const OrderSchema = new mongoose.Schema({
   // isCouponCodeApplied: { type: Boolean, default: false },
   // isPickleCouponApplied: { type: Boolean,default: false  }, // New field and will be removed once pickle offer over
   orderStatus: { type: String, default: 'active' }, // Order status with default value "active"
-  invoiceNumber: { type: String, required: true, unique: true },
+  invoiceNumber: { type: String, required: true },
   deliveryDate: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now }
 },

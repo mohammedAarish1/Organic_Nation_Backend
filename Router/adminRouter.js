@@ -84,7 +84,7 @@ const {
     updateReturnStatus,
     updateProductData,
     updateUserStatus,
-    handleOptimizinImages,
+    // handleOptimizinImages,
     updateInvoiceNumber,
     // handleOptimizingBannerImages
 } = require("../Handler/adminHandler.js");
@@ -119,7 +119,7 @@ router.put("/update/invoice/number/:orderId", requireAuth, updateInvoiceNumber);
 
 // experiment for images =============
 
-router.post('/product/upload/optimized/images', upload.array('images', 5), handleOptimizinImages);
+// router.post('/product/upload/optimized/images', upload.array('images', 5), handleOptimizinImages);
 // router.post('/product/upload/optimized/images', upload.array('images', 5), handleOptimizingBannerImages);
 
 

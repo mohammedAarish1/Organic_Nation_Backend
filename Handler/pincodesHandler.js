@@ -18,7 +18,7 @@ exports.checkDeliveryAvailability = async (req, res) => {
                 }
             });
         } else {
-            res.json({
+            res.status(401).json({
                 available: false,
                 message: 'Delivery is not available for this pin code.'
             });

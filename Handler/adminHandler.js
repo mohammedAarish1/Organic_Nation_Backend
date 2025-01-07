@@ -26,43 +26,80 @@ const MainBanners = require('../models/MainBanners.js');
 
 
 // Helper function to upload file to S3
-const uploadToS3 = async (file, productName) => {
-    const sanitizedProductName = productName.replace(/\s+/g, '-');
+// const uploadToS3 = async (file, productName) => {
+//     const sanitizedProductName = productName.replace(/\s+/g, '-');
 
-    const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: `Organic-Nation-Images/${sanitizedProductName}/${file.originalname}`,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-        ACL: 'public-read'
-    };
+//     const params = {
+//         Bucket: process.env.AWS_BUCKET_NAME,
+//         Key: `Organic-Nation-Images/${sanitizedProductName}/${file.originalname}`,
+//         Body: file.buffer,
+//         ContentType: file.mimetype,
+//         ACL: 'public-read'
+//     };
 
-    // return s3.upload(params).promise();
-    await s3Client.send(new PutObjectCommand(params));
-    return `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/Organic-Nation-Images/${sanitizedProductName}/${file.originalname}`;
-};
+//     // return s3.upload(params).promise();
+//     await s3Client.send(new PutObjectCommand(params));
+//     return `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/Organic-Nation-Images/${sanitizedProductName}/${file.originalname}`;
+// };
 
 // Helper to delete file from S3
-const deleteFromS3 = async (imageUrl) => {
-    // Extract the key from the URL
-    const key = imageUrl.split('.com/')[1];
+// const deleteFromS3 = async (imageUrls) => {
 
-    // Define the parameters for the delete operation
-    const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: key
-    };
+//     imageUrls.forEach(async (imageUrl) => {
+//         // Extract the key from the URL
+//         const key = imageUrl.split('.com/')[1];
 
-    // Create the DeleteObjectCommand
-    const deleteCommand = new DeleteObjectCommand(params);
+//         // Define the parameters for the delete operation
+//         const params = {
+//             Bucket: process.env.AWS_BUCKET_NAME,
+//             Key: key
+//         };
 
-    // Send the delete command using the S3 client
-    try {
-        await s3Client.send(deleteCommand);
-    } catch (error) {
-        throw error; // Rethrow the error if needed
+//         // Create the DeleteObjectCommand
+//         const deleteCommand = new DeleteObjectCommand(params);
+
+//         // Send the delete command using the S3 client
+//         try {
+//             await s3Client.send(deleteCommand);
+//         } catch (error) {
+//             throw error; // Rethrow the error if needed
+//         }
+//     })
+
+// };
+
+const deleteFromS3 = async (imageUrls) => {
+    // Use Object.entries() to loop over the key-value pairs of imageUrls
+    for (const [size, imageUrl] of Object.entries(imageUrls)) {
+        if (size === '_id') {
+            // Skip the '_id' key if it's not an image URL
+            continue;
+        }
+
+        try {
+            // Extract the key from the URL (after the domain name)
+            const s3Key = imageUrl.split('.com/')[1]; // Get the key part after '.com/'
+
+            // Define the parameters for the delete operation
+            const params = {
+                Bucket: process.env.AWS_BUCKET_NAME, // Make sure this is set in your environment variables
+                Key: s3Key, // The key to delete
+            };
+
+            // Create the DeleteObjectCommand
+            const deleteCommand = new DeleteObjectCommand(params);
+
+            // Send the delete command using the S3 client
+            await s3Client.send(deleteCommand);
+        } catch (error) {
+            // Optionally rethrow or handle the error
+            throw error; // Rethrow or handle the error as needed
+        }
     }
 };
+
+
+
 
 
 // Helper function to upload file to S3
@@ -476,11 +513,24 @@ exports.addNewProductInDatabase = async (req, res) => {
         let imageUrls;
         // Upload new images if any
         if (req.files?.length > 0) {
+            const sizes = [
+                { width: 320, prefix: 'sm' },
+                { width: 640, prefix: 'md' },
+                { width: 960, prefix: 'lg' }
+            ];
+            const bucket = process.env.AWS_BUCKET_NAME
+            const newFolder = name.replace(/\s+/g, '-')
+            const key = `products/${newFolder}`
             try {
-                const uploadPromises = req.files.map(file =>
-                    uploadToS3(file, name)
+                // const uploadPromises = req.files.map(file =>
+                //     uploadToS3(file, name)
+                // );
+                imageUrls = await Promise.all(
+                    req.files.map(file => {
+                        return processImage(sizes, bucket, key, file);
+                    })
                 );
-                imageUrls = await Promise.all(uploadPromises);
+                // imageUrls = await Promise.all(uploadPromises);
             } catch (uploadError) {
                 await session.abortTransaction();
                 throw new Error('Image upload failed: ' + uploadError.message);
@@ -555,7 +605,7 @@ exports.deleteDocument = async (req, res) => {
         if (!result) {
             return res.status(404).json({ message: 'Document not found' });
         }
-        res.json({ message: 'Document deleted successfully' });
+        res.status(200).json({ data: result, message: 'Document deleted successfully' });
     } catch (error) {
         console.error('Error deleting document:', error);
         res.status(500).json({ message: 'Internal server error' });
@@ -564,27 +614,120 @@ exports.deleteDocument = async (req, res) => {
 
 
 
-// generate sale report 
+// generate sale report (old) 
+
+// exports.generateSalesReport = async (req, res) => {
+//     try {
+//         const { startDate, endDate } = req.body;
+
+
+//         // Validate date inputs
+//         const start = new Date(startDate);
+//         const end = new Date(endDate);
+
+
+//         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+//             return res.status(400).json({ message: 'Invalid date format. Please use YYYY-MM-DD format.' });
+//         }
+
+
+//         // Set the time to the start and end of the day
+//         start.setHours(0, 0, 0, 0);
+//         end.setHours(23, 59, 59, 999);
+
+//         // Fetch orders within the date range
+//         // Fetch orders within the date range
+//         const orders = await Order.find({
+//             createdAt: { $gte: start, $lte: end }
+//         }).populate('user');
+
+//         const workbook = new ExcelJS.Workbook();
+//         const worksheet = workbook.addWorksheet('Order Report');
+
+//         // Add headers
+//         worksheet.addRow([
+//             'Invoice Number', 'Invoice Date', 'Order Status', 'Order Id', 'Order Date',
+//             'Item Description', 'Item Returned', 'HSN', 'MRP', 'Discount %', 'Discount Amount',
+//             'Price After Discount', 'Quantity', 'Sub Total', 'Shipping Charges',
+//             'Invoice Amount', 'Tax Exclusive Gross', 'Total Tax Amount',
+//             'Cgst Rate', 'Sgst Rate', 'Utgst Rate', 'Igst Rate',
+//             'Cgst Tax', 'Sgst Tax', 'Igst Tax',
+//             'Bill From City', 'Bill From State', 'Bill From Country', 'Bill From Postal Code',
+//             'Ship From City', 'Ship From State', 'Ship From Country', 'Ship From Postal Code',
+//             'Ship To City', 'Ship To State', 'Ship To Country', 'Ship To Postal Code',
+//             'Payment Method', 'Bill To City', 'Bill To State', 'Bill To Country', 'Bill To Postalcode',
+//             'Buyer Name'
+//         ]);
+
+//         for (const order of orders) {
+//             const invoiceDate = new Date(order.createdAt).toLocaleDateString('en-GB');
+//             const totalOfMrp = order.orderDetails.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+//             const discountPercentage = Math.round(((totalOfMrp - order.subTotal) / totalOfMrp) * 100);
+
+//             for (const item of order.orderDetails) {
+//                 const discountAmount = Math.round(((item.unitPrice * discountPercentage) / 100) * 100) / 100;
+//                 const priceAfterDiscount = Math.round((item.unitPrice - discountAmount) * 100) / 100;
+//                 const subTotal = Math.round((priceAfterDiscount * item.quantity) * 100) / 100;
+//                 const invoiceAmount = subTotal + order.shippingFee;
+//                 const taxExclusiveGross = Math.round(((invoiceAmount * 100) / (100 + item.tax)) * 100) / 100;
+//                 const totalTaxAmount = Math.round((taxExclusiveGross * (item.tax / 100)) * 100) / 100;
+
+//                 let cgstRate = 0, sgstRate = 0, igstRate = 0;
+//                 if (order.shippingAddress.state.toLowerCase() === 'uttar pradesh' || order.billingAddress.state.toLowerCase() === 'uttar pradesh') {
+//                     cgstRate = sgstRate = item.tax / 2;
+//                 } else {
+//                     igstRate = item.tax;
+//                 }
+
+//                 const buyer = await User.findOne({ email: order.userEmail.toLowerCase() });
+
+//                 worksheet.addRow([
+//                     order.invoiceNumber, invoiceDate, order.orderStatus, order._id.toString(), invoiceDate,
+//                     item['name-url'], item.returnInfo.isItemReturned ? 'Yes' : 'No', item.hsnCode, item.unitPrice, discountPercentage, discountAmount,
+//                     priceAfterDiscount, item.quantity, subTotal, order.shippingFee,
+//                     invoiceAmount, taxExclusiveGross, totalTaxAmount,
+//                     cgstRate, sgstRate, 0, igstRate,
+//                     cgstRate ? Math.round((totalTaxAmount / 2) * 100) / 100 : 0, sgstRate ? Math.round((totalTaxAmount / 2) * 100) / 100 : 0, igstRate ? Math.round(totalTaxAmount * 100) / 100 : 0,
+//                     'Noida', 'UTTAR PRADESH', 'IN', '201301',
+//                     'NOIDA', 'UTTAR PRADESH', 'IN', '201301',
+//                     order.shippingAddress?.city || '', order.shippingAddress?.state || '', 'IN', order.shippingAddress?.pinCode || '',
+//                     order.paymentMethod,
+//                     order.billingAddress.city || '', order.billingAddress.state || '', 'IN', order.billingAddress?.pinCode || '',
+//                     buyer ? buyer.firstName + ' ' + buyer.lastName : ''
+//                 ]);
+//             }
+//         }
+
+//         // Generate Excel file
+//         const buffer = await workbook.xlsx.writeBuffer();
+
+//         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+//         res.setHeader('Content-Disposition', 'attachment; filename=OrderReport.xlsx');
+//         res.send(buffer);
+
+//     } catch (error) {
+//         console.error('Error generating report:', error);
+//         res.status(500).json({ message: 'Error generating report', error: error.message });
+//     }
+// }
+
+// generate sale report (new) 
 exports.generateSalesReport = async (req, res) => {
     try {
         const { startDate, endDate } = req.body;
-
 
         // Validate date inputs
         const start = new Date(startDate);
         const end = new Date(endDate);
 
-
         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
             return res.status(400).json({ message: 'Invalid date format. Please use YYYY-MM-DD format.' });
         }
-
 
         // Set the time to the start and end of the day
         start.setHours(0, 0, 0, 0);
         end.setHours(23, 59, 59, 999);
 
-        // Fetch orders within the date range
         // Fetch orders within the date range
         const orders = await Order.find({
             createdAt: { $gte: start, $lte: end }
@@ -612,12 +755,18 @@ exports.generateSalesReport = async (req, res) => {
             const invoiceDate = new Date(order.createdAt).toLocaleDateString('en-GB');
             const totalOfMrp = order.orderDetails.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
             const discountPercentage = Math.round(((totalOfMrp - order.subTotal) / totalOfMrp) * 100);
+            const buyer = await User.findOne({ email: order.userEmail.toLowerCase() });
 
-            for (const item of order.orderDetails) {
+            // Process each item in the order
+            order.orderDetails.forEach((item, index) => {
                 const discountAmount = Math.round(((item.unitPrice * discountPercentage) / 100) * 100) / 100;
                 const priceAfterDiscount = Math.round((item.unitPrice - discountAmount) * 100) / 100;
                 const subTotal = Math.round((priceAfterDiscount * item.quantity) * 100) / 100;
-                const invoiceAmount = subTotal + order.shippingFee;
+                
+                // Only include shipping fee in the invoice amount for the first item
+                const shippingFee = index === 0 ? order.shippingFee : 0;
+                const invoiceAmount = subTotal + shippingFee;
+                
                 const taxExclusiveGross = Math.round(((invoiceAmount * 100) / (100 + item.tax)) * 100) / 100;
                 const totalTaxAmount = Math.round((taxExclusiveGross * (item.tax / 100)) * 100) / 100;
 
@@ -628,18 +777,10 @@ exports.generateSalesReport = async (req, res) => {
                     igstRate = item.tax;
                 }
 
-                // const shippingAddPincode = order.shippingAddress.pinCode;
-                // const shippingAddPincodeDetails = await PinCode.findOne({ pinCode: shippingAddPincode });
-
-                // const billingAddPincode = order.billingAddress.pinCode;
-                // const billingAddPincodeDetails = await PinCode.findOne({ pinCode: billingAddPincode });
-
-                const buyer = await User.findOne({ email: order.userEmail.toLowerCase() });
-
                 worksheet.addRow([
                     order.invoiceNumber, invoiceDate, order.orderStatus, order._id.toString(), invoiceDate,
                     item['name-url'], item.returnInfo.isItemReturned ? 'Yes' : 'No', item.hsnCode, item.unitPrice, discountPercentage, discountAmount,
-                    priceAfterDiscount, item.quantity, subTotal, order.shippingFee,
+                    priceAfterDiscount, item.quantity, subTotal, shippingFee, // Only show shipping fee for first item
                     invoiceAmount, taxExclusiveGross, totalTaxAmount,
                     cgstRate, sgstRate, 0, igstRate,
                     cgstRate ? Math.round((totalTaxAmount / 2) * 100) / 100 : 0, sgstRate ? Math.round((totalTaxAmount / 2) * 100) / 100 : 0, igstRate ? Math.round(totalTaxAmount * 100) / 100 : 0,
@@ -650,7 +791,7 @@ exports.generateSalesReport = async (req, res) => {
                     order.billingAddress.city || '', order.billingAddress.state || '', 'IN', order.billingAddress?.pinCode || '',
                     buyer ? buyer.firstName + ' ' + buyer.lastName : ''
                 ]);
-            }
+            });
         }
 
         // Generate Excel file
@@ -666,7 +807,9 @@ exports.generateSalesReport = async (req, res) => {
     }
 }
 
+
 // export all users details
+
 exports.generateUsersReport = async (req, res) => {
     try {
         const { startDate, endDate } = req.body;
@@ -954,7 +1097,7 @@ exports.updateProductData = async (req, res) => {
         // Delete removed images from S3
         if (removedImages.length > 0) {
             try {
-                const deletePromises = removedImages.map(imageUrl => deleteFromS3(imageUrl));
+                const deletePromises = removedImages.map(imageUrls => deleteFromS3(imageUrls));
                 await Promise.all(deletePromises);
             } catch (deleteError) {
                 await session.abortTransaction();
@@ -964,11 +1107,23 @@ exports.updateProductData = async (req, res) => {
 
         // Upload new images if any
         if (req.files?.length > 0) {
+            const sizes = [
+                { width: 320, prefix: 'sm' },
+                { width: 640, prefix: 'md' },
+                { width: 960, prefix: 'lg' }
+            ];
+            const bucket = process.env.AWS_BUCKET_NAME
+            const newFolder = existingProduct.name.replace(/\s+/g, '-')
+            const key = `products/${newFolder}`
             try {
-                const uploadPromises = req.files.map(file =>
-                    uploadToS3(file, updateData.name || existingProduct.name)
+                // const uploadPromises = req.files.map(file =>
+                //     uploadToS3(file, updateData.name || existingProduct.name)
+                // );
+                const newImageUrls =  await Promise.all(
+                    req.files.map(file => {
+                        return processImage(sizes, bucket, key, file);
+                    })
                 );
-                const newImageUrls = await Promise.all(uploadPromises);
                 finalImageUrls = [...finalImageUrls, ...newImageUrls];
             } catch (uploadError) {
                 await session.abortTransaction();
@@ -1005,7 +1160,7 @@ exports.updateProductData = async (req, res) => {
         setIfExists('description', updateData.description?.trim());
         setIfExists('availability', updateData.availability, parseInt);
 
-        // Always update images array if there are any changes
+        // Always update images array if there are any changes 
         if (finalImageUrls.length > 0 || removedImages.length > 0) {
             productUpdate.img = finalImageUrls;
         }
@@ -1131,45 +1286,45 @@ exports.updateInvoiceNumber = async (req, res) => {
 
 // API for optimizing website images (internal usage)
 
-// for product imagesm ---
+// for product images ---
 
-exports.handleOptimizinImages = async (req, res) => {
-    try {
-        if (!req.files || req.files.length === 0) {
-            return res.status(400).json({ error: 'No files uploaded' });
-        }
-        const productId = req.body.productId || Date.now().toString(); // Fallback if no productId provided
+// exports.handleOptimizinImages = async (req, res) => {
+//     try {
+//         if (!req.files || req.files.length === 0) {
+//             return res.status(400).json({ error: 'No files uploaded' });
+//         }
+//         const productId = req.body.productId || Date.now().toString(); // Fallback if no productId provided
 
-        const processedImages = await Promise.all(
-            req.files.map(file => {
-                return processImage(file, productId);
-            })
-        );
+//         const processedImages = await Promise.all(
+//             req.files.map(file => {
+//                 return processImage(file, productId);
+//             })
+//         );
 
-        const updatedProduct = await Products.findOneAndUpdate(
-            { ['name-url']: productId }, // Query criteria
-            { img: processedImages }, // Fields to update
-            { new: true } // Return the updated document
-        );
+//         const updatedProduct = await Products.findOneAndUpdate(
+//             { ['name-url']: productId }, // Query criteria
+//             { img: processedImages }, // Fields to update
+//             { new: true } // Return the updated document
+//         );
 
-        if (!updatedProduct) {
-            throw new Error("Product not found");
-        }
+//         if (!updatedProduct) {
+//             throw new Error("Product not found");
+//         }
 
-        // Return the processed image paths
-        res.json({
-            success: true,
-            imagePaths: processedImages
-        });
+//         // Return the processed image paths
+//         res.json({
+//             success: true,
+//             imagePaths: processedImages
+//         });
 
-    } catch (error) {
-        console.error('Upload error:', error);
-        res.status(500).json({
-            error: 'Failed to process images',
-            details: error.message
-        });
-    }
-}
+//     } catch (error) {
+//         console.error('Upload error:', error);
+//         res.status(500).json({
+//             error: 'Failed to process images',
+//             details: error.message
+//         });
+//     }
+// }
 
 // for banners
 
