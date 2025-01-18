@@ -1,8 +1,10 @@
-const { getDb } = require("../Database.js");
-const { ObjectId } = require('mongodb'); // Ensure ObjectId is imported
-const Products = require('../models/Products.js')
-const ProductAdditionalInfo = require('../models/ProductAdditoinalInfo.js')
-const mongoose = require('mongoose');
+// const { getDb } = require("../Database.js");
+// const { ObjectId } = require('mongodb'); // Ensure ObjectId is imported
+const Products = require('../models/Products.js');
+const Review = require('../models/Review.js');
+const productSeoData  = require('../utility/seo/data.js');
+// const ProductAdditionalInfo = require('../models/ProductAdditoinalInfo.js')
+// const mongoose = require('mongoose');
 
 
 exports.allProducts = async (req, res) => {
@@ -42,15 +44,14 @@ exports.getCategories = async (req, res) => {
 };
 
 
-
-
-
 //  get products by category 
 exports.getProductsByCategory = async (req, res) => {
   try {
     const category = req.params.category;
+
     // Using Mongoose to find products by category URL
     const products = await Products.find({ 'category-url': { $regex: new RegExp(`^${category}$`, "i") } });
+
     // Sending response with products
     res.json({ products });
   } catch (error) {
@@ -59,8 +60,6 @@ exports.getProductsByCategory = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-
-
 
 
 exports.getProduct = async (req, res) => {
@@ -84,5 +83,48 @@ exports.getProduct = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+
+exports.getSingleProductAllInfo = async (req, res) => {
+  try {
+    const name = req.params.name;
+    if (!name) {
+      return res.status(400).json({ error: 'Product name is required' });
+    }
+    // fetch the product from the database
+    const singleProduct = await Products.findOne({ "name-url": name });
+
+    // Checking if product exists
+    if (!singleProduct) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // fetch all the reviews from the database for that single product
+    const reviews = await Review.find({ productName:name });
+
+    let averageRating;
+    if (reviews.length > 0) {
+      // calculate the average rating of the product
+      const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
+       averageRating = Number((totalRating / reviews.length).toFixed(1));
+
+    }
+
+    // get seo data for this product
+    const seoData =  productSeoData[name];
+    // console.log('seoData',seoData)
+    const data = {
+      details: singleProduct,
+      reviews: reviews.length > 0 ? reviews : [],
+      averageRating,
+      seoData
+    }
+
+    // Sending response with the found product
+    res.status(200).json(data);
+  } catch (error){
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
 
 
