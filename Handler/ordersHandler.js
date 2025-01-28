@@ -640,10 +640,11 @@ exports.cancelReturnRequest = async (req, res) => {
     }
 
     // Save the updated order and delete the return document
-    await Promise.all([order.save(), ReturnItem.findByIdAndDelete(returnId)]);
+   const result = await Promise.all([order.save(), ReturnItem.findByIdAndDelete(returnId)]);
 
     //     // Save the updated order
-    //     await order.save();
+
+    //     await o rder.save();
 
     //  // Inside your cancelReturnRequest function, after finding the return document:
     // if (returnDocument.images && returnDocument.images.length > 0) {
@@ -678,6 +679,7 @@ exports.cancelReturnRequest = async (req, res) => {
 
 
     res.status(200).json({
+      data:result[1],
       success: true,
       message: "Return request cancelled successfully",
       // updatedOrder: order

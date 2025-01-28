@@ -69,7 +69,6 @@ async function generateInvoiceNumber() {
 // const dropUniqueindex=async()=>{
 //   try {
 //     await mongoose.model('Order').collection.dropIndex('invoiceNumber_1');
-//     console.log('Successfully dropped the unique index on invoiceNumber');
 //   } catch (error) {
 //     if (error.code !== 27) { // Error code 27 means index doesn't exist
 //       console.error('Error dropping index:', error);

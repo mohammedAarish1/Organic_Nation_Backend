@@ -4,12 +4,10 @@ const Admin = require('../models/Admin');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const Products = require('../models/Products.js')
-const PinCode = require('../models/PinCode.js');
 const ContactedUser = require('../models/ContactedUser');
-const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const {  DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const ExcelJS = require('exceljs');
 
-const crypto = require('crypto');
 const { sendEmail } = require("../utility/emailService");
 
 
@@ -20,7 +18,6 @@ const { s3Client } = require('../config/awsConfig.js');
 const ReturnItem = require('../models/ReturnItem.js');
 const { address } = require('../utility/helper.js');
 const { processImage } = require('../utility/processImage.js');
-const MainBanners = require('../models/MainBanners.js');
 // const path = require('path');
 
 
@@ -377,133 +374,216 @@ exports.generateInvoice = async (req, res) => {
 
 // update order status
 
-exports.updateOrderStatus = async (req, res) => {
-    const { orderId, status, deliveryDate } = req.body;
+// exports.updateOrderStatus = async (req, res) => {
+//     const { orderId, status, deliveryDate } = req.body;
 
 
-    if (!orderId || !status) {
-        return res.status(400).json({ error: 'Order ID and status are required' });
-    }
+//     if (!orderId || !status) {
+//         return res.status(400).json({ error: 'Order ID and status are required' });
+//     }
 
 
-    try {
-        const updatedOrder = await Order.findByIdAndUpdate(
-            orderId,
-            {
-                orderStatus: status,
-                deliveryDate: deliveryDate || null
-            },
-            { new: true, runValidators: false }
-        );
+//     try {
+//         const updatedOrder = await Order.findByIdAndUpdate(
+//             orderId,
+//             {
+//                 orderStatus: status,
+//                 deliveryDate: deliveryDate || null
+//             },
+//             { new: true, runValidators: false }
+//         );
 
 
-        if (!updatedOrder) {
-            return res.status(404).json({ error: 'Order not found' });
-        }
+//         if (!updatedOrder) {
+//             return res.status(404).json({ error: 'Order not found' });
+//         }
 
 
-        if (updatedOrder.orderStatus === 'dispatched') {
+//         if (updatedOrder.orderStatus === 'dispatched') {
 
-            await sendEmail(
-                updatedOrder.userEmail,
-                "Order Dispatched",
-                "orderDispatched",
-                {
-                    customerName: updatedOrder.receiverDetails.name,
-                    orderNumber: updatedOrder.orderNo,
+//             await sendEmail(
+//                 updatedOrder.userEmail,
+//                 "Order Dispatched",
+//                 "orderDispatched",
+//                 {
+//                     customerName: updatedOrder.receiverDetails.name,
+//                     orderNumber: updatedOrder.orderNo,
 
-                    // Add more template variables as needed
-                }
-            );
+//                     // Add more template variables as needed
+//                 }
+//             );
 
-        } else if (updatedOrder.orderStatus === 'completed') {
+//         } else if (updatedOrder.orderStatus === 'completed') {
 
-            await sendEmail(
-                updatedOrder.userEmail,
-                "Order Delivered",
-                "orderDelivered",
-                {
-                    customerName: updatedOrder.receiverDetails.name,
-                    orderNumber: updatedOrder.orderNo,
-                    OrderAmount: updatedOrder.subTotal + updatedOrder.shippingFee,
-                    PaymentMethod: updatedOrder.paymentMethod,
-
-
-                    // Add more template variables as needed
-                }
-            );
-        }
+//             await sendEmail(
+//                 updatedOrder.userEmail,
+//                 "Order Delivered",
+//                 "orderDelivered",
+//                 {
+//                     customerName: updatedOrder.receiverDetails.name,
+//                     orderNumber: updatedOrder.orderNo,
+//                     OrderAmount: updatedOrder.subTotal + updatedOrder.shippingFee,
+//                     PaymentMethod: updatedOrder.paymentMethod,
 
 
-        res.json({ message: 'Order status updated successfully' });
-    } catch (error) {
+//                     // Add more template variables as needed
+//                 }
+//             );
+//         }
 
-        res.status(500).json({ error: 'Internal server error' });
+
+//         res.json({ updatedOrder, message: 'Order status updated successfully' });
+//     } catch (error) {
+
+//         res.status(500).json({ error: 'Internal server error' });
 
 
-    }
+//     }
 
-}
+// }
 
 
 // update payment status 
-exports.updatePaymentStatus = async (req, res) => {
-    const { orderId, status } = req.body;
+// exports.updatePaymentStatus = async (req, res) => {
+//     const { orderId, status } = req.body;
 
-    if (!orderId || !status) {
-        return res.status(400).json({ error: 'Order ID and Payment status are required' });
+//     if (!orderId || !status) {
+//         return res.status(400).json({ error: 'Order ID and Payment status are required' });
+//     }
+
+
+//     try {
+//         const updatedOrder = await Order.findByIdAndUpdate(
+//             orderId,
+//             { paymentStatus: status },
+//             { new: true, runValidators: true }
+//         );
+
+
+//         if (!updatedOrder) {
+//             return res.status(404).json({ error: 'Order not found' });
+//         }
+
+//         res.json({ updatedOrder, message: 'Payment status updated successfully' });
+//     } catch (error) {
+//         res.status(500).json({ error: 'Internal server error' });
+
+
+//     }
+
+// }
+
+exports.updateStatus = async (req, res) => {
+    const { id, collection, field, status, additionalData = {} } = req.body;
+
+    if (!id || !field || !status || !collection) {
+        return res.status(400).json({ error: 'ID, field, and status are required' });
     }
 
+    let Model;
+    switch (collection) {
+        case 'Orders':
+            Model = Order;
+            break;
+        case 'Payment':
+            Model = Order;
+            break;
+        case 'Users':
+            Model = User;
+            break;
+        case 'Products':
+            Model = Products;
+            break;
+        case 'Queries':
+            Model = ContactedUser;
+            break;
+        case 'Returns':
+            Model = ReturnItem;
+            break;
+        default:
+            return res.status(400).json({ message: 'Invalid collection name' });
+    }
 
     try {
-        const updatedOrder = await Order.findByIdAndUpdate(
-            orderId,
-            { paymentStatus: status },
+        const updatedDocument = await Model.findByIdAndUpdate(
+            id,
+            {
+                [field]: status,  // Dynamically update the specified field (e.g., 'orderStatus', 'paymentStatus')
+                ...additionalData, // Any additional data (like deliveryDate, etc.)
+            },
             { new: true, runValidators: true }
         );
 
-
-        if (!updatedOrder) {
-            return res.status(404).json({ error: 'Order not found' });
+        if (!updatedDocument) {
+            return res.status(404).json({ message: 'Document not found' });
         }
 
-        res.json({ message: 'Payment status updated successfully' });
+        if (collection === 'Orders') {
+            if (updatedDocument.orderStatus === 'dispatched') {
+
+                await sendEmail(
+                    updatedDocument.userEmail,
+                    "Order Dispatched",
+                    "orderDispatched",
+                    {
+                        customerName: updatedDocument.receiverDetails.name,
+                        orderNumber: updatedDocument.orderNo,
+
+                        // Add more template variables as needed
+                    }
+                );
+
+            } else if (updatedDocument.orderStatus === 'completed') {
+
+                await sendEmail(
+                    updatedDocument.userEmail,
+                    "Order Delivered",
+                    "orderDelivered",
+                    {
+                        customerName: updatedDocument.receiverDetails.name,
+                        orderNumber: updatedDocument.orderNo,
+                        OrderAmount: updatedDocument.subTotal + updatedDocument.shippingFee,
+                        PaymentMethod: updatedDocument.paymentMethod,
+
+
+                        // Add more template variables as needed
+                    }
+                );
+            }
+        }
+        res.status(200).json({ data: updatedDocument, collection, message: 'Updated Successfully' })
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
-
-
+        return res.status(500).json({ error: 'Internal server error' });
     }
-
 }
-
 // update user status
-exports.updateUserStatus = async (req, res) => {
-    const { userId } = req.params
-    const { status } = req.body;
-    if (!userId && !status) {
-        return res.status(400).json({ error: 'user ID and status are required' });
-    };
+// exports.updateUserStatus = async (req, res) => {
+//     const { userId } = req.params
+//     const { status } = req.body;
+//     if (!userId && !status) {
+//         return res.status(400).json({ error: 'user ID and status are required' });
+//     };
 
-    try {
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            {
-                role: status,
-            },
-            { new: true, runValidators: false }
-        );
+//     try {
+//         const updatedUser = await User.findByIdAndUpdate(
+//             userId,
+//             {
+//                 role: status,
+//             },
+//             { new: true, runValidators: false }
+//         );
 
 
-        if (!updatedUser) {
-            return res.status(404).json({ error: 'User not found' });
-        };
+//         if (!updatedUser) {
+//             return res.status(404).json({ error: 'User not found' });
+//         };
 
-        res.status(200).json({ message: 'Status Updated successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
-    }
+//         res.status(200).json({ updatedUser, message: 'Status Updated successfully' });
+//     } catch (error) {
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
 
-}
+// }
 
 // add a new product in the database
 exports.addNewProductInDatabase = async (req, res) => {
@@ -584,17 +664,20 @@ exports.deleteDocument = async (req, res) => {
 
     let Model;
     switch (collection) {
-        case 'orders':
+        case 'Orders':
             Model = Order;
             break;
-        case 'users':
+        case 'Users':
             Model = User;
             break;
-        case 'products':
+        case 'Products':
             Model = Products;
             break;
-        case 'queries':
+        case 'Queries':
             Model = ContactedUser;
+            break;
+        case 'Returns':
+            Model = ReturnItem;
             break;
         default:
             return res.status(400).json({ message: 'Invalid collection name' });
@@ -605,7 +688,7 @@ exports.deleteDocument = async (req, res) => {
         if (!result) {
             return res.status(404).json({ message: 'Document not found' });
         }
-        res.status(200).json({ data: result, message: 'Document deleted successfully' });
+        res.status(200).json({ data: result, collection, message: 'Document deleted successfully' });
     } catch (error) {
         console.error('Error deleting document:', error);
         res.status(500).json({ message: 'Internal server error' });
@@ -762,11 +845,11 @@ exports.generateSalesReport = async (req, res) => {
                 const discountAmount = Math.round(((item.unitPrice * discountPercentage) / 100) * 100) / 100;
                 const priceAfterDiscount = Math.round((item.unitPrice - discountAmount) * 100) / 100;
                 const subTotal = Math.round((priceAfterDiscount * item.quantity) * 100) / 100;
-                
+
                 // Only include shipping fee in the invoice amount for the first item
                 const shippingFee = index === 0 ? order.shippingFee : 0;
                 const invoiceAmount = subTotal + shippingFee;
-                
+
                 const taxExclusiveGross = Math.round(((invoiceAmount * 100) / (100 + item.tax)) * 100) / 100;
                 const totalTaxAmount = Math.round((taxExclusiveGross * (item.tax / 100)) * 100) / 100;
 
@@ -875,69 +958,33 @@ exports.getTotalReturns = async (req, res) => {
 
 // update return status
 
-exports.updateReturnStatus = async (req, res) => {
-    const { returnId, status } = req.body;
+// exports.updateReturnStatus = async (req, res) => {
+//     const { returnId, status } = req.body;
 
-    if (!returnId || !status) {
-        return res.status(400).json({ error: 'Return ID and status are required' });
-    }
+//     if (!returnId || !status) {
+//         return res.status(400).json({ error: 'Return ID and status are required' });
+//     }
 
-    try {
-        const updatedReturnItem = await ReturnItem.findByIdAndUpdate(
-            returnId,
-            { returnStatus: status },
-            { new: true, runValidators: true }
-        );
-
-
-        if (!updatedReturnItem) {
-            return res.status(404).json({ error: 'Return not found' });
-        }
+//     try {
+//         const updatedReturnItem = await ReturnItem.findByIdAndUpdate(
+//             returnId,
+//             { returnStatus: status },
+//             { new: true, runValidators: true }
+//         );
 
 
-        // if (updatedOrder.orderStatus === 'dispatched') {
+//         if (!updatedReturnItem) {
+//             return res.status(404).json({ error: 'Return not found' });
+//         }
 
-        //     await sendEmail(
-        //         updatedOrder.userEmail,
-        //         "Order Dispatched",
-        //         "orderDispatched",
-        //         {
-        //             customerName: updatedOrder.receiverDetails.name,
-        //             orderNumber: updatedOrder.orderNo,
-
-        //             // Add more template variables as needed
-        //         }
-        //     );
-
-        // } else if (updatedOrder.orderStatus === 'completed') {
-
-        //     await sendEmail(
-        //         updatedOrder.userEmail,
-        //         "Order Delivered",
-        //         "orderDelivered",
-        //         {
-        //             customerName: updatedOrder.receiverDetails.name,
-        //             orderNumber: updatedOrder.orderNo,
-        //             OrderAmount: updatedOrder.subTotal + updatedOrder.shippingFee,
-        //             PaymentMethod: updatedOrder.paymentMethod,
+//         res.json({ data: updatedReturnItem, message: 'Return status updated successfully' });
+//     } catch (error) {
+//         res.status(500).json({ error: 'Internal server error' });
 
 
-        //             // Add more template variables as needed
-        //         }
-        //     );
-        // }
+//     }
 
-
-        res.json({ message: 'Return status updated successfully' });
-    } catch (error) {
-
-
-        res.status(500).json({ error: 'Internal server error' });
-
-
-    }
-
-}
+// }
 
 // edit or modify the existing product data
 // exports.updateProductData = async (req, res) => {
@@ -1110,7 +1157,7 @@ exports.updateProductData = async (req, res) => {
             const sizes = [
                 { width: 320, prefix: 'sm' },
                 { width: 640, prefix: 'md' },
-                { width: 960, prefix: 'lg' }
+                { width: 1020, prefix: 'lg' }
             ];
             const bucket = process.env.AWS_BUCKET_NAME
             const newFolder = existingProduct.name.replace(/\s+/g, '-')
@@ -1119,7 +1166,7 @@ exports.updateProductData = async (req, res) => {
                 // const uploadPromises = req.files.map(file =>
                 //     uploadToS3(file, updateData.name || existingProduct.name)
                 // );
-                const newImageUrls =  await Promise.all(
+                const newImageUrls = await Promise.all(
                     req.files.map(file => {
                         return processImage(sizes, bucket, key, file);
                     })
@@ -1341,7 +1388,6 @@ exports.updateInvoiceNumber = async (req, res) => {
 //         );
 
 //         const finalProcessed=processedImages[0]
-//         console.log('finalProcessed',finalProcessed)
 
 //         const updatedProduct = await MainBanners.findOneAndUpdate(
 //             { _id: bannerId }, // Query criteria
@@ -1353,7 +1399,6 @@ exports.updateInvoiceNumber = async (req, res) => {
 //             throw new Error("Product not found");
 //         }
 
-//         console.log('done..')
 //         // Return the processed image paths
 //         res.json({
 //             success: true,

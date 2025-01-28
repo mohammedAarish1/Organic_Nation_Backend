@@ -59,7 +59,7 @@ const { connectToMongoDB } = require("./Database.js");
 
 connectToMongoDB().catch(console.error);
 
-app.use("/category", require('./Router/categoryRouter.js'));
+app.use("/products", require('./Router/categoryRouter.js'));
 app.use('/api/auth', require('./Router/authRouter.js'));
 app.use('/api/orders', require('./Router/ordersRouter.js'));
 app.use('/api/cart', require('./Router/cartRouter.js'));

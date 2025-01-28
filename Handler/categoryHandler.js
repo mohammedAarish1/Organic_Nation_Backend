@@ -2,7 +2,7 @@
 // const { ObjectId } = require('mongodb'); // Ensure ObjectId is imported
 const Products = require('../models/Products.js');
 const Review = require('../models/Review.js');
-const productSeoData  = require('../utility/seo/data.js');
+const productSeoData = require('../utility/seo/data.js');
 // const ProductAdditionalInfo = require('../models/ProductAdditoinalInfo.js')
 // const mongoose = require('mongoose');
 
@@ -10,13 +10,13 @@ const productSeoData  = require('../utility/seo/data.js');
 exports.allProducts = async (req, res) => {
   try {
 
-    const productOne = await Products.find({}).lean();
+    const products = await Products.find({}).lean();
 
 
-    if (productOne.length === 0) {
+    if (products.length === 0) {
       console.log('No products found in the database');
     }
-    res.send({ product: productOne });
+    res.status(200).json(products);
   } catch (error) {
     res.status(500).send({ error: "Internal Server Error" });
   }
@@ -38,7 +38,6 @@ exports.getCategories = async (req, res) => {
 
     res.send({ message: "done", categories: uniqueCategoriesArray });
   } catch (error) {
-    console.error("Error fetching categories:", error);
     res.status(500).send({ message: "Error fetching categories", error: error.message });
   }
 };
@@ -48,12 +47,17 @@ exports.getCategories = async (req, res) => {
 exports.getProductsByCategory = async (req, res) => {
   try {
     const category = req.params.category;
+    let products;
+    if (category === 'all') {
+      products = await Products.find({}).lean();
+    } else {
 
-    // Using Mongoose to find products by category URL
-    const products = await Products.find({ 'category-url': { $regex: new RegExp(`^${category}$`, "i") } });
+      // Using Mongoose to find products by category URL
+      products = await Products.find({ 'category-url': { $regex: new RegExp(`^${category}$`, "i") } });
+    }
 
     // Sending response with products
-    res.json({ products });
+    res.status(200).json(products);
   } catch (error) {
     // Handling errors
     console.error("Error fetching products by category:", error);
@@ -100,18 +104,18 @@ exports.getSingleProductAllInfo = async (req, res) => {
     }
 
     // fetch all the reviews from the database for that single product
-    const reviews = await Review.find({ productName:name });
+    const reviews = await Review.find({ productName: name });
 
     let averageRating;
     if (reviews.length > 0) {
       // calculate the average rating of the product
       const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
-       averageRating = Number((totalRating / reviews.length).toFixed(1));
+      averageRating = Number((totalRating / reviews.length).toFixed(1));
 
     }
 
     // get seo data for this product
-    const seoData =  productSeoData[name];
+    const seoData = productSeoData[name];
     // console.log('seoData',seoData)
     const data = {
       details: singleProduct,
@@ -122,7 +126,7 @@ exports.getSingleProductAllInfo = async (req, res) => {
 
     // Sending response with the found product
     res.status(200).json(data);
-  } catch (error){
+  } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 }
