@@ -5,6 +5,7 @@ const Order = require('../models/Order');
 const User = require('../models/User');
 const Products = require('../models/Products.js')
 const ContactedUser = require('../models/ContactedUser');
+const MainBanners = require("../models/MainBanners")
 const {  DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const ExcelJS = require('exceljs');
 
@@ -678,6 +679,9 @@ exports.deleteDocument = async (req, res) => {
             break;
         case 'Returns':
             Model = ReturnItem;
+            break;
+        case 'Banners':
+            Model = MainBanners;
             break;
         default:
             return res.status(400).json({ message: 'Invalid collection name' });

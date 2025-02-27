@@ -3,6 +3,7 @@
 const Products = require('../models/Products.js');
 const Review = require('../models/Review.js');
 const productSeoData = require('../utility/seo/data.js');
+const ProductInfo =require('../models/ProductInfo.js')
 // const ProductAdditionalInfo = require('../models/ProductAdditoinalInfo.js')
 // const mongoose = require('mongoose');
 
@@ -114,6 +115,8 @@ exports.getSingleProductAllInfo = async (req, res) => {
 
     }
 
+    const productInfo = await ProductInfo.findOne({ "name-url": name });
+
     // get seo data for this product
     const seoData = productSeoData[name];
     // console.log('seoData',seoData)
@@ -121,7 +124,8 @@ exports.getSingleProductAllInfo = async (req, res) => {
       details: singleProduct,
       reviews: reviews.length > 0 ? reviews : [],
       averageRating,
-      seoData
+      seoData,
+      productInfo
     }
 
     // Sending response with the found product
