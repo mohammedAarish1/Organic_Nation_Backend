@@ -18,8 +18,7 @@ exports.addReview = async (req, res) => {
 
 
   const userEmail = fullUser?.email || '';
-  const firstName = fullUser?.firstName || 'User';
-  const lastName = fullUser?.lastName || '';
+  const name = fullUser?.fullName || 'User';
   const phoneNumber=fullUser?.phoneNumber  || '';
 
   try {
@@ -29,7 +28,7 @@ exports.addReview = async (req, res) => {
       review,
       userEmail,
       phoneNumber,
-      userName: firstName + " " + lastName
+      userName: name
     });
 
     const savedReview = await newReview.save();

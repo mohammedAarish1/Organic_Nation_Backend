@@ -7,7 +7,7 @@ const { generateTokens, verifyOTP, generateUniqueCode, createReferralCoupon } = 
 const { default: axios } = require("axios");
 
 const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  return Math.floor(1000 + Math.random() * 9000).toString();
 };
 
 // const sendOTP = async (phoneNumber) => {
@@ -236,8 +236,7 @@ exports.verifyOTP = async (req, res) => {
         accessToken,
         user: {
           id: user._id,
-          firstName: user.firstName || '',
-          lastName: user.lastName || '',
+          fullName: user.fullName || '',
           email: user.email || '',
           phoneNumber: user.phoneNumber || '',
           cart: user.cart || [],

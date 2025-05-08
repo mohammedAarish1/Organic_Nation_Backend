@@ -282,15 +282,15 @@ exports.generateInvoice = async (req, res) => {
     }
 
 
-    const billingAddress = address(order.billingAddress)
+    const billingAddress = address(order.shippingAddress)
     const shippingAddress = address(order.shippingAddress)
     // Prepare the order data for the invoice
 
     const invoiceData = {
         orderNo: order.orderNo,
         createdAt: order.createdAt,
-        receiverName: order.receiverDetails.name,
-        receiverPhone: 'Contact Number: ' + order.receiverDetails.phoneNumber,
+        receiverName: order.userName,
+        receiverPhone: 'Contact Number: ' + order.phoneNumber,
         receiverEmail: 'Email: ' + order.userEmail,
         billingAddress,
         shippingAddress,
@@ -298,7 +298,7 @@ exports.generateInvoice = async (req, res) => {
             // Calculate unit price excluding tax
             const unitPriceExclTax = item.unitPrice / (1 + item.tax / 100);
             // Determine tax type and tax rate based on location
-            const isUP = order.shippingAddress?.state.toLowerCase() === 'uttar pradesh' || order.billingAddress.state.toLowerCase() === 'uttar pradesh';
+            const isUP = order.shippingAddress?.state.toLowerCase() === 'uttar pradesh';
             const taxType = isUP ? ['CGST', 'SGST'] : ['IGST'];
             const taxRate = isUP ? item.tax / 2 : item.tax;
 
@@ -527,7 +527,7 @@ exports.updateStatus = async (req, res) => {
                     "Order Dispatched",
                     "orderDispatched",
                     {
-                        customerName: updatedDocument.receiverDetails.name,
+                        customerName: updatedDocument.userName,
                         orderNumber: updatedDocument.orderNo,
 
                         // Add more template variables as needed
@@ -541,7 +541,7 @@ exports.updateStatus = async (req, res) => {
                     "Order Delivered",
                     "orderDelivered",
                     {
-                        customerName: updatedDocument.receiverDetails.name,
+                        customerName: updatedDocument.userName,
                         orderNumber: updatedDocument.orderNo,
                         OrderAmount: updatedDocument.subTotal + updatedDocument.shippingFee,
                         PaymentMethod: updatedDocument.paymentMethod,
@@ -876,7 +876,7 @@ exports.generateSalesReport = async (req, res) => {
                     order.shippingAddress?.city || '', order.shippingAddress?.state || '', 'IN', order.shippingAddress?.pinCode || '',
                     order.paymentMethod,
                     order.billingAddress.city || '', order.billingAddress.state || '', 'IN', order.billingAddress?.pinCode || '',
-                    buyer ? buyer.firstName + ' ' + buyer.lastName : ''
+                    buyer ? buyer.fullName : ''
                 ]);
             });
         }
@@ -926,7 +926,7 @@ exports.generateUsersReport = async (req, res) => {
 
         for (const user of users) {
             const date = new Date(user.createdAt).toLocaleDateString('en-GB');
-            worksheet.addRow([date, user.firstName + ' ' + user.lastName, user.email, user.phoneNumber])
+            worksheet.addRow([date, user.fullName, user.email, user.phoneNumber])
         }
 
         // Generate Excel file
@@ -1199,6 +1199,7 @@ exports.updateProductData = async (req, res) => {
         }
 
         setIfExists('weight', updateData.weight?.trim());
+        setIfExists('grossWeight', updateData.grossWeight?.trim());
         setIfExists('price', updateData.price, parseFloat);
         setIfExists('discount', updateData.discount, parseFloat);
         setIfExists('tax', updateData.tax, parseFloat);

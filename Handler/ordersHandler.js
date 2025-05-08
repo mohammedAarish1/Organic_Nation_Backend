@@ -14,17 +14,16 @@ const Coupon = require("../models/Coupon.js");
 
 // const requireAuth = passport.authenticate('jwt', { session: false });
 
-// @route   POST /api/orders
-// @desc    Create a new order
-exports.createOrder = async (req, res) => {
+
+// add a new order (new process)
+
+exports.addNewOrder = async (req, res) => {
   const {
     // orderNo,
-    firstName,
-    lastName,
+    fullName,
     userEmail,
     phoneNumber,
     addressType,
-    billingAddress,
     shippingAddress,
     orderDetails,
     subTotal,
@@ -32,25 +31,21 @@ exports.createOrder = async (req, res) => {
     shippingFee,
     paymentMethod,
     paymentStatus,
-    receiverDetails,
     merchantTransactionId,
     couponCodeApplied,
   } = req.body;
 
   try {
 
+    // 1. Find the user if thery exist, if not return error
     const user = await User.findOne({ phoneNumber: phoneNumber });
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
-    // Update user information if necessary
+    // 2. Update user information if necessary
     let updated = false;
-    if (firstName !== user.firstName) {
-      user.firstName = firstName;
-      updated = true;
-    }
-    if (lastName !== user.lastName) {
-      user.lastName = lastName;
+    if (fullName !== user.fullName) {
+      user.fullName = fullName;
       updated = true;
     }
     if (userEmail !== user.email) {
@@ -58,32 +53,30 @@ exports.createOrder = async (req, res) => {
       updated = true;
     }
 
-    // Save the user if any information was updated
+    // 3. Save the user if any information was updated
     if (updated) {
       await user.save();
     }
 
     // ======================== handling the user addresses ==================
 
-    // Initialize addresses array if it doesn't exist
+    // 4. Initialize addresses array if it doesn't exist
     if (!user.addresses) {
       user.addresses = [];
     }
 
-    // Create a new address object
+    // 5. Create a new address object
     const newShippingAddress = {
       addressType,
-      mainAddress: shippingAddress.mainAddress || '',
-      optionalAddress: shippingAddress.optionalAddress || '',
+      address: shippingAddress.address || '',
+      pinCode: shippingAddress.pinCode || '',
       city: shippingAddress.city || '',
       state: shippingAddress.state || '',
-      pinCode: shippingAddress.pinCode || '',
-      country: shippingAddress.country || 'India',
       isDefault: false, // Adjust as needed
     };
 
 
-    // Find the index of the existing address with the same addressType
+    // 6. Find the index of the existing address with the same addressType
     const addressIndex = user.addresses.findIndex(
       addr => addr.addressType === newShippingAddress.addressType
     );
@@ -147,16 +140,15 @@ exports.createOrder = async (req, res) => {
       user: user._id,
       orderNo: "ON" + Date.now(),
       userEmail,
+      userName:fullName,
       phoneNumber,
       shippingAddress: shippingAddress,
-      billingAddress: billingAddress,
       orderDetails: orderDetailsWithAcutalAmtPaid,
       subTotal,
       taxAmount,
       shippingFee,
       paymentMethod,
       paymentStatus,
-      receiverDetails,
       merchantTransactionId,
       couponCodeApplied,
       orderStatus: "active",
@@ -166,11 +158,9 @@ exports.createOrder = async (req, res) => {
     const savedOrder = await newOrder.save();
 
 
-
-
     if (savedOrder.paymentMethod === "cash_on_delivery") {
       const orderNumber = savedOrder.orderNo;
-      const customerName = firstName || '';
+      const customerName = fullName || '';
       const totalAmount = savedOrder.subTotal + savedOrder.shippingFee;
 
       // updating the stock
@@ -223,40 +213,39 @@ exports.createOrder = async (req, res) => {
           }
         }
       };
-      // send order confirmation message
-      const result = await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
-      //  Send order confirmation email
-      await sendEmail(
-        savedOrder.userEmail,
-        "Order Confirmation",
-        "orderConfirmation",
-        {
-          orderNumber,
-          customerName,
-          totalAmount,
-          // Add more template variables as needed
-        }
-      );
-      //  Send order receiving email to sales.foodsbay@gmail.com
-      await sendEmail(
-        'sales.foodsbay@gmail.com',
-        "Received Order",
-        "orderRecieved",
-        {
-          orderNumber: savedOrder.orderNo,
-          customerName: firstName || '',
-          phoneNumber: savedOrder.phoneNumber ||'',
-          email: savedOrder.userEmail,
-          shippingAddress: address(savedOrder.shippingAddress),
-          billingAddress: address(savedOrder.billingAddress),
-          orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
-          subTotal: savedOrder.subTotal,
-          shippingFee: savedOrder.shippingFee,
-          totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
-          paymentMethod: savedOrder.paymentMethod,
-          paymentStatus: savedOrder.paymentStatus,
-        }
-      );
+      // // send order confirmation message on phone
+      // const result = await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
+      // //  Send order confirmation email
+      // await sendEmail(
+      //   savedOrder.userEmail,
+      //   "Order Confirmation",
+      //   "orderConfirmation",
+      //   {
+      //     orderNumber,
+      //     customerName,
+      //     totalAmount,
+      //     // Add more template variables as needed
+      //   }
+      // );
+      // //  Send order receiving email to sales.foodsbay@gmail.com
+      // await sendEmail(
+      //   'sales.foodsbay@gmail.com',
+      //   "Received Order",
+      //   "orderRecieved",
+      //   {
+      //     orderNumber,
+      //     customerName,
+      //     phoneNumber: savedOrder.phoneNumber ||'',
+      //     email: savedOrder.userEmail,
+      //     shippingAddress: address(savedOrder.shippingAddress),
+      //     orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
+      //     subTotal: savedOrder.subTotal,
+      //     shippingFee: savedOrder.shippingFee,
+      //     totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
+      //     paymentMethod: savedOrder.paymentMethod,
+      //     paymentStatus: savedOrder.paymentStatus,
+      //   }
+      // );
     }
 
     res
@@ -268,6 +257,261 @@ exports.createOrder = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+
+// add a new order (new process ) --- ended
+
+
+
+// @route   POST /api/orders
+// @desc    Create a new order (old API for saving orders)
+
+// exports.createOrder = async (req, res) => {
+//   const {
+//     // orderNo,
+//     fullName,
+//     userEmail,
+//     phoneNumber,
+//     addressType,
+//     billingAddress,
+//     shippingAddress,
+//     orderDetails,
+//     subTotal,
+//     taxAmount,
+//     shippingFee,
+//     paymentMethod,
+//     paymentStatus,
+//     receiverDetails,
+//     merchantTransactionId,
+//     couponCodeApplied,
+//   } = req.body;
+
+//   try {
+
+//     const user = await User.findOne({ phoneNumber: phoneNumber });
+//     if (!user) {
+//       return res.status(404).json({ msg: "User not found" });
+//     }
+//     // Update user information if necessary
+//     let updated = false;
+//     if (fullName !== user.fullName) {
+//       user.fullName = fullName;
+//       updated = true;
+//     }
+//     if (userEmail !== user.email) {
+//       user.email = userEmail;
+//       updated = true;
+//     }
+
+//     // Save the user if any information was updated
+//     if (updated) {
+//       await user.save();
+//     }
+
+//     // ======================== handling the user addresses ==================
+
+//     // Initialize addresses array if it doesn't exist
+//     if (!user.addresses) {
+//       user.addresses = [];
+//     }
+
+//     // Create a new address object
+//     const newShippingAddress = {
+//       addressType,
+//       mainAddress: shippingAddress.mainAddress || '',
+//       optionalAddress: shippingAddress.optionalAddress || '',
+//       city: shippingAddress.city || '',
+//       state: shippingAddress.state || '',
+//       pinCode: shippingAddress.pinCode || '',
+//       country: shippingAddress.country || 'India',
+//       isDefault: false, // Adjust as needed
+//     };
+
+
+//     // Find the index of the existing address with the same addressType
+//     const addressIndex = user.addresses.findIndex(
+//       addr => addr.addressType === newShippingAddress.addressType
+//     );
+
+//     if (addressIndex === -1) {
+//       // If address doesn't exist, add it as a new address
+//       user.addresses.push(newShippingAddress);
+//     } else {
+//       // Update the existing address
+//       user.addresses[addressIndex] = {
+//         ...user.addresses[addressIndex],
+//         ...newShippingAddress
+//       };
+//     }
+
+//     await user.save();
+
+//     // === handling the user addresses ends ==================
+
+//     // Generate the unique invoice number
+//     const invoiceNumber = await generateInvoiceNumber();
+
+
+//     // =========== calculating the acutal amount paid for each item ================
+
+//     // Calculate item subtotals and grand total
+//     const itemTotals = orderDetails.map((item) => {
+//       const unitPrice = item.unitPrice;
+//       const quantity = item.quantity;
+//       return {
+//         ...item,
+//         itemSubTotal: unitPrice * quantity,
+//       };
+//     });
+
+//     const grandTotal = itemTotals.reduce(
+//       (acc, item) => acc + item.itemSubTotal,
+//       0
+//     );
+
+//     // Calculate total discount and discount percentage
+//     const totalDiscount = grandTotal - subTotal;
+//     const discountPercentage = (totalDiscount / grandTotal) * 100;
+
+//     // Calculate actual amount paid for each item
+//     const orderDetailsWithAcutalAmtPaid = itemTotals.map((item) => {
+//       const individualItemDiscount =
+//         (item.unitPrice * discountPercentage) / 100;
+//       const actualAmountPaid =
+//         item.unitPrice - individualItemDiscount;
+//       return {
+//         ...item,
+//         actualAmountPaid: Math.round(actualAmountPaid),
+//       };
+//     });
+
+//     // =========== calculating the acutal amount paid for each item ends ========
+
+
+//     const newOrder = new Order({
+//       user: user._id,
+//       orderNo: "ON" + Date.now(),
+//       userEmail,
+//       phoneNumber,
+//       shippingAddress: shippingAddress,
+//       billingAddress: billingAddress,
+//       orderDetails: orderDetailsWithAcutalAmtPaid,
+//       subTotal,
+//       taxAmount,
+//       shippingFee,
+//       paymentMethod,
+//       paymentStatus,
+//       receiverDetails,
+//       merchantTransactionId,
+//       couponCodeApplied,
+//       orderStatus: "active",
+//       invoiceNumber,
+//     });
+
+//     const savedOrder = await newOrder.save();
+
+
+
+
+//     if (savedOrder.paymentMethod === "cash_on_delivery") {
+//       const orderNumber = savedOrder.orderNo;
+//       const customerName = fullName || '';
+//       const totalAmount = savedOrder.subTotal + savedOrder.shippingFee;
+
+//       // updating the stock
+//       savedOrder?.orderDetails.map(async (product) => {
+//         const productName = product['name-url'];
+//         const quantity = product.quantity;
+//         await updateStock(productName, quantity, 'add');
+//       })
+
+
+//       // give referral rewards to the referrer after successful order creation
+//       if (user.referredBy) {
+//         try {
+//           // Only process referral reward if:
+//           // 1. It's the user's first order
+//           const userOrderCount = await Order.countDocuments({
+//             user: user._id,
+//             orderStatus: { $ne: "cancelled" } // Don't count cancelled orders
+//           });
+
+//           // 2. The order amount meets minimum requirement (₹499)
+//           const orderTotal = subTotal + shippingFee;
+
+
+//           if (userOrderCount === 1 && orderTotal >= 499) {
+//             // Process referral reward
+//             await handleReferralReward(user._id, savedOrder._id);
+//           }
+//         } catch (referralError) {
+//           // Log the error but don't fail the order creation
+//           console.error('Error processing referral reward:', referralError);
+//           // Optionally notify admin about the failed referral processing
+//         }
+//       }
+
+
+//       // update the referral coupon as used if user uses any referral coupon code
+//       if (couponCodeApplied?.length > 0) {
+//         for (let coupon of couponCodeApplied) {
+//           const couponDetails = await Coupon.findById(coupon.id)
+//           if (couponDetails.type === 'referral') {
+//             const referralCoupon = user.referralCoupons.find(
+//               rc => rc.couponId.toString() === couponDetails._id.toString()
+//             );
+
+//             if (referralCoupon) {
+//               referralCoupon.isUsed = true;
+//               await user.save();
+//             }
+//           }
+//         }
+//       };
+//       // send order confirmation message
+//       const result = await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
+//       //  Send order confirmation email
+//       await sendEmail(
+//         savedOrder.userEmail,
+//         "Order Confirmation",
+//         "orderConfirmation",
+//         {
+//           orderNumber,
+//           customerName,
+//           totalAmount,
+//           // Add more template variables as needed
+//         }
+//       );
+//       //  Send order receiving email to sales.foodsbay@gmail.com
+//       await sendEmail(
+//         'sales.foodsbay@gmail.com',
+//         "Received Order",
+//         "orderRecieved",
+//         {
+//           orderNumber: savedOrder.orderNo,
+//           customerName: fullName || '',
+//           phoneNumber: savedOrder.phoneNumber ||'',
+//           email: savedOrder.userEmail,
+//           shippingAddress: address(savedOrder.shippingAddress),
+//           billingAddress: address(savedOrder.billingAddress),
+//           orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
+//           subTotal: savedOrder.subTotal,
+//           shippingFee: savedOrder.shippingFee,
+//           totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
+//           paymentMethod: savedOrder.paymentMethod,
+//           paymentStatus: savedOrder.paymentStatus,
+//         }
+//       );
+//     }
+
+//     res
+//       .status(200)
+//       .json({ message: "Order placed successfully", orderId: savedOrder._id });
+//     // res.json(savedOrder);
+//   } catch (err) {
+//     console.error('Error creating order:', err.message);
+//     res.status(500).send("Server error");
+//   }
+// };
 
 // @route   DELETE /api/orders/:orderId
 // @desc    Cancel order by ID
@@ -494,7 +738,7 @@ exports.handleReturnItems = async (req, res) => {
       "Item Return Request Confirmation",
       "returnRequestConfirmation",
       {
-        customerName: order.receiverDetails?.name || "",
+        customerName: order.userName || "",
         orderNumber: invoiceNumber,
         itemName: itemName.replace(/-/g, " "),
         quantity: quantity,
@@ -713,7 +957,7 @@ exports.getRecentPurchases = async (req, res) => {
 
 
       const baseOrderInfo = {
-        userName: order.receiverDetails.name,
+        userName: order.userName,
         // state: order.billingAddress.split(' ').slice(-3, -2)[0], // Extracts state name
         state: order.shippingAddress.state, // Extracts state name
         createdAt: order.createdAt,

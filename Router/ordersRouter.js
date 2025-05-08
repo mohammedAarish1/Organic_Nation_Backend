@@ -29,7 +29,7 @@ const upload = multer({
   ]);
 
 const {
-    createOrder,
+    // createOrder,
     cancelOrder,
     getAllOrders,
     getOrderById,
@@ -37,10 +37,12 @@ const {
     getAllReturnItmes,
     cancelReturnRequest,
     getRecentPurchases,
+    addNewOrder,
 } = require("../Handler/ordersHandler.js");
 const authMiddleware = require("../middleware/authMiddleware.js");
 
-router.post("/", authMiddleware, createOrder);
+// router.post("/", authMiddleware, createOrder);
+router.post("/", authMiddleware, addNewOrder);
 router.delete("/:orderId", authMiddleware, cancelOrder);
 router.get("/all", authMiddleware, getAllOrders);
 router.get("/:orderId", getOrderById);

@@ -38,7 +38,7 @@ exports.getEmailVerified = async (req, res) => {
             "Reset Password",
             "passwordResetLink",
             {
-                userName: user.firstName,
+                userName: user.fullName,
                 link: resetLink,
                 // Add more template variables as needed
             }

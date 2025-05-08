@@ -250,7 +250,7 @@ exports.checkPaymentStatus = async (req, res) => {
         if (response.data.success) {
 
             const orderNumber = order.orderNo || '';
-            const customerName = order.receiverDetails?.name || '';
+            const customerName = order.userName || '';
             const totalAmount = order.subTotal + order.shippingFee;
             const orderId=order._id;
 
@@ -353,11 +353,10 @@ exports.checkPaymentStatus = async (req, res) => {
                 "orderRecieved",
                 {
                     orderNumber: order.orderNo || '',
-                    customerName: order.receiverDetails?.name || '',
+                    customerName: order.userName || '',
                     phoneNumber: order?.phoneNumber || '',
                     email: order.userEmail || '',
                     shippingAddress: address(order.shippingAddress),
-                    billingAddress: address(order.billingAddress),
                     // below line will convert the orderDetails array into plain strings 
                     orderDetails: order.orderDetails.map(item => `Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
                     subTotal: order.subTotal,

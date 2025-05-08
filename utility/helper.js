@@ -65,12 +65,10 @@ const generateTokens = (userId) => {
 
 function address(addressObj) {
   const parts = [
-    addressObj.mainAddress,
-    addressObj.optionalAddress,
+    addressObj.address,
     addressObj.city,
     addressObj.state,
     addressObj.pinCode,
-    addressObj.country
   ];
 
   // Filter out empty/null values and join with commas and spaces
@@ -265,7 +263,7 @@ const handleReferralReward = async (userId, orderId) => {
             "You've Earned a Referral Reward!",
             "couponInformation",
             {
-              customerName: `${referrer.firstName || ''} ${referrer.lastName || ''}`.trim(),
+              customerName: `${referrer.fullName || ''}`.trim(),
               couponValue: '₹100',
               couponCode: referrerCoupon.code,
               minOrderValue: '₹999',

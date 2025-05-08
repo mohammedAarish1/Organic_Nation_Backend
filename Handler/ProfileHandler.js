@@ -10,7 +10,7 @@ exports.addNewAddress = async (req, res) => {
     const newAddress = req.body;
     try {
         // Validate incoming data
-        const requiredFields = ['mainAddress', 'city', 'state', 'pinCode', 'addressType'];
+        const requiredFields = ['address', 'city', 'state', 'pinCode', 'addressType'];
         for (const field of requiredFields) {
             if (!newAddress[field]) {
                 return res.status(400).json({ error: `${field} is required` });
@@ -216,7 +216,7 @@ exports.updatePersonalInfo = async (req, res) => {
         }
 
         // Check if there are any updates
-        const allowedUpdates = ['firstName', 'lastName', 'email', 'phoneNumber'];
+        const allowedUpdates = ['fullName', 'email', 'phoneNumber'];
         const isValidOperation = Object.keys(updates).every(update =>
             allowedUpdates.includes(update)
         );

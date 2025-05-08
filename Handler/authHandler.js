@@ -28,8 +28,7 @@ exports.googleCallback = async (req, res) => {
     // Prepare user data
     const userData = {
       id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      fullName: user.fullName,
       email: user.email,
       phoneNumber: user.phoneNumber,
       cart: user.cart,
@@ -100,7 +99,7 @@ exports.collectPhoneAndPassword = async (req, res) => {
       "Welcome To Organic Nation",
       "signUpConfirmation",
       {
-        userName: req.user.firstName,
+        userName: req.user.fullName,
         // Add more template variables as needed
       }
     );
@@ -109,8 +108,7 @@ exports.collectPhoneAndPassword = async (req, res) => {
       accessToken,
       user: {
         id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        fullName: user.fullName,
         email: user.email,
         phoneNumber: user.phoneNumber,
         cart: user.cart,
@@ -164,7 +162,7 @@ exports.getUserByEmail = async (req, res) => {
 // sign up endpoint
 exports.signup = async (req, res) => {
   try {
-    const { firstName, lastName, email, phoneNumber, password } = req.body;
+    const { fullName, email, phoneNumber, password } = req.body;
 
     // Check if user exists
     const existingUser = await User.findOne({
@@ -183,8 +181,7 @@ exports.signup = async (req, res) => {
 
     // Create new user
     const user = new User({
-      firstName,
-      lastName,
+      fullName,
       email: email.toLowerCase(),
       phoneNumber,
       password: hashedPassword,
@@ -213,7 +210,7 @@ exports.signup = async (req, res) => {
       "Welcome To Organic Nation",
       "signUpConfirmation",
       {
-        userName: user.firstName,
+        userName: user.fullName,
         // Add more template variables as needed
       }
     );
@@ -222,8 +219,7 @@ exports.signup = async (req, res) => {
       accessToken,
       user: {
         id: user._id,
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
+        fullName: user.fullName || '',
         email: user.email || '',
         phoneNumber: user.phoneNumber || '',
         cart: user.cart || [],
@@ -281,8 +277,7 @@ exports.login = async (req, res) => {
       accessToken,
       user: {
         id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        fullName: user.fullName,
         email: user.email,
         phoneNumber: user.phoneNumber,
         cart: user.cart,
@@ -338,8 +333,8 @@ exports.refreshToken = async (req, res) => {
       accessToken: tokens.accessToken,
       user: {
         id: user._id,
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
+        fullName: user.fullName || '',
+        // lastName: user.lastName || '',
         email: user.email || '',
         phoneNumber: user.phoneNumber || '',
         cart: user.cart || [],

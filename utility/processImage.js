@@ -116,7 +116,7 @@ const processImage = async (sizes,bucket,key,file) => {
                     withoutEnlargement: true,
                     fit: 'contain'
                 })
-                .webp({ quality: 80 }) // 80% quality for the main images
+                .webp({ quality: 100 }) // 80% quality for the main images
                 .toBuffer();
 
             await s3Client.send(new PutObjectCommand({

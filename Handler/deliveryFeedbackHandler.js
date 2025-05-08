@@ -18,7 +18,7 @@ exports.addDeliveryFeedback = async (req, res) => {
   }
 
 
-  const userName = order.receiverDetails.name;
+  const userName = order.userName;
   const userEmail = order.userEmail;
 
   // Fetch the full user object

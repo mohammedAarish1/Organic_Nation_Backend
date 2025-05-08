@@ -9,20 +9,17 @@ const CouponDetailsSchema = new mongoose.Schema({
 // schema for addresses
 const AddressSchema = new mongoose.Schema({
   addressType: { type: String, }, // to indicate the type of address home, office etc
-  mainAddress: { type: String, required: true },
-  optionalAddress: { type: String, },
+  address: { type: String, },
+  pinCode: { type: String, required: true },
   city: { type: String, required: true },
   state: { type: String, required: true },
-  pinCode: { type: String, required: true },
-  country: { type: String, default: 'India' },
-  isDefault: { type: Boolean, default: false }, // To indicate the default address
+  // isDefault: { type: Boolean, default: false }, // To indicate the default address
 });
 
 const UserSchema = new mongoose.Schema(
   {
-    googleId: { type: String, sparse: true },
-    firstName: { type: String, },
-    lastName: { type: String, },
+    // googleId: { type: String, sparse: true },
+    fullName: { type: String, },
     phoneNumber: { type: String, required: true },
     email: { type: String, sparse: true, unique: true },
     // password: { type: String },

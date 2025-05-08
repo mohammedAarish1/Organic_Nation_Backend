@@ -138,8 +138,7 @@ passport.use(new GoogleStrategy({
           // Create a new user if neither googleId nor email matches
           user = new User({
             googleId: id,
-            firstName: name.givenName,
-            lastName: name.familyName,
+            fullName: name.givenName,
             email: emails[0].value,
             phoneNumber: '', // Placeholder for phone number
             password: '',  // Placeholder for password
