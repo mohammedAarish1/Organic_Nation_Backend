@@ -1,39 +1,36 @@
 const productsSeoData = {
     'Organic-Light-Flora-Honey': {
         title: "Organic Light Flora Honey | Organic Honey – Organic Nation",
-        description: "Experience the purity of nature with Organic Nation's Light Flora Honey. Crafted by bees foraging on a diverse range of organic wildflowers, this honey offers a delicate and subtly sweet flavor.",
+        description: "Buy Organic Light Flora Honey from Organic Nation. Sweet, pure, and full of natural goodness. Perfect for healthy eating & natural sweetness!",
+        keywords:'organic honey, light flora honey, natural honey,organic light honey,pure honey India,Organic Nation honey,healthy honey,buy organic honey online,chemical-free honey,premium honey, Honey,organic nation',
         canonicalUrl: "https://organicnation.co.in/shop/organic-honey/Organic-Light-Flora-Honey",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Light-Flora-Honey/front.png"
     },
     'Organic-Wild-Forest-Honey': {
         title: "Pure Wild Forest Honey | Buy Honey Online | Organic Nation",
-        description: "Experience the pure essence of nature with our Organic Wild Forest Honey. Sourced from pristine, untouched forests, our honey is Unprocessed and Pure.",
+        description: "Experience the pure essence of nature with our Organic Wild Forest Honey. Sourced from pristine, untouched forests, our honey is unprocessed and raw, preserving its natural goodness and rich flavor.",
+        keywords:'organic honey,wild forest honey,wild honey, honey, forest honey,organic forest honey,natural honey,pure honey India,organic honey benefits,buy forest honey online, premium honey,organic nation',
         canonicalUrl: "https://organicnation.co.in/shop/organic-honey/Organic-Wild-Forest-Honey",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Wild-Forest-Honey/front.png"
     },
     'Organic-Kashmir-Honey': {
         title: "100% Pure & Organic Kashmir Honey  | Organic Nation",
         description: "We are bringing the forest fresh honey from Kashmir at Organic Nation. Our Kashmir Honey is harvested with the natural goodness of the Kashmir forests.",
+        keywords:'organic honey,Kashmir honey,organic Kashmir honey,natural honey,pure honey India,buy Kashmir honey,Organic Nation honey,honey benefits,premium honey,natural sweetness, honey kashmir, honey',
         canonicalUrl: "https://organicnation.co.in/shop/organic-honey/Organic-Kashmir-Honey",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Kashmir-Honey/front.png"
     },
     'Organic-Jamun-Honey': {
-        title: "Jamun Honey |Buy Jamun Honey Online in india| Organic Nation",
-        description: "Organic Nation provides genuine, unadulterated honey, produced solely from the sweet essence of Jamun trees. ",
+        title: "Buy Jamun Honey Online in india| Organic Nation",
+        description: "Organic Nation provides genuine, unadulterated honey, produced solely from the sweet essence of Jamun trees. This natural remedy is celebrated for its healing qualities and diverse wellness advantages.",
+        keywords:'Jamun Honey,Organic Jamun Honey,Raw Jamun Honey,Organic Nation Jamun Honey,Pure Jamun Honey,Natural Jamun Honey,Benefits of Jamun Honey ,Jamun Honey for diabetes,Jamun Honey health benefits,Buy Jamun Honey online,Best organic honey in India,Jamun honey price in India,Raw honey from Jamun flowers,Organic Nation honey,honey',
         canonicalUrl: "https://organicnation.co.in/shop/organic-honey/Organic-Jamun-Honey",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Jamun-Honey/front.png"
     },
-   
-    'Organic-Wild-Forest-Honey-small': {
-        title: "Pure Wild Forest Honey | Buy Honey Online | Organic Nation",
-        description: "Experience the pure essence of nature with our Organic Wild Forest Honey. Sourced from pristine, untouched forests, our honey is unprocessed and Pure.",
-        canonicalUrl: "https://organicnation.co.in/shop/organic-honey/Organic-Wild-Forest-Honey-small",
-        image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Wild-Forest-Honey-small/front.png"
-    },
-   
     'Mixed-Pickle': {
         title: "Buy Mixed Pickles Online at Organic Nation | India",
         description: "Crafted with the finest organic ingredients and traditional recipes, our mixed pickles online offer a tantalizing blend of flavors at Organic Nation",
+        keywords:'mixed pickle,mixed vegetable pickle,best mixed pickle,homemade mixed pickle,mixed pickle recipe,mixed pickle online,buy mixed pickle,mixed pickle jar,mixed vegetable achar,mixed achar,Punjabi mixed pickle',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Mixed-Pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Mixed-Pickle/front.png"
     },
@@ -41,84 +38,98 @@ const productsSeoData = {
     'Stuffed-Red-chilli-pickle': {
         title: "Buy Red Chili Pickle Online at Organic Nation",
         description: "Organic Nation Lal Mirch Bharua Achar is a traditional pickle made from thick, fresh red chili, stuffed with a spicy blend of spices. Buy pickle online",
+        keywords:'red chilli pickle,red chili pickle,red chilli pickle recipe, Lal mirch achar, lal Mirch ka achar, achar,red chilli pickle online,stuffed red chilli pickle,buy red chilli pickle,homemade red chilli pickle recipe,best red chilli pickle, stuffed chilli pickle online',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Stuffed-Red-chilli-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Stuffed-Red-chilli-pickle/front.png"
     },
     'Garlic-Pickle': {
-        title: "Buy Lahsun ka Achar Homemade Garlic Pickle | Organic Nation",
-        description: "Warm up your winters with Organic Nation's irresistible garlic pickle. Crafted with traditional flair, this tangy, spicy treat is a must-try. Order Online",
+        title: "Buy Lahsun ka Achar Homestyle Garlic Pickle | Organic Nation",
+        description: "Looking for the best garlic pickle? Try this spicy, tangy recipe packed with authentic taste and homestyle goodness. Easy and delicious! Order Online",
+        keywords:'garlic pickle,lahsun ka achar,Lahsun achar,garlic pickle recipe,homemade garlic pickle recipe,garlic pickle online,buy garlic pickle,Maharashtrian garlic pickle,Punjabi garlic pickle,best garlic pickle',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Garlic-Pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Garlic-Pickle/front.png"
     },
     'Ginger-Pickle': {
-        title: "Ginger pickle | Buy Ginger Pickle Online | Organic Nation",
-        description: "Enhance your meals with the delightful Ginger Pickle from Organic Nation. Buy this aromatic pickle online and add flavor to your dishes.",
+        title: "Ginger pickle | Buy Ginger Pickle Online – Organic Nation",
+        description: "Enhance your meals with the delightful Ginger Pickle from Organic Nation. Buy this aromatic pickle online and add a burst of flavor to your dishes.",
+        keywords:'ginger pickle,adrak ka achar,ginger pickle recipe, homemade ginger pickle recipe,ginger pickle online,buy ginger pickle, Punjabi ginger pickle',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Ginger-Pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Ginger-Pickle/front.png"
     },
     'Sweet-Mango-Pickle': {
         title: "Buy Sweet Mango Pickle| Aam ka Meetha Achar | Organic Nation",
         description: "Experience a delightful fusion of sweet and tangy with Organic Nation's Sweet Mango Pickle. It is made with raw mangoes,jaggery & perfect blend of spices.",
+        keywords:'sweet mango pickle, meetha aam ka achar,sweet mango pickle recipe,sweet mango pickle online,homemade sweet mango pickle recipe,buy sweet mango pickle,meetah achar',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Sweet-Mango-Pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Sweet-Mango-Pickle/front.png"
     },
     'Green-Chilli-Pickle': {
         title: "Green Chilli Pickle | Hari Mirch ka Achar | Organic Nation",
-        description: "Elevate your taste buds with Organic Nation's Homemade Green Chilli Pickle. Made with the finest, freshest chillis, it's the perfect addition to any meal.",
+        description: "Elevate your taste buds with Organic Nation's Homemade Green Chilli Pickle. Made with the finest, freshest chillis, it's the perfect addition to any meal. Try it today!",
+        keywords:'green chilli pickle,hari mirch ka achar,green chilli pickle recipe,green chilli pickle online,homemade green chilli pickle recipe,buy green chilli pickle,stuffed green chilli pickle,hari mirch achar,best green chilli pickle,mirch ka achar',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Green-Chilli-Pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Green-Chilli-Pickle/front.png"
     },
     'Lemon-Pickle': {
-        title: "Lemon Pickles | Buy Pickles Online | Organic Nation",
-        description: "Buy Lemon pickles online at the best price in India from Organic Nation. Explore a wide range of flavorful and authentic pickles to elevate your meals.",
+        title: "Lemon Pickles | Buy Nimbu ka Achar Online – Organic Nation",
+        description: "Buy Lemon Pickle online at the best price in India from Organic Nation. Explore a wide range of flavorful and authentic pickles to elevate your meals.",
+        keywords:'lemon pickle,nimbu ka achar,lemon pickle recipe,homemade lemon pickle recipe,lemon pickle online,buy lemon pickle,sweet lemon pickle,nimbu achar',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Lemon-Pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Lemon-Pickle/front.png"
     },
     'Mango-Pickle': {
-        title: "Buy Mango Pickle Online | Aam ka Achar | Organic Nation",
-        description: "Savor the flavor of Organic Nation's Homemade Mango Pickle (Aam ka Achar) - a perfect blend of taste and health. Handmade by our Organic Nation, buy now.",
+        title: "Buy Homemade Mango Pickle Online | Aam ka Achar– Organic Nation",
+        description: "Savour the flavour of Organic Nation's Homemade Mango Pickle (Aam ka Achar) - a perfect blend of taste and health. Handmade by our Organic Nation, buy now.",
+        keywords:'mango pickle,aam ka achar,sweet mango pickle,mango achar,dry mango pickle,mango pickle online,best mango pickle,mango pickle price,homemade achar online,homemade mango pickle,hing ka achar,aam ka achar online',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Mango-Pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Mango-Pickle/front.png"
     },
     'Turmeric-Pickle': {
         title: "Buy Turmeric Pickle Online | Haldi Ka Achar– Organic Nation",
         description: "Tantalize your taste buds with Organic Nation's Turmeric Pickle. Enjoy the perfect blend of spicy kick and mild sourness. Buy now for a Spicy experience.",
+        keywords:'turmeric pickle,haldi ka achar,turmeric pickle recipe,homemade turmeric pickle recipe,turmeric pickle online, buy turmeric pickle, Punjabi turmeric pickle',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Turmeric-Pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Turmeric-Pickle/front.png"
     },
     'Mixed-Pickle': {
         title: "Buy Mixed Pickles Online | Masaledaar achaar– Organic Nation",
-        description: "Experience Organic Nation's Mixed Pickle, a tantalizing blend of tanginess and mild spice. Indulge in exquisite flavors.",
+        description: "Experience Organic Nation 's Mixed Pickle, a tantalizing blend of tanginess and mild spice. Indulge in its exquisite flavors. Buy now at www.organicnation.co.in",
+        keywords:'mixed pickle,mixed vegetable pickle,best mixed pickle,homemade mixed pickle,mixed pickle recipe,mixed pickle online,buy mixed pickle,mixed pickle jar,mixed vegetable achar,mixed achar,Punjabi mixed pickle',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Mixed-Pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Mixed-Pickle/front.png"
     },
     'Nimbu-Mirchi-Pickle': {
-        title: "Buy Nimbu Mirchi Pickle | Nimbu Mirchi achaar|Organic Nation",
-        description: "Home style pickles that are ready to invoke your taste buds with ever meal you eat with them. Recipes developed by happy women of Himalayas.",
+        title: "Buy Lemon Chilli Pickle| Nimbu Mirchi achaar | Organic Nation",
+        description: "Home style Lemon pickles that are ready to invoke your taste buds with ever meal you eat with them. Recipes developed by happy women of Himalayas.",
+        keywords:'lemon chilli pickle,nimbu mirch ka achar,lemon chilli pickle recipe,homemade lemon chilli pickle recipe,lemon chilli pickle online',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Nimbu-Mirchi-Pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Nimbu-Mirchi-Pickle/front.png"
     },
     'Heeng-ka-Aam-Pickle': {
         title: "Hing Mango Pickle | Hing ka Aam Achaar– Organic Nation",
-        description: "Homemade Preservative-free Hing Mango Pickle, Handmade with traditional  Heeng Aam recipe. Traditioanlly Sun-dried and Sun-matured with Zero Oil. Buy Now!",
+        description: "Homemade Preservative-free Hing Mango Pickle, Handmade with traditional  Heeng Aam recipe. Traditioanlly Sun-dried and Sun-matured. Buy Now!",
+        keywords:'hing mango pickle,hing ka achaar,hing and mango pickle,hing mango pickle online,homemade hing mango pickle recipe,hing mango pickle benefits,buy hing mango pickle,hing mango achar,best hing mango pickle',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Heeng-ka-Aam-Pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Heeng-ka-Aam-Pickle/front.png"
     },
     'Carrot-Pickle': {
         title: "Carrot Pickle Buy Online - Gajar ka Achaar– Organic Nation",
-        description: "Discover our Homemade Carrot Pickle! Made with fresh ingredients and no preservatives, it adds a crunchy, tangy kick to your plate. Buy Online",
+        description: "Discover our Homestyle Carrot Pickle! Made with fresh ingredients and no preservatives, it adds a crunchy, tangy kick to your plate. Buy Online at Organic Nation",
+        keywords:'carrot pickle,carrot ka achar,gajar ka achar,gajar achar,carrot pickle recipe,homemade carrot pickle recipe,carrot pickle online,buy carrot pickle,spicy carrot pickle,Punjabi carrot pickle,sweet carrot pickle',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Carrot-Pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Carrot-Pickle/front.png"
     },
-    'Khata-Meetha-Pickle': {
+    'Khatta-Meetha-Pickle': {
         title: "Khatta Meetha Gobhi Shalgam Achaar | Organic Nation",
-        description: "Our Khatta Meetha Pickle is made using traditional recipes and high-quality ingredients to ensure the utmost quality and taste. Buy Now at Organic Nation",
+        description: "Our Gobhi Gajar Shalgam Pickle is made using traditional recipes and high-quality ingredients to ensure the utmost quality and taste.Buy Now",
+        keywords:'gobhi gajar shalgam pickle,gajar gobhi shalgam achar,mixed veg pickle (cauliflower carrot turnip),Gobhi Gajar Shalgam recipe pickle,homemade gobhi gajar shalgam achar,gobhi gajar shalgam achar online,buy gobhi gajar shalgam pickle,Punjabi gobhi gajar shalgam achar,winter mixed vegetable pickle',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Khata-Meetha-Pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Khata-Meetha-Pickle/front.png"
     },
     'Sweet-Lemon-Pickle': {
-        title: "Buy Sweet Lemon Pickle | Nimbo Meetha Achar | Organic Nation",
-        description: "Indulge in the tangy-sweet delight of Organic Nation's Nimbo ka Meetha Achar! This handcrafted pickle is made with the finest organic lemons. Buy Now ",
+        title: "Buy Sweet Lemon Pickle | Nimbo ka meetha Achar– Organic Nation",
+        description: "Indulge in the tangy-sweet delight of Organic Nation's Nimbo ka Meetha Achar! This homestyle pickle is made with the finest organic lemons, infused with a perfect balance of sweet and tangy flavors. The use of traditional Indian spices adds a depth of aroma and taste. Buy now and elevate your mealtime experience.",
+        keywords:'sweet lemon pickle,meetha nimbu achar,sweet lemon pickle recipe,sweet lemon pickle online,homemade sweet lemon pickle recipe,buy sweet lemon pickle',
         canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Sweet-Lemon-Pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Sweet-Lemon-Pickle/front.png"
     },

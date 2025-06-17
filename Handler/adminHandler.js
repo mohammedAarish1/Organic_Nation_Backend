@@ -858,7 +858,7 @@ exports.generateSalesReport = async (req, res) => {
                 const totalTaxAmount = Math.round((taxExclusiveGross * (item.tax / 100)) * 100) / 100;
 
                 let cgstRate = 0, sgstRate = 0, igstRate = 0;
-                if (order.shippingAddress.state.toLowerCase() === 'uttar pradesh' || order.billingAddress.state.toLowerCase() === 'uttar pradesh') {
+                if (order.shippingAddress.state.toLowerCase() === 'uttar pradesh' || order.shippingAddress.state.toLowerCase() === 'uttar pradesh') {
                     cgstRate = sgstRate = item.tax / 2;
                 } else {
                     igstRate = item.tax;
@@ -875,7 +875,7 @@ exports.generateSalesReport = async (req, res) => {
                     'NOIDA', 'UTTAR PRADESH', 'IN', '201301',
                     order.shippingAddress?.city || '', order.shippingAddress?.state || '', 'IN', order.shippingAddress?.pinCode || '',
                     order.paymentMethod,
-                    order.billingAddress.city || '', order.billingAddress.state || '', 'IN', order.billingAddress?.pinCode || '',
+                    order.shippingAddress.city || '', order.shippingAddress.state || '', 'IN', order.shippingAddress?.pinCode || '',
                     buyer ? buyer.fullName : ''
                 ]);
             });

@@ -77,6 +77,7 @@ app.use('/api/validate/', require('./Router/couponCodeRouter.js'));
 app.use('/api/delivery/feedback', require('./Router/deliveryFeedbackRouter.js'));
 app.use('/api/user/profile', require('./Router/ProfileRouter.js'));
 app.use('/api/main/banners', require('./Router/bannerRouter.js'));
+app.use('/api', require('./Router/newsletterRouter.js'));
 
 
 

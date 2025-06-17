@@ -214,38 +214,38 @@ exports.addNewOrder = async (req, res) => {
         }
       };
       // // send order confirmation message on phone
-      // const result = await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
+      const result = await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
       // //  Send order confirmation email
-      // await sendEmail(
-      //   savedOrder.userEmail,
-      //   "Order Confirmation",
-      //   "orderConfirmation",
-      //   {
-      //     orderNumber,
-      //     customerName,
-      //     totalAmount,
-      //     // Add more template variables as needed
-      //   }
-      // );
-      // //  Send order receiving email to sales.foodsbay@gmail.com
-      // await sendEmail(
-      //   'sales.foodsbay@gmail.com',
-      //   "Received Order",
-      //   "orderRecieved",
-      //   {
-      //     orderNumber,
-      //     customerName,
-      //     phoneNumber: savedOrder.phoneNumber ||'',
-      //     email: savedOrder.userEmail,
-      //     shippingAddress: address(savedOrder.shippingAddress),
-      //     orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
-      //     subTotal: savedOrder.subTotal,
-      //     shippingFee: savedOrder.shippingFee,
-      //     totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
-      //     paymentMethod: savedOrder.paymentMethod,
-      //     paymentStatus: savedOrder.paymentStatus,
-      //   }
-      // );
+      await sendEmail(
+        savedOrder.userEmail,
+        "Order Confirmation",
+        "orderConfirmation",
+        {
+          orderNumber,
+          customerName,
+          totalAmount,
+          // Add more template variables as needed
+        }
+      );
+      //  Send order receiving email to sales.foodsbay@gmail.com
+      await sendEmail(
+        'sales.foodsbay@gmail.com',
+        "Received Order",
+        "orderRecieved",
+        {
+          orderNumber,
+          customerName,
+          phoneNumber: savedOrder.phoneNumber ||'',
+          email: savedOrder.userEmail,
+          shippingAddress: address(savedOrder.shippingAddress),
+          orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
+          subTotal: savedOrder.subTotal,
+          shippingFee: savedOrder.shippingFee,
+          totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
+          paymentMethod: savedOrder.paymentMethod,
+          paymentStatus: savedOrder.paymentStatus,
+        }
+      );
     }
 
     res
