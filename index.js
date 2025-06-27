@@ -21,8 +21,22 @@ const cors = require("cors");
 app.use(cookieParser());
 // const categoryRouter = require("./Router/categoryRouter.js");
 app.use(express.json());
+// app.use(cors({
+//   origin: process.env.FRONTEND_URL, // Ensure this matches your frontend URL
+//   credentials: true,
+//   allowedHeaders: ['Content-Type', 'Authorization', 'CSRF-Token']
+// }));
+
+
+
+
+// Parse the comma-separated domains from environment variable
+const allowedOrigins = process.env.FRONTEND_URL 
+  ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+  : ['https://organicnation.co.in'];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL, // Ensure this matches your frontend URL
+  origin: allowedOrigins, // Now it's an array of allowed origins
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization', 'CSRF-Token']
 }));
