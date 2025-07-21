@@ -4,10 +4,12 @@ const authMiddleware = require("../middleware/authMiddleware.js");
 
 
 const {
-    calculateDeliveryCharges
+    calculateDeliveryCharges,
+    calculateCODCharges
 } = require("../Handler/deliveryChargesHandler.js");
 
 router.post("/calculate",authMiddleware, calculateDeliveryCharges);
+router.post("/calculate/cod-charges",authMiddleware, calculateCODCharges);
 
 
 

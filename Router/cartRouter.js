@@ -7,6 +7,7 @@ const authMiddleware = require("../middleware/authMiddleware.js");
 
 const {
     getCart,
+    getCartDetails,
     addItemToCart,
     clearCart,
     deleteSingleItem,
@@ -16,6 +17,7 @@ const {
 
 // Define the route for getting products by category
 router.get("/", authMiddleware, getCart);
+router.post("/cart-details", getCartDetails);
 router.post("/", authMiddleware, addItemToCart);
 router.delete("/", authMiddleware, clearCart);
 router.delete("/:productName", authMiddleware, deleteSingleItem);

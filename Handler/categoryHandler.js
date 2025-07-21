@@ -119,7 +119,6 @@ exports.getSingleProductAllInfo = async (req, res) => {
 
     // get seo data for this product
     const seoData = productSeoData[name];
-    // console.log('seoData',seoData)
     const data = {
       details: singleProduct,
       reviews: reviews.length > 0 ? reviews : [],

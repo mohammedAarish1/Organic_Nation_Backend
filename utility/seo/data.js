@@ -1,4 +1,5 @@
 const productsSeoData = {
+    // ====================== Honey ================================================
     'Organic-Light-Flora-Honey': {
         title: "Organic Light Flora Honey | Organic Honey – Organic Nation",
         description: "Buy Organic Light Flora Honey from Organic Nation. Sweet, pure, and full of natural goodness. Perfect for healthy eating & natural sweetness!",
@@ -27,11 +28,12 @@ const productsSeoData = {
         canonicalUrl: "https://organicnation.co.in/shop/organic-honey/Organic-Jamun-Honey",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Jamun-Honey/front.png"
     },
+    // ====================== Pickles ================================================
     'mixed-pickle': {
         title: "Buy Mixed Pickles Online at Organic Nation | India",
         description: "Crafted with the finest organic ingredients and traditional recipes, our mixed pickles online offer a tantalizing blend of flavors at Organic Nation",
         keywords:'mixed pickle,mixed vegetable pickle,best mixed pickle,homemade mixed pickle,mixed pickle recipe,mixed pickle online,buy mixed pickle,mixed pickle jar,mixed vegetable achar,mixed achar,Punjabi mixed pickle',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Mixed-Pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/mixed-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Mixed-Pickle/front.png"
     },
    
@@ -39,100 +41,101 @@ const productsSeoData = {
         title: "Buy Red Chili Pickle Online at Organic Nation",
         description: "Organic Nation Lal Mirch Bharua Achar is a traditional pickle made from thick, fresh red chili, stuffed with a spicy blend of spices. Buy pickle online",
         keywords:'red chilli pickle,red chili pickle,red chilli pickle recipe, Lal mirch achar, lal Mirch ka achar, achar,red chilli pickle online,stuffed red chilli pickle,buy red chilli pickle,homemade red chilli pickle recipe,best red chilli pickle, stuffed chilli pickle online',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Stuffed-Red-chilli-pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/stuffed-red-chilli-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Stuffed-Red-chilli-pickle/front.png"
     },
     'garlic-pickle': {
         title: "Buy Lahsun ka Achar Homestyle Garlic Pickle | Organic Nation",
         description: "Looking for the best garlic pickle? Try this spicy, tangy recipe packed with authentic taste and homestyle goodness. Easy and delicious! Order Online",
         keywords:'garlic pickle,lahsun ka achar,Lahsun achar,garlic pickle recipe,homemade garlic pickle recipe,garlic pickle online,buy garlic pickle,Maharashtrian garlic pickle,Punjabi garlic pickle,best garlic pickle',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Garlic-Pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/garlic-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Garlic-Pickle/front.png"
     },
     'ginger-pickle': {
         title: "Ginger pickle | Buy Ginger Pickle Online – Organic Nation",
         description: "Enhance your meals with the delightful Ginger Pickle from Organic Nation. Buy this aromatic pickle online and add a burst of flavor to your dishes.",
         keywords:'ginger pickle,adrak ka achar,ginger pickle recipe, homemade ginger pickle recipe,ginger pickle online,buy ginger pickle, Punjabi ginger pickle',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Ginger-Pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/ginger-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Ginger-Pickle/front.png"
     },
     'sweet-mango-pickle': {
         title: "Buy Sweet Mango Pickle| Aam ka Meetha Achar | Organic Nation",
         description: "Experience a delightful fusion of sweet and tangy with Organic Nation's Sweet Mango Pickle. It is made with raw mangoes,jaggery & perfect blend of spices.",
         keywords:'sweet mango pickle, meetha aam ka achar,sweet mango pickle recipe,sweet mango pickle online,homemade sweet mango pickle recipe,buy sweet mango pickle,meetah achar',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Sweet-Mango-Pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/sweet-mango-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Sweet-Mango-Pickle/front.png"
     },
     'green-chilli-pickle': {
         title: "Green Chilli Pickle | Hari Mirch ka Achar | Organic Nation",
         description: "Elevate your taste buds with Organic Nation's Homemade Green Chilli Pickle. Made with the finest, freshest chillis, it's the perfect addition to any meal. Try it today!",
         keywords:'green chilli pickle,hari mirch ka achar,green chilli pickle recipe,green chilli pickle online,homemade green chilli pickle recipe,buy green chilli pickle,stuffed green chilli pickle,hari mirch achar,best green chilli pickle,mirch ka achar',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Green-Chilli-Pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/green-chilli-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Green-Chilli-Pickle/front.png"
     },
     'lemon-pickle': {
         title: "Lemon Pickles | Buy Nimbu ka Achar Online – Organic Nation",
         description: "Buy Lemon Pickle online at the best price in India from Organic Nation. Explore a wide range of flavorful and authentic pickles to elevate your meals.",
         keywords:'lemon pickle,nimbu ka achar,lemon pickle recipe,homemade lemon pickle recipe,lemon pickle online,buy lemon pickle,sweet lemon pickle,nimbu achar',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Lemon-Pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/lemon-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Lemon-Pickle/front.png"
     },
     'mango-pickle': {
         title: "Buy Homemade Mango Pickle Online | Aam ka Achar– Organic Nation",
         description: "Savour the flavour of Organic Nation's Homemade Mango Pickle (Aam ka Achar) - a perfect blend of taste and health. Handmade by our Organic Nation, buy now.",
         keywords:'mango pickle,aam ka achar,sweet mango pickle,mango achar,dry mango pickle,mango pickle online,best mango pickle,mango pickle price,homemade achar online,homemade mango pickle,hing ka achar,aam ka achar online',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Mango-Pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/mango-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Mango-Pickle/front.png"
     },
     'turmeric-pickle': {
         title: "Buy Turmeric Pickle Online | Haldi Ka Achar– Organic Nation",
         description: "Tantalize your taste buds with Organic Nation's Turmeric Pickle. Enjoy the perfect blend of spicy kick and mild sourness. Buy now for a Spicy experience.",
         keywords:'turmeric pickle,haldi ka achar,turmeric pickle recipe,homemade turmeric pickle recipe,turmeric pickle online, buy turmeric pickle, Punjabi turmeric pickle',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Turmeric-Pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/turmeric-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Turmeric-Pickle/front.png"
     },
     'mixed-pickle': {
         title: "Buy Mixed Pickles Online | Masaledaar achaar– Organic Nation",
         description: "Experience Organic Nation 's Mixed Pickle, a tantalizing blend of tanginess and mild spice. Indulge in its exquisite flavors. Buy now at www.organicnation.co.in",
         keywords:'mixed pickle,mixed vegetable pickle,best mixed pickle,homemade mixed pickle,mixed pickle recipe,mixed pickle online,buy mixed pickle,mixed pickle jar,mixed vegetable achar,mixed achar,Punjabi mixed pickle',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Mixed-Pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/mixed-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Mixed-Pickle/front.png"
     },
     'nimbu-mirchi-pickle': {
         title: "Buy Lemon Chilli Pickle| Nimbu Mirchi achaar | Organic Nation",
         description: "Home style Lemon pickles that are ready to invoke your taste buds with ever meal you eat with them. Recipes developed by happy women of Himalayas.",
         keywords:'lemon chilli pickle,nimbu mirch ka achar,lemon chilli pickle recipe,homemade lemon chilli pickle recipe,lemon chilli pickle online',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Nimbu-Mirchi-Pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/nimbu-mirchi-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Nimbu-Mirchi-Pickle/front.png"
     },
     'hing-ka-aam-pickle': {
         title: "Hing Mango Pickle | Hing ka Aam Achaar– Organic Nation",
         description: "Homemade Preservative-free Hing Mango Pickle, Handmade with traditional  Heeng Aam recipe. Traditioanlly Sun-dried and Sun-matured. Buy Now!",
         keywords:'hing mango pickle,hing ka achaar,hing and mango pickle,hing mango pickle online,homemade hing mango pickle recipe,hing mango pickle benefits,buy hing mango pickle,hing mango achar,best hing mango pickle',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Heeng-ka-Aam-Pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/Hing-ka-aam-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Heeng-ka-Aam-Pickle/front.png"
     },
     'carrot-pickle': {
         title: "Carrot Pickle Buy Online - Gajar ka Achaar– Organic Nation",
         description: "Discover our Homestyle Carrot Pickle! Made with fresh ingredients and no preservatives, it adds a crunchy, tangy kick to your plate. Buy Online at Organic Nation",
         keywords:'carrot pickle,carrot ka achar,gajar ka achar,gajar achar,carrot pickle recipe,homemade carrot pickle recipe,carrot pickle online,buy carrot pickle,spicy carrot pickle,Punjabi carrot pickle,sweet carrot pickle',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Carrot-Pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/carrot-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Carrot-Pickle/front.png"
     },
     'khatta-meetha-pickle': {
         title: "Khatta Meetha Gobhi Shalgam Achaar | Organic Nation",
         description: "Our Gobhi Gajar Shalgam Pickle is made using traditional recipes and high-quality ingredients to ensure the utmost quality and taste.Buy Now",
         keywords:'gobhi gajar shalgam pickle,gajar gobhi shalgam achar,mixed veg pickle (cauliflower carrot turnip),Gobhi Gajar Shalgam recipe pickle,homemade gobhi gajar shalgam achar,gobhi gajar shalgam achar online,buy gobhi gajar shalgam pickle,Punjabi gobhi gajar shalgam achar,winter mixed vegetable pickle',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Khata-Meetha-Pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/khata-meetha-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Khata-Meetha-Pickle/front.png"
     },
     'sweet-lemon-pickle': {
         title: "Buy Sweet Lemon Pickle | Nimbo ka meetha Achar– Organic Nation",
         description: "Indulge in the tangy-sweet delight of Organic Nation's Nimbo ka Meetha Achar! This homestyle pickle is made with the finest organic lemons, infused with a perfect balance of sweet and tangy flavors. The use of traditional Indian spices adds a depth of aroma and taste. Buy now and elevate your mealtime experience.",
         keywords:'sweet lemon pickle,meetha nimbu achar,sweet lemon pickle recipe,sweet lemon pickle online,homemade sweet lemon pickle recipe,buy sweet lemon pickle',
-        canonicalUrl: "https://organicnation.co.in/shop/authentic-pickles/Sweet-Lemon-Pickle",
+        canonicalUrl: "https://organicnation.co.in/shop/homestyle-pickles/sweet-lemon-pickle",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Sweet-Lemon-Pickle/front.png"
     },
+    // ====================== seasonings ================================================
     'Chilly-Flakes': {
         title: "Premium Chilly Flakes | Spicy Seasoning | Organic Nation",
         description: "Discover the bold flavor of our premium Chilly Flakes. Handpicked, dried, and crushed for a fresh, authentic taste. Order Now at www.organicnation.co.in ",
@@ -235,66 +238,79 @@ const productsSeoData = {
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Garlic-Powder",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Garlic-Powder/front.png"
     },
+    // ====================== Jams ================================================
     'Mixed-Fruit-Conserve': {
-        title: "Buy Mixed Fruit Jam Online In India| Organic Nation",
-        description: "Shop Organic Nation  Mixed Fruit Jam - 250 gm Glass Bottle online in India at best price. Choose from exclusive range of delicious & tasty Jam. Shop Now",
+        title: "Buy Mix Fruit Conserve, Jam and Marmalade online at the best price -Organic Nation",
+        description: "Discover the perfect blend of taste and tradition with our Mix Fruit Conserve. Shop natural jam, marmalade, and fruit preserves packed with rich, fruity flavor.",
+        keywords:"Mix Fruit Conserve, Jam and marmalade, marmalade, marmalade jam, Jam preserves marmalade, Jam, Marmalade, Jam preserves",
         canonicalUrl: "https://organicnation.co.in/shop/fruit-preserves/Mixed-Fruit-Conserve",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Mixed-Fruit-Conserve/front.png"
     },
     'Pineapple-Conserve': {
-        title: "Buy Pineapple Fruit Jam Online at India | Organic Nation",
-        description: "Shop Organic Nation Pineapple Conserve Jam - 250 gm Glass Bottle online in India at the best price. Choose from exclusive range of delicious & tasty Jam. ",
+        title: "Buy Pineapple Conserve, Jam and Marmalade online at the best price -Organic Nation",
+        description: "Buy Pineapple Conserve, Jam, and Marmalade online at the best price from Organic Nation. Explore our delicious range of natural jam, marmalade, and fruit preserves made with real ingredients and zero additives.",
+        keywords:"Pineapple Conserve, Jam and marmalade, marmalade, marmalade jam, Jam preserves marmalade, Jam, Marmalade, Jam preserves",
         canonicalUrl: "https://organicnation.co.in/shop/fruit-preserves/Pineapple-Conserve",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Pineapple-Conserve/front.png"
     },
     'Strawberry-Conserve': {
-        title: "Buy Strawberry Conserve Online at India| Organic Nation",
-        description: "Shop Organic Nation Strawberry Conserve Jam - 250 gm Glass Bottle online in India at the best price. Choose from an exclusive range of delicious & tasty Jams.",
+        title: "Buy Strawberry Conserve, Jam and Marmalade online at the best price -Organic Nation",
+        description: "Buy Strawberry Conserve, Jam, and Marmalade online at the best price from Organic Nation. Explore premium quality jam, marmalade, and preserves made with real fruit. Shop now for delicious spreads delivered to your doorstep.",
+        keywords:"Strawberry Conserve, Jam and marmalade, marmalade, marmalade jam, Jam preserves marmalade, Jam, Marmalade, Jam preserves",
         canonicalUrl: "https://organicnation.co.in/shop/fruit-preserves/Strawberry-Conserve",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Strawberry-Conserve/front.png"
     },
     'Orange-Marmalade': {
-        title: "Buy Orange Marmalade Online In India| Organic Nation",
-        description: "Shop Organic Nation Orange Marmalade - 250 gm Glass Bottle online in India at the best price. Choose from an exclusive range of delicious & tasty Jams",
+        title: "Buy Orange Marmalade, Jam and Marmalade online at the best price -Organic Nation",
+        description: "Discover the zesty goodness of our Orange Marmalade – a perfect blend of jam and marmalade. Shop premium marmalade jam, fruity preserves, and classic jam varieties online.",
+        keywords:"Orange Marmalade, Jam and marmalade, marmalade, marmalade jam, Jam preserves marmalade, Jam, orange marmalade, orange fruit jam, Marmalade, Jam preserves, orange marmalade jam, orange preserves, orange marmalade online",
         canonicalUrl: "https://organicnation.co.in/shop/fruit-preserves/Orange-Marmalade",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Orange-Marmalade/front.png"
     },
+    // ====================== Chutney & dip ================================================
     'Chilli-Garlic-Dip': {
-        title: "Buy Chilli Garlic Dip Online in India (200 gm)",
-        description: "Organic Nation chili garlic Dip is your perfect dipping sauce for spring rolls and robust garlic Dip. Enjoy the goodness of nature with every bite!",
+        title: "Buy Chilli Garlic Dip Online | Spicy & Flavorful Dip",
+        description: "Order Chilli Garlic Dip online! A spicy, rich, and zesty dip made for snack lovers. Perfect with fries, rolls, or sandwiches. Taste that hits!",
+        keywords:'Chilli Garlic Dip, Buy Chilli Garlic Dip Online, Spicy Garlic Dip, Garlic Chilli Dip for Snacks, Best Chilli Garlic Dip, Hot Garlic Dip, Organic Chilli Garlic Dip , Chilli Garlic Sauce Dip, Tasty Chilli Garlic Spread, Snack Dip Online',
         canonicalUrl: "https://organicnation.co.in/shop/chutney-&-dip/Chilli-Garlic-Dip",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Chilli-Garlic-Dip/front.png"
     },
     'Mango-Chutney': {
-        title: "Buy Mango Chutney Online | Organic Nation ",
-        description: "Savor the irresistible blend of sweet and tangy flavors with Organic Nation Mango Chutney Online in India. It is made from handpicked organic mangoes. Shop Now ",
+        title: "Buy Mango Chutney Online | Sweet Mango Chutney  ",
+        description: "Shop Mango Chutney online! A perfect mix of sweet and tangy flavors. Pairs well with snacks, meals, or Indian dishes. A must-have kitchen essential!",
+        keywords:'Mango Chutney, Buy Mango Chutney Online, Sweet Mango Chutney, Authentic Mango Chutney, Indian Mango Chutney, Tangy Mango Spread, Mango Pickle Chutney, Natural Mango Chutney, Organic Mango Chutney, Chutney for Snacks and Meals',
         canonicalUrl: "https://organicnation.co.in/shop/chutney-&-dip/Mango-Chutney",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Mango-Chutney/front.png"
     },
     'Salsa-Dip': {
-        title: "Organic Nation Salsa Dip – Flavorful & Fresh!",
-        description: "Organic Nation Salsa Dip, is a zesty blend of organic tomatoes, fresh herbs, and spices. Perfectly crafted for those who crave natural flavors. Order Now ",
+        title: "Organic Nation Salsa Dip | Buy Salsa Dip Online",
+        description: "Buy Organic Nation Salsa Dip online! A zesty, chunky tomato dip made with fresh ingredients. Perfect for chips, nachos, or Mexican meals.",
+        keywords:'Salsa Dip, Organic Nation Salsa Dip, Buy Salsa Dip Online, Tomato Salsa Dip, Mexican Salsa Dip, Fresh Salsa Dip, Chunky Salsa Dip, Spicy Salsa for Nachos, Salsa Dip for Chips, Organic Salsa Dip',
         canonicalUrl: "https://organicnation.co.in/shop/chutney-&-dip/Salsa-Dip",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Salsa-Dip/front.png"
     },
     'Sweet-Tomato-Chutney': {
-        title: "Organic Nation Sweet Tomato Chutney – Sweetness & Spice",
-        description: "Organic Nation Sweet Tomato Chutney is a delightful fusion of ripe, organic tomatoes with a hint of sweetness and subtle spices. Buy Now at 20% off",
+        title: "Buy Sweet Tomato Chutney Online |Tomato Chutney Spread",
+        description: "Buy Organic Nation Sweet Tomato Chutney online! A rich, tangy, and mildly sweet chutney made with real tomatoes. Perfect with meals or snacks.",
+        keywords:'Organic Nation Sweet Tomato Chutney, Buy Sweet Tomato Chutney Online, Tomato Chutney for Snacks, Indian Sweet Tomato Chutney, Organic Tomato Chutney, Tangy Tomato Chutney, Chutney for Rice and Roti, Tomato Chutney Spread, Natural Tomato Chutney, Sweet and Tangy Chutney',
         canonicalUrl: "https://organicnation.co.in/shop/-&-dip/Sweet-Tomato-Chutney",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Sweet-Tomato-Chutney/front.png"
     },
     'Schezwan-Dip': {
-        title: "Organic Nation Schezwan Dip  Price in India ",
-        description: "Buy Organic Nation Schezwan Dip online. Organic Nation Schezwan Dip at best prices with FREE shipping & cash on delivery. Only Genuine Products.  Buy Now",
+        title: "Organic Nation Schezwan Dip | Buy Schezwan Dip Online",
+        description: "Buy Organic Nation Schezwan Dip online! A bold, spicy, Indo-Chinese dip perfect for snacks, momos, fries & rolls. Add heat to every bite!",
+        keywords:'Organic Nation Schezwan Dip, Buy Schezwan Dip Online, Spicy Schezwan Sauce Dip, Indo-Chinese Schezwan Dip, Schezwan Dip for Momos, Hot Schezwan Dip, Schezwan Dip for Snacks, Best Schezwan Dip Online, Schezwan Chilli Garlic Dip, Ready to Eat Schezwan Dip',
         canonicalUrl: "https://organicnation.co.in/shop/chutney-&-dip/Schezwan-Dip",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Schezwan-Dip/front.png"
     },
     'Tamarind-Chutney': {
-        title: "Organic Nation Tamarind Chutney  Price in India ",
-        description: "Buy Organic Nation Tamarind Chutney online. Organic Nation Tamarind Chutney at best prices with FREE shipping & cash on delivery. Only Genuine Products",
+        title: "Organic Nation Tamarind Dip | Imli Chutney Online",
+        description: "Buy Organic Nation Tamarind Dip online! A tangy, sweet-sour dip made with real tamarind—perfect for chaats, samosas, and Indian snacks.",
+        keywords:'Organic Nation Tamarind Dip, Buy Tamarind Dip Online, Tamarind Chutney Dip, Tamarind Dip for Snacks, Sweet and Tangy Tamarind Dip, Imli Chutney Online, Tamarind Sauce for Chaat, Organic Tamarind Dip, Natural Tamarind Chutney, Tamarind Dip for Indian Food',
         canonicalUrl: "https://organicnation.co.in/shop/chutney-&-dip/Tamarind-Chutney",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Tamarind-Chutney/front.png"
     },
+    // ====================== Tea ================================================
     'Organic-Green-Tea': {
         title: "Buy Organic Nation Organic Green Tea online",
         description: "Organic Nation Green Tea  at best prices with FREE shipping & cash on delivery. Only Genuine Products.  Buy Now",
@@ -343,6 +359,7 @@ const productsSeoData = {
         canonicalUrl: "https://organicnation.co.in/shop/organic-tea/Chamomile-Tea",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Chamomile-Tea/front.png"
     },
+    // ====================== Salt ================================================
     'Himalayan-Pink-Rock-Salt-Powder-small': {
         title: "Buy Himalayan Pink Rock Salt Powder Online | Organic Nation",
         description: "You can purchase Himalayan Pink Rock Salt Powder (200 gm) online at Organic Nation. Visit the website to place your order today!",
@@ -367,6 +384,7 @@ const productsSeoData = {
         canonicalUrl: "https://organicnation.co.in/shop/salt/Himalayan-Pink-Rock-Salt-Powder",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Himalayan-Pink-Rock-Salt-Powder/front.png"
     },
+    // ====================== Sweetener ================================================
     'Organic-Brown-Sugar-(Desi-khand)': {
         title: "Buy Organic Brown Sugar (Desi khand) 500 g | Organic Nation",
         description: "Indulge in the rich, natural sweetness of our Organic Brown Sugar, also known as Desi Khand. Sourced from the finest organic sugarcane & unrefined sugar",
@@ -379,6 +397,7 @@ const productsSeoData = {
         canonicalUrl: "https://organicnation.co.in/shop/sweetners/Organic-Jaggery-Powder-(Shekkar)",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Jaggery-Powder-(Shekkar)/front.png"
     },
+    // ====================== Oils ================================================
     'Sunflower-Oil': {
         title: "Buy 100% Natural Sunflower Oil Online at Low Price",
         description: "Buy 100% natural Sunflower Oil  online in India at best price from Organic Nation. 100% Healthy ✓Fast Shipping ✓Buy Now!",
@@ -391,6 +410,7 @@ const productsSeoData = {
         canonicalUrl: "https://organicnation.co.in/shop/organic-oils/Mustard-Oil",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Mustard-Oil/extra.png"
     },
+    // ====================== Oats ================================================
     'Steel-cut-Oats': {
         title: "Buy Steel cut Oats Online at Low Price | Organic Nation",
         description: "Buy Steel cut Oats online in India at best price from Organic Nation. Shop now for high quality of Steel cut Oats online. 100% Healthy ✓Fast Shipping ",
@@ -409,12 +429,14 @@ const productsSeoData = {
         canonicalUrl: "https://organicnation.co.in/shop/oats/Instant-Oats",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Instant-Oats/Left.png"
     },
+    // ====================== Vegan ================================================
     'Veg-Soya-Chaap': {
         title: "Buy Veg Soya Chaap Online at Low Price | Organic Nation",
         description: "Buy Veg Soya Chaap Online in India at best price from Organic Nation. Shop now for high quality of veg Soya Chaap online. 100% Veg ✓Fast Shipping ✓Buy Now!",
         canonicalUrl: "https://organicnation.co.in/shop/vegan/Veg-Soya-Chaap",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Veg-Soya-Chaap/front.png"
     },
+    // ====================== Muesli ================================================
     'Seeds-&-Cranberry-Muesli': {
         title: "Buy Seeds & Cranberry Muesli Online | Organic Nation",
         description: "Buy Seeds & Cranberry Muesli Online in India at best price from Organic Nation. Shop now for high quality seeds Muesli online. 100% Healthy ✓Fast Shipping",
@@ -454,4 +476,4 @@ const productsSeoData = {
 }
 
 
-module.exports=productsSeoData
+module.exports=productsSeoData;

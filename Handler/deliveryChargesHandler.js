@@ -128,3 +128,33 @@ exports.calculateDeliveryCharges = async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 }
+
+
+exports.calculateCODCharges = async (req, res) => {
+    try {
+        const { cartItemsList } = req.body;
+        const user = req.user
+
+        if (!user) {
+            return res.status(401).json({ error: 'Unauthorized' })
+        }
+        let totalGrossWeight = cartItemsList.reduce((total, product) => {
+            // Extract numeric value from string, assuming the format is consistent
+            let singleItemTotalWeight = extractWeight(product.grossWeight) * product.quantity
+            return total + singleItemTotalWeight
+        }, 0)
+
+
+        const codChargesList = await CourierRate.findOne({ Classification: 'COD' })
+
+        const codCharges = codChargesList.CourierCharges.find(charge => {
+            const chargeWeight = extractWeight(charge.Weight)
+            return totalGrossWeight <= chargeWeight;
+        });
+
+
+        res.status(200).json({ codCharge: codCharges.Rate });
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+}

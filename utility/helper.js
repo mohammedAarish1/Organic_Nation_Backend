@@ -109,7 +109,6 @@ const updateStock = async (productName, quantity, action) => {
 
     return 'Stock updated successfully'; // Return a success message
   } catch (error) {
-    console.error('Error updating stock:', error);
     throw error; // Re-throw the error for handling in the calling function
   }
 };
@@ -276,7 +275,6 @@ const handleReferralReward = async (userId, orderId) => {
       }
     }
   } catch (error) {
-    console.error('Error handling referral reward:', error);
     throw error;
   }
 };

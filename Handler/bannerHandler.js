@@ -90,7 +90,6 @@ exports.addNewBanner = async (req, res) => {
             // banner: newBanner
         });
     } catch (err) {
-        console.error(err);
         res.status(500).json({
             success: false,
             message: 'An error occurred while creating the banner',
@@ -117,7 +116,6 @@ exports.deleteBanner = async (req, res) => {
         return res.status(200).json({ message: 'Banner deleted successfully.' });
 
     } catch (error) {
-        console.error(error);
         res.status(500).json({
             success: false,
             message: 'An error occurred while deleting the banner',

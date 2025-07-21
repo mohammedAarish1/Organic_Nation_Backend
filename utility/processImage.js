@@ -141,7 +141,6 @@ const processImage = async (sizes,bucket,key,file) => {
             lg: paths[2],
         };
     } catch (error) {
-        console.error('Error processing banner image:', error);
         throw error;
     }
 };

@@ -2,6 +2,7 @@ const User = require('../models/User');
 // const passport = require('passport');
 const Products = require('../models/Products.js');
 const { updateCouponStatus } = require('../utility/helper.js');
+const { calculateTotals } = require('../utility/calculateCartTotals.js');
 
 
 // Middleware to protect routes
@@ -23,13 +24,33 @@ exports.getCart = async (req, res) => {
 }
 
 
+exports.getCartDetails = async (req, res) => {
+  try {
+    const { cartItems } = req.body;
+    const productDetails = await Promise.all(
+      cartItems.map(async ({ productName, quantity }) => {
+        const product = await Products.findOne({ 'name-url': productName });
+        // convert to plain object
+        const productObj = product?.toObject()
+        // update quantity
+        productObj.quantity = quantity;
 
+        return productObj;
+      })
+    );
+    const totals = await calculateTotals(productDetails);
+
+    res.status(200).json({ productDetails, totals });
+  } catch (error) {
+    console.error('Error retrieving cart details:', error.message);
+    res.status(500).send('Server error');
+  }
+}
 
 
 
 exports.addItemToCart = async (req, res) => {
   const { productId, quantity, productName } = req.body;
-
   try {
     // Find the user
     const user = await User.findById(req.user.id);
@@ -51,7 +72,7 @@ exports.addItemToCart = async (req, res) => {
     // making referral code active again if user add a new product after using the coupon code 
     if (user.referralCoupons.length > 0) {
       for (let coupon of user.referralCoupons) {
-        if(!coupon.isUsed){
+        if (!coupon.isUsed) {
           await updateCouponStatus(coupon.couponId, 'active')
         }
       }
@@ -64,13 +85,13 @@ exports.addItemToCart = async (req, res) => {
     }
 
     // Calculate price after 20% discount
-    const discountedPrice = product.price * (1 - product.discount / 100);
+    // const discountedPrice = product.price * (1 - product.discount / 100);
 
     // Calculate subtotal (including tax) for the product
-    const itemSubtotal = discountedPrice * quantity;
+    // const itemSubtotal = discountedPrice * quantity;
 
     // Reverse calculate to find the tax amount from the subtotal
-    const itemTax = (product.tax / (100 + product.tax)) * itemSubtotal;
+    // const itemTax = (product.tax / (100 + product.tax)) * itemSubtotal;
 
     // Find if the item already exists in the cart
     const itemIndex = user.cart.items.findIndex(item => item.productName === productName);
@@ -102,8 +123,8 @@ exports.addItemToCart = async (req, res) => {
 
       totalCartAmount += itemSubtotal;
       totalTaxes += itemTax;
-    }
 
+    }
     // Update the user's cart totals
     user.cart.totalCartAmount = Math.round(totalCartAmount);
     user.cart.totalTaxes = Math.round(totalTaxes);
@@ -112,10 +133,9 @@ exports.addItemToCart = async (req, res) => {
 
     // Save the updated user document
     await user.save();
-
     res.json(user.cart);
   } catch (err) {
-    console.error('Error adding item to cart:', err.message);
+    console.error('Error adding item to carttt:', err.message)
     res.status(500).send('Server error');
   }
 };
@@ -142,14 +162,14 @@ exports.clearCart = async (req, res) => {
 
 
 
-  // making referral code active again if user add a new product after using the coupon code 
-  // if (user.referralCoupons.length > 0) {
-  //   for (let coupon of user.referralCoupons) {
-  //     if (coupon.isUsed) {
-  //       await markCouponActive(coupon.couponId, user._id)
-  //     }
-  //   }
-  // }
+    // making referral code active again if user add a new product after using the coupon code 
+    // if (user.referralCoupons.length > 0) {
+    //   for (let coupon of user.referralCoupons) {
+    //     if (coupon.isUsed) {
+    //       await markCouponActive(coupon.couponId, user._id)
+    //     }
+    //   }
+    // }
 
     // Save the updated user document
     await user.save();
@@ -207,14 +227,14 @@ exports.deleteSingleItem = async (req, res) => {
 
 
 
-  // making referral code active again if user add a new product after using the coupon code 
-  if (user.referralCoupons.length > 0) {
-    for (let coupon of user.referralCoupons) {
-      if(!coupon.isUsed){
-        await updateCouponStatus(coupon.couponId, 'active')
+    // making referral code active again if user add a new product after using the coupon code 
+    if (user.referralCoupons.length > 0) {
+      for (let coupon of user.referralCoupons) {
+        if (!coupon.isUsed) {
+          await updateCouponStatus(coupon.couponId, 'active')
+        }
       }
     }
-  }
 
     // Save the updated user document
     await user.save();
@@ -278,14 +298,14 @@ exports.updateQty = async (req, res) => {
     user.cart.couponCodeApplied = []
 
 
-  // making referral code active again if user add a new product after using the coupon code 
-  if (user.referralCoupons.length > 0) {
-    for (let coupon of user.referralCoupons) {
-      if(!coupon.isUsed){
-        await updateCouponStatus(coupon.couponId, 'active')
+    // making referral code active again if user add a new product after using the coupon code 
+    if (user.referralCoupons.length > 0) {
+      for (let coupon of user.referralCoupons) {
+        if (!coupon.isUsed) {
+          await updateCouponStatus(coupon.couponId, 'active')
+        }
       }
     }
-  }
 
     // Save the updated user document
     await user.save();
