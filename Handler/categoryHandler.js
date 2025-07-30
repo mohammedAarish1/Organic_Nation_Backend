@@ -36,7 +36,7 @@ exports.allProducts = async (req, res) => {
 
     res.status(200).json({ products:filteredProducts, categoryList: finalCategoryList });
   } catch (error) {
-    res.status(500).send({ error: "Internal Server Error" })
+    res.status(500).send({ error: "Internal Server Error" });
   }
 };
 
