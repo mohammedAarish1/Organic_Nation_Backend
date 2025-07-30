@@ -3,7 +3,7 @@
 const Products = require('../models/Products.js');
 const Review = require('../models/Review.js');
 const productSeoData = require('../utility/seo/data.js');
-const ProductInfo =require('../models/ProductInfo.js')
+const ProductInfo = require('../models/ProductInfo.js')
 // const ProductAdditionalInfo = require('../models/ProductAdditoinalInfo.js')
 // const mongoose = require('mongoose');
 
@@ -13,13 +13,30 @@ exports.allProducts = async (req, res) => {
 
     const products = await Products.find({}).lean();
 
-
     if (products.length === 0) {
       console.log('No products found in the database');
     }
-    res.status(200).json(products);
+
+    const filteredProducts=products.filter(product => product.category !== 'Organic Tea' && product.category !== 'Breakfast Cereals')    // separate the categories and category-url
+    const categoryList = filteredProducts
+      .map(product => ({
+        category: product.category,
+        categoryUrl: product['category-url']
+      }));
+
+      // filter out the unique categories
+    const uniqueCategoriesList = categoryList.filter((product, index, self) =>
+      index === self.findIndex(t =>
+        t.category === product.category && t.categoryUrl === product.categoryUrl
+      )
+    );
+
+    // add the 'All' category
+    const finalCategoryList = [{ category: 'All', categoryUrl: 'All' }, ...uniqueCategoriesList]
+
+    res.status(200).json({ products:filteredProducts, categoryList: finalCategoryList });
   } catch (error) {
-    res.status(500).send({ error: "Internal Server Error" });
+    res.status(500).send({ error: "Internal Server Error" })
   }
 };
 

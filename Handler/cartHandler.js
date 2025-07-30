@@ -27,19 +27,25 @@ exports.getCart = async (req, res) => {
 exports.getCartDetails = async (req, res) => {
   try {
     const { cartItems } = req.body;
-    const productDetails = await Promise.all(
-      cartItems.map(async ({ productName, quantity }) => {
-        const product = await Products.findOne({ 'name-url': productName });
-        // convert to plain object
-        const productObj = product?.toObject()
-        // update quantity
-        productObj.quantity = quantity;
+    let productDetails = [];
+    let totals;
+    if (cartItems.length > 0) {
+      productDetails = await Promise.all(
+        cartItems.map(async ({ productName, quantity }) => {
+          const product = await Products.findOne({ 'name-url': productName });
+          // convert to plain object
+          const productObj = product?.toObject()
+          // update quantity
+          productObj.quantity = quantity;
 
-        return productObj;
-      })
-    );
-    const totals = await calculateTotals(productDetails);
+          return productObj;
+        })
+      );
+    }
 
+    if (productDetails.length > 0) {
+      totals = await calculateTotals(productDetails);
+    }
     res.status(200).json({ productDetails, totals });
   } catch (error) {
     console.error('Error retrieving cart details:', error.message);

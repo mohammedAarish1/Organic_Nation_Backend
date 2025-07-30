@@ -9,7 +9,7 @@ const {
 } = require("../Handler/categoryHandler.js");
 
 // Define the route for getting products by category
-router.get("/all", allProducts);
+router.get("/", allProducts);
 router.get("/:category", getProductsByCategory);
 router.get("/:category/:product", getProduct);
 router.get("/product/details/:name", getSingleProductAllInfo);
