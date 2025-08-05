@@ -6,7 +6,7 @@ const authMiddleware = require("../middleware/authMiddleware.js");
 
 
 const {
-    validateCouponCode,
+    applyFamilyCouponCode,
     applyPickleCouponCode,
     applyAdditionalDiscountCoupon,
     getSingleCouponUsingId,
@@ -17,7 +17,7 @@ const {
 
 router.get('/:couponId',authMiddleware, getSingleCouponUsingId);
 router.get('/coupon/:code',authMiddleware, getSingleCouponUsingCode);
-router.post("/family/coupon-code",  validateCouponCode);
+router.post("/family/coupon-code",  applyFamilyCouponCode);
 router.post("/pickle/coupon-code",  applyPickleCouponCode);
 router.post("/additional/coupon/discount",  applyAdditionalDiscountCoupon);
 router.post("/referral/coupon/discount", authMiddleware, applyReferralCodeDiscount);

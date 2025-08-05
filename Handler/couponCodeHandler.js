@@ -55,7 +55,7 @@ exports.getSingleCouponUsingCode = async (req, res) => {
 
 
 // family coupon
-exports.validateCouponCode = async (req, res) => {
+exports.applyFamilyCouponCode = async (req, res) => {
   const { phoneNumber, couponCode } = req.body;
   try {
     const coupon = await Coupon.findOne({ code: couponCode });
@@ -73,14 +73,30 @@ exports.validateCouponCode = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-
     // check user's cart if they added anything
     if (user.cart.items.length === 0) {
       return res.status(400).json({ error: "Your cart is empty" });
     }
 
+    // 3. Retrieve products
+    // const productIds = user.cart.items.map(item => mongoose.Types.ObjectId(item.productId));
+    const productNames = user.cart.items.map((item) => item.productName);
+
+    const products = await Products.find({ ['name-url']: { $in: productNames } });
+
+    const productMRPTotal = user.cart.items.reduce((total, item) => {
+      const product = products.find((p) => p['name-url'] === item.productName);
+
+      const basePrice = product.price * item.quantity;
+
+      return Math.round(total + basePrice)
+
+    }, 0);
+
+
+
     // check if totalcartamount is above 1000
-    if (user.cart.totalCartAmount < 1000) {
+    if (productMRPTotal < 1000) {
       return res.status(400).json({ error: "Please add products worth ₹1000 or more" })
     }
 
@@ -108,18 +124,15 @@ exports.validateCouponCode = async (req, res) => {
       }
     }
 
-    // 3. Retrieve products
-    // const productIds = user.cart.items.map(item => mongoose.Types.ObjectId(item.productId));
-    const productNames = user.cart.items.map((item) => item.productName);
 
-    const products = await Products.find({ ['name-url']: { $in: productNames } });
 
 
     // 4. Calculate totals
     let subtotalIncludingTax = 0;
     let totalTax = 0;
+    let totalDiscountAmount = 0;
 
-    const updatedItems = user.cart.items.map((item) => {
+    user.cart.items.map((item) => {
       const product = products.find((p) => p['name-url'] === item.productName);
 
 
@@ -136,11 +149,13 @@ exports.validateCouponCode = async (req, res) => {
 
       const quantity = item.quantity;
       const basePrice = product.price * quantity;
-      const discountedPrice = basePrice * 0.55; // 45% discount
+      const discountAmount = basePrice * 0.35
+      const discountedPrice = basePrice * 0.65; // 35% discount
       const taxAmount = discountedPrice * (product.tax / (100 + product.tax)); // reverse calclulations
 
       subtotalIncludingTax += discountedPrice; // this will include tax
       totalTax += taxAmount;
+      totalDiscountAmount += discountAmount;
 
       return;
     });
@@ -150,9 +165,9 @@ exports.validateCouponCode = async (req, res) => {
 
     // 6. Update user's cart
     // user.cart.items = updatedItems;
-    user.cart.totalCartAmount = Math.round(subtotalIncludingTax);
-    user.cart.totalTaxes = Math.round(totalTax);
-    user.cart.couponCodeApplied.push(couponCodeInfo);
+    // user.cart.totalCartAmount = Math.round(subtotalIncludingTax);
+    // user.cart.totalTaxes = Math.round(totalTax);
+    // user.cart.couponCodeApplied.push(couponCodeInfo);
 
     await user.save();
 
@@ -160,10 +175,20 @@ exports.validateCouponCode = async (req, res) => {
 
     const response = {
       message: "Coupon Code Applied Successfully",
-      couponCodeApplied: user.cart.couponCodeApplied,
+      couponCodeApplied: [couponCodeInfo],
+      totalCartAmount: Math.round(subtotalIncludingTax),
+      discountAmount: Math.round(totalDiscountAmount),
+      totalTax: Math.round(totalTax),
+      discountType: '35%',
+      discountPercentage: 35,
     };
 
-    res.json(response);
+    // const response = {
+    //   message: "Coupon Code Applied Successfully",
+    //   couponCodeApplied: user.cart.couponCodeApplied,
+    // };
+
+    res.status(200).json(response);
   } catch (error) {
     console.error("Error in coupon validation:", error);
     res.status(500).json({
@@ -766,7 +791,7 @@ exports.applyReferralCodeDiscount = async (req, res) => {
 
     await user.save();
     await updateCouponStatus(coupon._id, 'used');
-    
+
     // 13. Prepare response
     const response = {
       message: "Coupon Code Applied Successfully",
