@@ -140,7 +140,7 @@ exports.addNewOrder = async (req, res) => {
       user: user._id,
       orderNo: "ON" + Date.now(),
       userEmail,
-      userName:fullName,
+      userName: fullName,
       phoneNumber,
       shippingAddress: shippingAddress,
       orderDetails: orderDetailsWithAcutalAmtPaid,
@@ -570,7 +570,9 @@ exports.getAllOrders = async (req, res) => {
     if (!orders.length) {
       return res.status(404).json({ msg: "No orders found for this user" });
     }
-    res.json(orders);
+
+    const sortedOrders = orders.sort((a, b) => b.createdAt - a.createdAt)
+    res.json(sortedOrders);
   } catch (err) {
     console.error("Error retrieving orders:", err.message);
     res.status(500).send("Server error");
@@ -884,7 +886,7 @@ exports.cancelReturnRequest = async (req, res) => {
     }
 
     // Save the updated order and delete the return document
-   const result = await Promise.all([order.save(), ReturnItem.findByIdAndDelete(returnId)]);
+    const result = await Promise.all([order.save(), ReturnItem.findByIdAndDelete(returnId)]);
 
     //     // Save the updated order
 
@@ -923,7 +925,7 @@ exports.cancelReturnRequest = async (req, res) => {
 
 
     res.status(200).json({
-      data:result[1],
+      data: result[1],
       success: true,
       message: "Return request cancelled successfully",
       // updatedOrder: order
@@ -991,3 +993,100 @@ exports.getRecentPurchases = async (req, res) => {
     res.status(500).json({ message: "Error fetching recent orders" });
   }
 };
+
+
+// api for gettign incomplete order of an user
+exports.getLastIncompleteOrder = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    if (!userId) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    // get all orders of the user
+    const orders = await Order.find({ user: userId });
+    if (orders.length === 0) {
+      return res.status(404).json({ msg: "No Order found" });
+    }
+
+    const lastIncompleteOrder = orders
+      .filter(order => order.paymentMethod === 'online_payment' && order.paymentStatus === 'pending' && order.orderStatus === 'active')
+      .sort((a, b) => b.createdAt - a.createdAt)[0];
+
+    res.status(200).json(lastIncompleteOrder ? lastIncompleteOrder : null)
+
+  } catch (error) {
+    throw error
+  }
+}
+
+// change payment method to COD and complete the order
+exports.handleReOrderReCompletion = async (req, res) => {
+  try {
+    const { orderId, paymentMethod, subTotal, taxAmount } = req.body;
+    const order = await Order.findById(orderId)
+    if (!order) {
+      return res.status(404).json({ msg: "Order not found" });
+    }
+    order.paymentMethod = paymentMethod;
+    order.subTotal = subTotal;
+    order.taxAmount = taxAmount;
+    order.createdAt = new Date();
+
+    const savedOrder = await order.save()
+    if (savedOrder.paymentMethod === "cash_on_delivery") {
+      const orderNumber = savedOrder.orderNo;
+      const customerName = savedOrder.userName || '';
+      const totalAmount = savedOrder.subTotal + savedOrder.shippingFee;
+
+      // updating the stock
+      savedOrder?.orderDetails.map(async (product) => {
+        const productName = product['name-url'];
+        const quantity = product.quantity;
+        await updateStock(productName, quantity, 'add');
+      })
+
+
+      // // send order confirmation message on phone
+      await sendOrderConfirmationMsg(customerName, totalAmount, savedOrder.phoneNumber)
+      // //  Send order confirmation email
+      await sendEmail(
+        savedOrder.userEmail,
+        "Order Confirmation",
+        "orderConfirmation",
+        {
+          orderNumber,
+          customerName,
+          totalAmount,
+          // Add more template variables as needed
+        }
+      );
+      //  Send order receiving email to sales.foodsbay@gmail.com
+      await sendEmail(
+        'sales.foodsbay@gmail.com',
+        "Received Order",
+        "orderRecieved",
+        {
+          orderNumber,
+          customerName,
+          phoneNumber: savedOrder.phoneNumber ||'',
+          email: savedOrder.userEmail,
+          shippingAddress: address(savedOrder.shippingAddress),
+          orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
+          subTotal: savedOrder.subTotal,
+          shippingFee: savedOrder.shippingFee,
+          totalAmount: savedOrder.subTotal + savedOrder.shippingFee,
+          paymentMethod: savedOrder.paymentMethod,
+          paymentStatus: savedOrder.paymentStatus,
+        }
+      );
+    }
+
+    res
+      .status(200)
+      .json({ message: "Order placed successfully", orderId: savedOrder._id });
+
+  } catch (error) {
+    throw error;
+  }
+}

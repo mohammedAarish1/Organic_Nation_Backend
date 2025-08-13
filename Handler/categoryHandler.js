@@ -17,14 +17,14 @@ exports.allProducts = async (req, res) => {
       console.log('No products found in the database');
     }
 
-    const filteredProducts=products.filter(product => product.category !== 'Organic Tea' && product.category !== 'Breakfast Cereals')    // separate the categories and category-url
+    const filteredProducts = products.filter(product => product.category !== 'Organic Tea' && product.category !== 'Breakfast Cereals')    // separate the categories and category-url
     const categoryList = filteredProducts
       .map(product => ({
         category: product.category,
         categoryUrl: product['category-url']
       }));
 
-      // filter out the unique categories
+    // filter out the unique categories
     const uniqueCategoriesList = categoryList.filter((product, index, self) =>
       index === self.findIndex(t =>
         t.category === product.category && t.categoryUrl === product.categoryUrl
@@ -34,7 +34,7 @@ exports.allProducts = async (req, res) => {
     // add the 'All' category
     const finalCategoryList = [{ category: 'All', categoryUrl: 'All' }, ...uniqueCategoriesList]
 
-    res.status(200).json({ products:filteredProducts, categoryList: finalCategoryList });
+    res.status(200).json({ products: filteredProducts, categoryList: finalCategoryList });
   } catch (error) {
     res.status(500).send({ error: "Internal Server Error" });
   }
@@ -74,8 +74,11 @@ exports.getProductsByCategory = async (req, res) => {
       products = await Products.find({ 'category-url': { $regex: new RegExp(`^${category}$`, "i") } });
     }
 
+    const filteredProducts = products.filter(product => product.category !== 'Organic Tea' && product.category !== 'Breakfast Cereals')    // separate the categories and category-url
+
+
     // Sending response with products
-    res.status(200).json(products);
+    res.status(200).json(filteredProducts);
   } catch (error) {
     // Handling errors
     console.error("Error fetching products by category:", error);

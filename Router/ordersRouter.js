@@ -1,43 +1,41 @@
 const express = require("express");
 const router = express.Router();
-// const passport = require('passport');
 const multer = require('multer');
 
-// const requireAuth = passport.authenticate('jwt', { session: false });
-// Configure multer for handling file uploads
-// const upload = multer({ storage: multer.memoryStorage() });
 
 const upload = multer({
-    limits: {
-      fileSize: 15 * 1024 * 1024, // 15MB limit
-    },
-    fileFilter: (req, file, cb) => {
-      if (file.fieldname === 'images') {
-        if (!file.mimetype.startsWith('image/')) {
-          return cb(new Error('Only image files are allowed for images!'), false);
-        }
-      } else if (file.fieldname === 'video') {
-        if (!file.mimetype.startsWith('video/')) {
-          return cb(new Error('Only video files are allowed for video!'), false);
-        }
+  limits: {
+    fileSize: 15 * 1024 * 1024, // 15MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.fieldname === 'images') {
+      if (!file.mimetype.startsWith('image/')) {
+        return cb(new Error('Only image files are allowed for images!'), false);
       }
-      cb(null, true);
+    } else if (file.fieldname === 'video') {
+      if (!file.mimetype.startsWith('video/')) {
+        return cb(new Error('Only video files are allowed for video!'), false);
+      }
     }
-  }).fields([
-    { name: 'images', maxCount: 3 },
-    { name: 'video', maxCount: 1 }
-  ]);
+    cb(null, true);
+  }
+}).fields([
+  { name: 'images', maxCount: 3 },
+  { name: 'video', maxCount: 1 }
+]);
 
 const {
-    // createOrder,
-    cancelOrder,
-    getAllOrders,
-    getOrderById,
-    handleReturnItems,
-    getAllReturnItmes,
-    cancelReturnRequest,
-    getRecentPurchases,
-    addNewOrder,
+  // createOrder,
+  cancelOrder,
+  getAllOrders,
+  getOrderById,
+  handleReturnItems,
+  getAllReturnItmes,
+  cancelReturnRequest,
+  getRecentPurchases,
+  addNewOrder,
+  getLastIncompleteOrder,
+  handleReOrderReCompletion,
 } = require("../Handler/ordersHandler.js");
 const authMiddleware = require("../middleware/authMiddleware.js");
 
@@ -49,9 +47,11 @@ router.get("/:orderId", getOrderById);
 router.post("/add-return-item", authMiddleware, upload, handleReturnItems)
 router.get("/all/return-items", authMiddleware, getAllReturnItmes)
 router.delete('/cancel-return/:returnId', authMiddleware, cancelReturnRequest);
+router.get('/last/incomplete-order', authMiddleware, getLastIncompleteOrder);
+router.post('/recomplete-order', authMiddleware, handleReOrderReCompletion); // when use changes the payment method and complete his order
 
 // for recent purchase notification
-router.get('/recent/purchases',  getRecentPurchases);
+router.get('/recent/purchases', getRecentPurchases);
 
 
 

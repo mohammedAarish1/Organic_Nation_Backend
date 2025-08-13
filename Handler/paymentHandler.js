@@ -252,10 +252,12 @@ exports.checkPaymentStatus = async (req, res) => {
             const orderNumber = order.orderNo || '';
             const customerName = order.userName || '';
             const totalAmount = order.subTotal + order.shippingFee;
-            const orderId=order._id;
+            const orderId = order._id;
 
 
             order.paymentStatus = 'PAID';
+            order.createdAt = new Date();
+
             await order.save(); // Save the updated order
             const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}&orderId=${orderId}`
 

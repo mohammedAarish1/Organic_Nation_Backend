@@ -138,20 +138,30 @@ exports.calculateCODCharges = async (req, res) => {
         if (!user) {
             return res.status(401).json({ error: 'Unauthorized' })
         }
-        let totalGrossWeight = cartItemsList.reduce((total, product) => {
-            // Extract numeric value from string, assuming the format is consistent
-            let singleItemTotalWeight = extractWeight(product.grossWeight) * product.quantity
-            return total + singleItemTotalWeight
-        }, 0)
 
+
+        let totalGrossWeight = 0;
+
+        for (let product of cartItemsList) {
+            let grossWeight;
+            // when user sends the 'cartItemsList' from the order history, we'll not have the grossweight in the product object 
+            if (!product.grossWeight) {
+                const item = await Products.findOne({ 'name-url': product['name-url'] });
+                grossWeight = item.grossWeight;
+            } else {
+                grossWeight = product.grossWeight;
+            }
+
+
+            let singleItemTotalWeight = extractWeight(grossWeight) * product.quantity;
+            totalGrossWeight += singleItemTotalWeight;
+        }
 
         const codChargesList = await CourierRate.findOne({ Classification: 'COD' })
-
         const codCharges = codChargesList.CourierCharges.find(charge => {
             const chargeWeight = extractWeight(charge.Weight)
             return totalGrossWeight <= chargeWeight;
         });
-
 
         res.status(200).json({ codCharge: codCharges.Rate });
     } catch (error) {
