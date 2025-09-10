@@ -235,7 +235,7 @@ exports.addNewOrder = async (req, res) => {
         {
           orderNumber,
           customerName,
-          phoneNumber: savedOrder.phoneNumber ||'',
+          phoneNumber: savedOrder.phoneNumber || '',
           email: savedOrder.userEmail,
           shippingAddress: address(savedOrder.shippingAddress),
           orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
@@ -1069,7 +1069,7 @@ exports.handleReOrderReCompletion = async (req, res) => {
         {
           orderNumber,
           customerName,
-          phoneNumber: savedOrder.phoneNumber ||'',
+          phoneNumber: savedOrder.phoneNumber || '',
           email: savedOrder.userEmail,
           shippingAddress: address(savedOrder.shippingAddress),
           orderDetails: savedOrder.orderDetails.map((item, index) => `(${index + 1}) Product: ${item['name-url']}, ID: ${item.id}, Quantity: ${item.quantity}, Weight: ${item.weight}, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`).join(', '),
@@ -1090,3 +1090,21 @@ exports.handleReOrderReCompletion = async (req, res) => {
     throw error;
   }
 }
+
+
+
+
+// const addField = async () => {
+//   try {
+//     const result = await Products.updateMany(
+//       { isActive: { $exists: false } },
+//       { $set: { isActive: true } }
+//     )
+
+//     console.log(`${result.modifiedCount} products updated with 'isActive' field`);
+//   } catch (error) {
+//     console.error('Error adding isActive field:', error);
+//   }
+// }
+
+// addField()

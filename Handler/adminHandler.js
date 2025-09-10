@@ -23,6 +23,16 @@ const { processImage } = require('../utility/processImage.js');
 
 
 
+// Helper function to get count and handle potential errors
+const getCount = async (model) => {
+    try {
+        const count = await model.countDocuments({});
+        return count;
+    } catch (error) {
+        throw new Error(`Error fetching count from ${model.modelName}: ${error.message}`);
+    }
+};
+
 // Helper function to upload file to S3
 // const uploadToS3 = async (file, productName) => {
 //     const sanitizedProductName = productName.replace(/\s+/g, '-');
@@ -208,54 +218,136 @@ exports.getAdminProfile = async (req, res) => {
     }
 };
 
+exports.getResourceCounts = async (req, res) => {
+    try {
+        const [orderCount, productCount, returnCount, queryCount, userCount] = await Promise.all([
+            getCount(Order),
+            getCount(Products),
+            getCount(ReturnItem),
+            getCount(ContactedUser),
+            getCount(User),
+        ]);
+
+        // Send response with the counts
+        res.status(200).json({
+            success: true,
+            resourcesCount: {
+                orderCount,
+                productCount,
+                returnCount,
+                queryCount,
+                userCount
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch dashboard statistics.',
+            error: error.message
+        });
+    }
+}
+
+exports.getResources = async (req, res) => {
+    try {
+        const { type } = req.query
+
+        if (!['products', 'orders', 'returns', 'users', 'queries'].includes(type)) {
+            return res.status(400).json({ error: 'Invalid resource type' });
+        }
+
+        switch (type) {
+            case 'products':
+                const products = await Products.find().lean();
+                if (products.length === 0) {
+                    res.status(400).json({ message: 'No products found in the database' });
+                }
+                return res.status(200).json({ type, list: products });
+            case 'orders':
+                const orders = await Order.find().lean();
+                if (orders.length === 0) {
+                    res.status(400).json({ message: 'No products found in the database' });
+                }
+                return res.status(200).json({ type, list: orders });
+            case 'users':
+                const users = await User.find().lean();
+                if (users.length === 0) {
+                    res.status(400).json({ message: 'No products found in the database' });
+                }
+                return res.status(200).json({ type, list: users });
+            case 'queries':
+                const queries = await ContactedUser.find().lean();
+                if (queries.length === 0) {
+                    res.status(400).json({ message: 'No products found in the database' });
+                }
+                return res.status(200).json({ type, list: queries });
+            case 'returns':
+                const returns = await ReturnItem.find().lean();
+                if (returns.length === 0) {
+                    res.status(400).json({ message: 'No products found in the database' });
+                }
+                return res.status(200).json({ type, list: returns });
+
+            default:
+                return res.status(400).json({ error: 'Invalid resource type' })
+        }
+
+
+    } catch (error) {
+        // console.log('eerr', error)
+        res.status(500).send({ error: "Internal Server Error" });
+    }
+}
+
+
 
 // get all orders
-exports.getTotalOrders = async (req, res) => {
-    try {
-        const orders = await Order.find();
+// exports.getTotalOrders = async (req, res) => {
+//     try {
+//         const orders = await Order.find();
 
-        if (!orders) {
-            return res.status(404).json({ message: 'No orders found' });
-        }
+//         if (!orders) {
+//             return res.status(404).json({ message: 'No orders found' });
+//         }
 
-        res.json(orders);
-    } catch (err) {
-        res.status(500).send('Server error');
-    }
+//         res.json(orders);
+//     } catch (err) {
+//         res.status(500).send('Server error');
+//     }
 
-};
+// };
 // get all users
-exports.getAllUsers = async (req, res) => {
-    try {
-        const users = await User.find().select('-password');
+// exports.getAllUsers = async (req, res) => {
+//     try {
+//         const users = await User.find().select('-password');
 
-        if (!users) {
-            return res.status(404).json({ message: 'No orders found' });
-        }
+//         if (!users) {
+//             return res.status(404).json({ message: 'No orders found' });
+//         }
 
-        res.json(users);
-    } catch (err) {
-        // console.error('Error fetching users:', err.message);
-        res.status(500).send('Server error');
-    }
+//         res.json(users);
+//     } catch (err) {
+//         // console.error('Error fetching users:', err.message);
+//         res.status(500).send('Server error');
+//     }
 
-};
+// };
 // get all user queries
-exports.getAllUserQueries = async (req, res) => {
-    try {
-        const queries = await ContactedUser.find();
+// exports.getAllUserQueries = async (req, res) => {
+//     try {
+//         const queries = await ContactedUser.find();
 
-        if (!queries) {
-            return res.status(404).json({ message: 'No orders found' });
-        }
+//         if (!queries) {
+//             return res.status(404).json({ message: 'No orders found' });
+//         }
 
-        res.json(queries);
-    } catch (err) {
-        // console.error('Error fetching queries:', err.message);
-        res.status(500).send('Server error');
-    }
+//         res.json(queries);
+//     } catch (err) {
+//         // console.error('Error fetching queries:', err.message);
+//         res.status(500).send('Server error');
+//     }
 
-};
+// };
 
 
 
@@ -944,20 +1036,20 @@ exports.generateUsersReport = async (req, res) => {
 
 
 // get all returns
-exports.getTotalReturns = async (req, res) => {
-    try {
-        const returns = await ReturnItem.find();
+// exports.getTotalReturns = async (req, res) => {
+//     try {
+//         const returns = await ReturnItem.find();
 
-        if (!returns) {
-            return res.status(404).json({ message: 'No returns found' });
-        }
+//         if (!returns) {
+//             return res.status(404).json({ message: 'No returns found' });
+//         }
 
-        res.json(returns);
-    } catch (err) {
-        res.status(500).send('Server error');
-    }
+//         res.json(returns);
+//     } catch (err) {
+//         res.status(500).send('Server error');
+//     }
 
-};
+// };
 
 
 // update return status
@@ -1218,6 +1310,7 @@ exports.updateProductData = async (req, res) => {
 
         setIfExists('description', updateData.description?.trim());
         setIfExists('availability', updateData.availability, parseInt);
+        setIfExists('isActive', updateData.isActive)
 
         // Always update images array if there are any changes 
         if (finalImageUrls.length > 0 || removedImages.length > 0) {
@@ -1428,3 +1521,146 @@ exports.updateInvoiceNumber = async (req, res) => {
 
 
 // API for optimizing website images (internal usage) ended--
+
+
+// APi for sending bulk emails
+
+// exports.sendBulkEmail = async (req, res) => {
+//     try {
+//         const data = req.body;
+//         const { subject, emailBody } = data;
+
+//         const emails = ['iammdaarish@gmail.com', 'aarish.foodsbay@gmail.com', 'foodsbayindiafbi@gmail.com'];
+
+//         const results = {
+//             successful: [],
+//             failed: [],
+//             total: emails.length
+//         };
+
+//         // Sequential sending with individual error handling
+//         for (let email of emails) {
+//             try {
+//                 console.log('Sending email to:', email);
+
+//                 const result = await sendEmail(
+//                     email,
+//                     subject,
+//                     "bulkEmail",
+//                     {
+//                         emailBody
+//                     }
+//                 );
+
+//                 console.log('resultwa', result)
+
+//                 // results.successful.push(email);
+//                 console.log(`✓ Email sent successfully to: ${email}`);
+
+//                 // Add delay between emails to avoid rate limiting
+//                 await new Promise(resolve => setTimeout(resolve, 100)); // 1 second delay
+
+//             } catch (emailError) {
+//                 console.error(`✗ Failed to send email to ${email}:`, emailError.message);
+//                 results.failed.push({
+//                     email: email,
+//                     error: emailError.message
+//                 });
+//             }
+//         }
+
+//         console.log('Bulk email sending completed:', results);
+
+
+//         res.status(200).json({ message: 'Email Sent Successfully' })
+
+//     } catch (error) {
+//         console.log('error email sending', error)
+//         res.status(500).json({
+//             error: 'An error occurred while ssending the email',
+//             details: error.message,
+//         });
+//     }
+
+// }
+
+
+exports.sendBulkEmail = async (req, res) => {
+    try {
+        const data = req.body;
+        const { subject, emailBody } = data;
+
+        const emails = ['iammdaarish@gmail.com', 'aarish.foodsbay@gmail.com', 'foodsbayindiafbi@gmail.com'];
+
+        const results = {
+            successful: [],
+            failed: [],
+            total: emails.length
+        };
+
+        // console.log(`Starting bulk email send to ${emails.length} recipients`);
+
+        // Sequential sending with individual error handling
+        for (let email of emails) {
+            try {
+                // console.log('Sending email to:', email);
+
+                const result = await sendEmail(
+                    email,
+                    subject,
+                    "bulkEmail",
+                    {
+                        emailBody
+                    }
+                );
+
+                // console.log('Email result for', email, ':', result);
+
+                // FIXED: Actually push to successful array
+                results.successful.push({
+                    email: email,
+                    messageId: result.MessageId || result.messageId || 'N/A'
+                });
+
+                // console.log(`✓ Email sent successfully to: ${email}`);
+
+                // Add delay between emails to avoid rate limiting
+                await new Promise(resolve => setTimeout(resolve, 1000)); // FIXED: Changed to 1 second
+
+            } catch (emailError) {
+                console.error(`✗ Failed to send email to ${email}:`, emailError.message);
+                results.failed.push({
+                    email: email,
+                    error: emailError.message
+                });
+
+                // FIXED: Don't break the loop, continue to next email
+                continue;
+            }
+        }
+
+        // console.log('Bulk email sending completed:', results);
+
+        // FIXED: Return detailed results instead of generic message
+        res.status(200).json({
+            success: true,
+            message: 'Bulk email process completed',
+            results: {
+                totalEmails: results.total,
+                successfulSends: results.successful.length,
+                failedSends: results.failed.length,
+                successRate: `${((results.successful.length / results.total) * 100).toFixed(2)}%`,
+                successful: results.successful,
+                failed: results.failed
+            }
+        });
+
+    } catch (error) {
+        // console.log('Error in bulk email sending:', error);
+        res.status(500).json({
+            success: false,
+            error: 'An error occurred while sending the bulk emails',
+            details: error.message,
+        });
+    }
+}

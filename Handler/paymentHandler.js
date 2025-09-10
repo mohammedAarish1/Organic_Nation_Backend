@@ -372,7 +372,8 @@ exports.checkPaymentStatus = async (req, res) => {
 
             return res.redirect(url)
         } else {
-            const url = `${process.env.FRONTEND_URL}/payment-status?status=failure&retryToken=${token}`
+            // const url = `${process.env.FRONTEND_URL}/payment-status?status=failure&retryToken=${token}`
+            const url = `https://organicnation.co.in/payment-status?status=failure&retryToken=${token}`
             return res.redirect(url)
         }
     } catch (error) {

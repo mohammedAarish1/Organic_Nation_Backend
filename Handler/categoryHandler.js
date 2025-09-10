@@ -9,16 +9,17 @@ const ProductInfo = require('../models/ProductInfo.js')
 
 
 exports.allProducts = async (req, res) => {
+  console.log('all products')
   try {
 
-    const products = await Products.find({}).lean();
+    const products = await Products.find({ isActive: true }).lean();
 
     if (products.length === 0) {
       console.log('No products found in the database');
     }
 
-    const filteredProducts = products.filter(product => product.category !== 'Organic Tea' && product.category !== 'Breakfast Cereals')    // separate the categories and category-url
-    const categoryList = filteredProducts
+    // const filteredProducts = products.filter(product => product.category !== 'Organic Tea' && product.category !== 'Breakfast Cereals')    // separate the categories and category-url
+    const categoryList = products
       .map(product => ({
         category: product.category,
         categoryUrl: product['category-url']
@@ -34,7 +35,7 @@ exports.allProducts = async (req, res) => {
     // add the 'All' category
     const finalCategoryList = [{ category: 'All', categoryUrl: 'All' }, ...uniqueCategoriesList]
 
-    res.status(200).json({ products: filteredProducts, categoryList: finalCategoryList });
+    res.status(200).json({ products, categoryList: finalCategoryList });
   } catch (error) {
     res.status(500).send({ error: "Internal Server Error" });
   }
@@ -63,6 +64,7 @@ exports.getCategories = async (req, res) => {
 
 //  get products by category 
 exports.getProductsByCategory = async (req, res) => {
+
   try {
     const category = req.params.category;
     let products;
@@ -74,7 +76,8 @@ exports.getProductsByCategory = async (req, res) => {
       products = await Products.find({ 'category-url': { $regex: new RegExp(`^${category}$`, "i") } });
     }
 
-    const filteredProducts = products.filter(product => product.category !== 'Organic Tea' && product.category !== 'Breakfast Cereals')    // separate the categories and category-url
+    // const filteredProducts = products.filter(product => product.category !== 'Organic Tea' && product.category !== 'Breakfast Cereals')    // separate the categories and category-url
+    const filteredProducts = products.filter(product => product.isActive)    // separate the categories and category-url
 
 
     // Sending response with products

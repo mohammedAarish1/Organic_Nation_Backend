@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
+  isActive: {
+    type: Boolean,
+    default: true
+  },
   product_id: {
     type: Number,
     required: true,

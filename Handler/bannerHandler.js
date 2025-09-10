@@ -1,3 +1,4 @@
+const { uploadToCloudinary } = require("../middleware/upload.js");
 const MainBanners = require("../models/MainBanners")
 // const { PutObjectCommand } = require("@aws-sdk/client-s3");
 // const { s3Client } = require('../config/awsConfig.js');
@@ -89,6 +90,89 @@ exports.getAllMainBanners = async (req, res) => {
 //             // banner: newBanner
 //         });
 //     } catch (err) {
+//         console.log('err', err)
+//         res.status(500).json({
+//             success: false,
+//             message: 'An error occurred while creating the banner',
+//             error: err.message
+//         });
+//     }
+// };
+
+// exports.addNewBanner = async (req, res) => {
+//     try {
+//         const { title, description, redirectionUrl, order } = req.body;
+//         // const file = req.file;
+
+//         if (!redirectionUrl || !order) {
+//             return res.status(400).json({ success: false, message: 'Redirectional Url is required' })
+//         }
+
+//         const mainBanners = await MainBanners.find()
+//         // checking if order already exist
+//         const isOrderExist = mainBanners.length > 0 ? mainBanners.some(banner => banner.order === Number(order)) : false;
+//         if (isOrderExist) {
+//             return res.status(401).json({ error: 'Order number already exist' })
+//         }
+
+//         if (!req.file) {
+//             throw new AppError('No image file provided', 400);
+//         }
+
+//         // Log upload for monitoring
+
+//         try {
+//             // Upload buffer directly to Cloudinary
+//             const result = await uploadToCloudinary(req.file.buffer, {
+//                 folder: `ecommerce/${req.body.category || 'general'}`,
+//                 public_id: `${Date.now()}-${Math.round(Math.random() * 1E9)}`
+//             });
+
+//             // console.log(`Image uploaded: ${result.public_id} by user: ${req.user?.id || 'anonymous'}`);
+//             console.log('image url: ', result.secure_url)
+
+
+//             const newBanner = new MainBanners({
+//                 title,
+//                 description,
+//                 image: result.secure_url,
+//                 redirectionUrl,
+//                 order
+//             });
+
+//             // Save the banner to the database
+//             await newBanner.save();
+
+
+//             res.status(201).json({
+//                 success: true,
+//                 message: 'Banner created successfully',
+//                 // banner: newBanner
+//             });
+
+//             // res.status(201).json({
+//             //     success: true,
+//             //     data: {
+//             //         url: result.secure_url,
+//             //         publicId: result.public_id,
+//             //         width: result.width,
+//             //         height: result.height,
+//             //         format: result.format,
+//             //         bytes: result.bytes,
+//             //         createdAt: new Date().toISOString()
+//             //     }
+//             // });
+//         } catch (cloudinaryError) {
+//             console.error('Cloudinary upload error:', cloudinaryError);
+//             throw new AppError('Failed to upload image to Cloudinary', 500);
+//         }
+
+
+
+//         // Create a new banner document
+
+
+//     } catch (err) {
 //         res.status(500).json({
 //             success: false,
 //             message: 'An error occurred while creating the banner',
@@ -172,4 +256,8 @@ exports.deleteBanner = async (req, res) => {
             error: error.message
         });
     }
-}
+};
+
+
+
+

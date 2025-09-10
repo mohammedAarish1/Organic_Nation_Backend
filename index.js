@@ -27,7 +27,7 @@ app.use(express.json());
 //   allowedHeaders: ['Content-Type', 'Authorization', 'CSRF-Token']
 // }));
 
-
+app.set('trust proxy', 1) // for handling the 'X-Forwarded-For' error because of express-rate-limiter 
 
 
 // Parse the comma-separated domains from environment variable
