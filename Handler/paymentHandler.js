@@ -259,7 +259,8 @@ exports.checkPaymentStatus = async (req, res) => {
             order.createdAt = new Date();
 
             await order.save(); // Save the updated order
-            const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}&orderId=${orderId}`
+            // const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}&orderId=${orderId}`
+            const url = `https://organicnation.co.in/payment-status?status=success&id=${merchantTransactionId}&orderId=${orderId}`
 
             // get the user
             const user = await User.findOne({ phoneNumber: order.phoneNumber });
