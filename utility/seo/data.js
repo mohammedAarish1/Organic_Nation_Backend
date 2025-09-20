@@ -1,27 +1,27 @@
 const productsSeoData = {
     // ====================== Honey ================================================
-    'Organic-Light-Flora-Honey': {
+    'organic-light-flora-honey': {
         title: "Organic Light Flora Honey | Organic Honey – Organic Nation",
         description: "Buy Organic Light Flora Honey from Organic Nation. Sweet, pure, and full of natural goodness. Perfect for healthy eating & natural sweetness!",
         keywords:'organic honey, light flora honey, natural honey,organic light honey,pure honey India,Organic Nation honey,healthy honey,buy organic honey online,chemical-free honey,premium honey, Honey,organic nation',
         canonicalUrl: "https://organicnation.co.in/shop/organic-honey/Organic-Light-Flora-Honey",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Light-Flora-Honey/front.png"
     },
-    'Organic-Wild-Forest-Honey': {
+    'organic-wild-forest-honey': {
         title: "Pure Wild Forest Honey | Buy Honey Online | Organic Nation",
         description: "Experience the pure essence of nature with our Organic Wild Forest Honey. Sourced from pristine, untouched forests, our honey is unprocessed and raw, preserving its natural goodness and rich flavor.",
         keywords:'organic honey,wild forest honey,wild honey, honey, forest honey,organic forest honey,natural honey,pure honey India,organic honey benefits,buy forest honey online, premium honey,organic nation',
         canonicalUrl: "https://organicnation.co.in/shop/organic-honey/Organic-Wild-Forest-Honey",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Wild-Forest-Honey/front.png"
     },
-    'Organic-Kashmir-Honey': {
+    'organic-kashmir-honey': {
         title: "100% Pure & Organic Kashmir Honey  | Organic Nation",
         description: "We are bringing the forest fresh honey from Kashmir at Organic Nation. Our Kashmir Honey is harvested with the natural goodness of the Kashmir forests.",
         keywords:'organic honey,Kashmir honey,organic Kashmir honey,natural honey,pure honey India,buy Kashmir honey,Organic Nation honey,honey benefits,premium honey,natural sweetness, honey kashmir, honey',
         canonicalUrl: "https://organicnation.co.in/shop/organic-honey/Organic-Kashmir-Honey",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Kashmir-Honey/front.png"
     },
-    'Organic-Jamun-Honey': {
+    'organic-jamun-honey': {
         title: "Buy Jamun Honey Online in india| Organic Nation",
         description: "Organic Nation provides genuine, unadulterated honey, produced solely from the sweet essence of Jamun trees. This natural remedy is celebrated for its healing qualities and diverse wellness advantages.",
         keywords:'Jamun Honey,Organic Jamun Honey,Raw Jamun Honey,Organic Nation Jamun Honey,Pure Jamun Honey,Natural Jamun Honey,Benefits of Jamun Honey ,Jamun Honey for diabetes,Jamun Honey health benefits,Buy Jamun Honey online,Best organic honey in India,Jamun honey price in India,Raw honey from Jamun flowers,Organic Nation honey,honey',
@@ -136,37 +136,37 @@ const productsSeoData = {
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Sweet-Lemon-Pickle/front.png"
     },
     // ====================== seasonings ================================================
-    'Chilly-Flakes': {
+    'chilly-flakes': {
         title: "Premium Chilly Flakes | Spicy Seasoning | Organic Nation",
         description: "Discover the bold flavor of our premium Chilly Flakes. Handpicked, dried, and crushed for a fresh, authentic taste. Order Now at www.organicnation.co.in ",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Chilly-Flakes",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Chilly-Flakes/front.png"
     },
-    'African-Peri-Peri': {
+    'african-peri-peri': {
         title: "Authentic African Peri Peri India | Organic Nation",
         description: "Experience the true essence of African cuisine with Organic Nation's African Peri Peri—free from artificial preservatives and full of natural goodness.",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/African-Peri-Peri",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/African-Peri-Peri/front.png"
     },
-    'Mexican-Seasoning': {
+    'mexican-seasoning': {
         title: "Buy Mexican Seasoning Online - 100% Natural | Organic Nation",
         description: "Discover the rich, bold flavors of natural Mexican Seasoning Online. Perfect for adding authentic taste to your dishes| Buy Now Online ",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Mexican-Seasoning",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Mexican-Seasoning/front.png"
     },
-    'Chinese-Seasoning': {
+    'chinese-seasoning': {
         title: "Premium Chinese Seasoning | 100% Natural | Organic Nation",
         description: "Perfect for adding depth and versatility to your meals, this high-quality blend transforms daily dishes into culinary masterpieces. buy at Organic Nation ",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Chinese-Seasoning",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Chinese-Seasoning/front.png"
     },
-    'Pizza-Seasoning': {
+    'pizza-seasoning': {
         title: "Premium Pizza Seasoning  | 100% Authentic | Organic Nation",
         description: "Elevate your homemade pizza with our premium Pizza Seasoning—a perfect blend of Italian herbs and spices, designed to bring out the best in every slice. ",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Pizza-Seasoning",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Pizza-Seasoning/front.png"
     },
-    'Italian-Seasoning': {
+    'italian-seasoning': {
         title: "Organic Nation Italian Seasoning | Buy Online at 20% Off",
         description: "Elevate your dishes with Organic Nation's Italian Seasoning. 100% organic blend for rich, authentic Italian flavor. Perfect for any recipe!",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Italian-Seasoning",
@@ -178,89 +178,89 @@ const productsSeoData = {
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Pizza-Oregano",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Pizza-Oregano/front.png"
     },
-    'Mix-Herbs': {
+    'mixed-herbs': {
         title: "Organic Fresh Mix Herbs|Mix Herbs |Organic Nation",
         description: "Discover the secret to flavorful meals with Organic Nation’s Fresh Mix Herbs. 100% organic,sustainably sourced, and bursting with natural taste. Buy Online",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Mixed-Herbs",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Mixed-Herbs/front.png"
     },
-    'Salt-and-Pepper': {
+    'salt-and-pepper': {
         title: "Organic Salt and Pepper |  Pure Flavors  | Organic Nation",
         description: "Discover the rich, natural flavors of Organic Nation's Salt and Pepper. Sourced from the finest origins, our 100% organic seasonings bring a healthier.",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Salt-and-Pepper",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Salt-and-Pepper/front.png"
     },
-    'Basil': {
+    'basil': {
         title: "Buy Fresh Basil Leave Online | Organic Nation",
         description: "Order now and enjoy the convenience of having farm-fresh basil delivered straight to your door.",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Basil",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Basil/front.png"
     },
-    'Oregano': {
+    'oregano': {
         title: "Buy Oregano Online | Natural Oregano | Organic Nation",
         description: "Elevate your dishes with Organic Nation's 100% pure oregano. Enjoy robust flavors, chemical-free quality, and health benefits in every pinch. Perfect for the health-conscious cook.",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Oregano",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Oregano/front.png"
     },
-    'Parsley': {
+    'parsley': {
         title: "Organic Parsley | 100% Fresh & Rich Herb | Organic Nation",
         description: "Discover 100% Organic Parsley, handpicked for freshness and packed with essential nutrients. Perfect for adding flavor and health benefits to your dishes",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Parsley",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Parsley/front.png"
     },
-    'Rosemary': {
+    'rosemary': {
         title: "Buy Rosemary Online at Best Prices in India | Organic Nation",
         description: "Discover the vibrant flavor and health benefits of fresh organic rosemary. Perfect for adding a gourmet touch to your meals, our hand-harvested rosemary is grown without pesticides and packed with natural goodness.",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Rosemary",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Rosemary/front.png"
     },
-    'Thyme': {
+    'thyme': {
         title: "Buy Organic Nation Thyme Online at Best Price ",
         description: "Discover the rich flavor and health benefits of our 100% organic thyme. Sustainably sourced and packed with antioxidants.",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Thyme",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Thyme/front.png"
     },
-    'Ginger-Powder': {
+    'ginger-powder': {
         title: "Organic Garlic Powder | 100% Natural | Organic Nation",
         description: "Garlic powder is a finely ground form of dehydrated garlic, offering a convenient and versatile way to add the robust flavor of garlic to your dishes.",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Ginger-Powder",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Ginger-Powder/front.png"
     },
-    'Red-Onion-Powder': {
+    'red-onion-powder': {
         title: "Buy Red Onion Powder Online | Organic Nation",
         description: "Elevate your cooking with our 100% pure Red Onion Powder. Enjoy rich flavor, health benefits, and long-lasting convenience in every jar.",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Red-Onion-Powder",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Red-Onion-Powder/front.png"
     },
-    'Garlic-Powder': {
+    'garlic-powder': {
         title: "Pure Garlic Powder | 100% Natural Flavor | Organic Nation",
         description: "Transform your cooking with our high-quality Garlic Powder. Perfect for adding a rich, aromatic flavor to any dish. Buy Online at 20% discount ",
         canonicalUrl: "https://organicnation.co.in/shop/seasonings-&-herbs/Garlic-Powder",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Garlic-Powder/front.png"
     },
     // ====================== Jams ================================================
-    'Mixed-Fruit-Conserve': {
+    'mix-fruit-conserve': {
         title: "Buy Mix Fruit Conserve, Jam and Marmalade online at the best price -Organic Nation",
         description: "Discover the perfect blend of taste and tradition with our Mix Fruit Conserve. Shop natural jam, marmalade, and fruit preserves packed with rich, fruity flavor.",
         keywords:"Mix Fruit Conserve, Jam and marmalade, marmalade, marmalade jam, Jam preserves marmalade, Jam, Marmalade, Jam preserves",
         canonicalUrl: "https://organicnation.co.in/shop/fruit-preserves/Mixed-Fruit-Conserve",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Mixed-Fruit-Conserve/front.png"
     },
-    'Pineapple-Conserve': {
+    'pineapple-conserve': {
         title: "Buy Pineapple Conserve, Jam and Marmalade online at the best price -Organic Nation",
         description: "Buy Pineapple Conserve, Jam, and Marmalade online at the best price from Organic Nation. Explore our delicious range of natural jam, marmalade, and fruit preserves made with real ingredients and zero additives.",
         keywords:"Pineapple Conserve, Jam and marmalade, marmalade, marmalade jam, Jam preserves marmalade, Jam, Marmalade, Jam preserves",
         canonicalUrl: "https://organicnation.co.in/shop/fruit-preserves/Pineapple-Conserve",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Pineapple-Conserve/front.png"
     },
-    'Strawberry-Conserve': {
+    'strawberry-conserve': {
         title: "Buy Strawberry Conserve, Jam and Marmalade online at the best price -Organic Nation",
         description: "Buy Strawberry Conserve, Jam, and Marmalade online at the best price from Organic Nation. Explore premium quality jam, marmalade, and preserves made with real fruit. Shop now for delicious spreads delivered to your doorstep.",
         keywords:"Strawberry Conserve, Jam and marmalade, marmalade, marmalade jam, Jam preserves marmalade, Jam, Marmalade, Jam preserves",
         canonicalUrl: "https://organicnation.co.in/shop/fruit-preserves/Strawberry-Conserve",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Strawberry-Conserve/front.png"
     },
-    'Orange-Marmalade': {
+    'orange-marmalade': {
         title: "Buy Orange Marmalade, Jam and Marmalade online at the best price -Organic Nation",
         description: "Discover the zesty goodness of our Orange Marmalade – a perfect blend of jam and marmalade. Shop premium marmalade jam, fruity preserves, and classic jam varieties online.",
         keywords:"Orange Marmalade, Jam and marmalade, marmalade, marmalade jam, Jam preserves marmalade, Jam, orange marmalade, orange fruit jam, Marmalade, Jam preserves, orange marmalade jam, orange preserves, orange marmalade online",
@@ -268,42 +268,42 @@ const productsSeoData = {
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Orange-Marmalade/front.png"
     },
     // ====================== Chutney & dip ================================================
-    'Chilli-Garlic-Dip': {
+    'chilli-garlic-dip': {
         title: "Buy Chilli Garlic Dip Online | Spicy & Flavorful Dip",
         description: "Order Chilli Garlic Dip online! A spicy, rich, and zesty dip made for snack lovers. Perfect with fries, rolls, or sandwiches. Taste that hits!",
         keywords:'Chilli Garlic Dip, Buy Chilli Garlic Dip Online, Spicy Garlic Dip, Garlic Chilli Dip for Snacks, Best Chilli Garlic Dip, Hot Garlic Dip, Organic Chilli Garlic Dip , Chilli Garlic Sauce Dip, Tasty Chilli Garlic Spread, Snack Dip Online',
         canonicalUrl: "https://organicnation.co.in/shop/chutney-&-dip/Chilli-Garlic-Dip",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Chilli-Garlic-Dip/front.png"
     },
-    'Mango-Chutney': {
+    'mango-chutney': {
         title: "Buy Mango Chutney Online | Sweet Mango Chutney  ",
         description: "Shop Mango Chutney online! A perfect mix of sweet and tangy flavors. Pairs well with snacks, meals, or Indian dishes. A must-have kitchen essential!",
         keywords:'Mango Chutney, Buy Mango Chutney Online, Sweet Mango Chutney, Authentic Mango Chutney, Indian Mango Chutney, Tangy Mango Spread, Mango Pickle Chutney, Natural Mango Chutney, Organic Mango Chutney, Chutney for Snacks and Meals',
         canonicalUrl: "https://organicnation.co.in/shop/chutney-&-dip/Mango-Chutney",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Mango-Chutney/front.png"
     },
-    'Salsa-Dip': {
+    'salsa-dip': {
         title: "Organic Nation Salsa Dip | Buy Salsa Dip Online",
         description: "Buy Organic Nation Salsa Dip online! A zesty, chunky tomato dip made with fresh ingredients. Perfect for chips, nachos, or Mexican meals.",
         keywords:'Salsa Dip, Organic Nation Salsa Dip, Buy Salsa Dip Online, Tomato Salsa Dip, Mexican Salsa Dip, Fresh Salsa Dip, Chunky Salsa Dip, Spicy Salsa for Nachos, Salsa Dip for Chips, Organic Salsa Dip',
         canonicalUrl: "https://organicnation.co.in/shop/chutney-&-dip/Salsa-Dip",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Salsa-Dip/front.png"
     },
-    'Sweet-Tomato-Chutney': {
+    'sweet-tomato-chutney': {
         title: "Buy Sweet Tomato Chutney Online |Tomato Chutney Spread",
         description: "Buy Organic Nation Sweet Tomato Chutney online! A rich, tangy, and mildly sweet chutney made with real tomatoes. Perfect with meals or snacks.",
         keywords:'Organic Nation Sweet Tomato Chutney, Buy Sweet Tomato Chutney Online, Tomato Chutney for Snacks, Indian Sweet Tomato Chutney, Organic Tomato Chutney, Tangy Tomato Chutney, Chutney for Rice and Roti, Tomato Chutney Spread, Natural Tomato Chutney, Sweet and Tangy Chutney',
         canonicalUrl: "https://organicnation.co.in/shop/-&-dip/Sweet-Tomato-Chutney",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Sweet-Tomato-Chutney/front.png"
     },
-    'Schezwan-Dip': {
+    'schezwan-dip': {
         title: "Organic Nation Schezwan Dip | Buy Schezwan Dip Online",
         description: "Buy Organic Nation Schezwan Dip online! A bold, spicy, Indo-Chinese dip perfect for snacks, momos, fries & rolls. Add heat to every bite!",
         keywords:'Organic Nation Schezwan Dip, Buy Schezwan Dip Online, Spicy Schezwan Sauce Dip, Indo-Chinese Schezwan Dip, Schezwan Dip for Momos, Hot Schezwan Dip, Schezwan Dip for Snacks, Best Schezwan Dip Online, Schezwan Chilli Garlic Dip, Ready to Eat Schezwan Dip',
         canonicalUrl: "https://organicnation.co.in/shop/chutney-&-dip/Schezwan-Dip",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Schezwan-Dip/front.png"
     },
-    'Tamarind-Chutney': {
+    'tamarind-chutney': {
         title: "Organic Nation Tamarind Dip | Imli Chutney Online",
         description: "Buy Organic Nation Tamarind Dip online! A tangy, sweet-sour dip made with real tamarind—perfect for chaats, samosas, and Indian snacks.",
         keywords:'Organic Nation Tamarind Dip, Buy Tamarind Dip Online, Tamarind Chutney Dip, Tamarind Dip for Snacks, Sweet and Tangy Tamarind Dip, Imli Chutney Online, Tamarind Sauce for Chaat, Organic Tamarind Dip, Natural Tamarind Chutney, Tamarind Dip for Indian Food',
@@ -311,163 +311,157 @@ const productsSeoData = {
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Tamarind-Chutney/front.png"
     },
     // ====================== Tea ================================================
-    'Organic-Green-Tea': {
+    'organic-green-tea': {
         title: "Buy Organic Nation Organic Green Tea online",
         description: "Organic Nation Green Tea  at best prices with FREE shipping & cash on delivery. Only Genuine Products.  Buy Now",
         canonicalUrl: "https://organicnation.co.in/shop/organic-tea/Organic-Green-Tea",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Green-Tea/front.png"
     },
-    'Organic-Lemon-Ginger-Green-Tea': {
+    'organic-lemon-ginger-green-tea': {
         title: "Organic Nation Lemon Ginger  Green Tea- Weight Loss",
         description: "Experience the perfect fusion of health and flavor with Organic Nation's Lemon Ginger Green Tea. Enjoy it hot for a comforting drink or iced for a cool.",
         canonicalUrl: "https://organicnation.co.in/shop/organic-tea/Organic-Lemon-Ginger-Green-Tea",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Lemon-Ginger-Green-Tea/front.png"
     },
-    'Organic-Classic-Tulsi-Green-Tea': {
+    'organic-classic-tulsi-green-tea': {
         title: "Buy Organic Nation Classic Tulsi Green Tea online",
         description: "Experience the soothing blend of Organic Nation’s Classic Tulsi Green Tea, made with 100% natural ingredients. Combining the health benefits of Tulsi",
         canonicalUrl: "https://organicnation.co.in/shop/organic-tea/Organic-Classic-Tulsi-Green-Tea",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Classic-Tulsi-Green-Tea/front.png"
     },
-    'Organic-Masala-Tea': {
+    'organic-masala-tea': {
         title: "Buy Organic Nation Organic Masala Tea Online. ",
         description: "Organic Nation  Masala Tea Online.  at best prices with FREE shipping & cash on delivery. Only Genuine Products.  Buy Online at 20% Off ",
         canonicalUrl: "https://organicnation.co.in/shop/organic-tea/Organic-Masala-Tea",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Masala-Tea/front.png"
     },
-    'Organic-Assam-Tea': {
+    'organic-assam-tea': {
         title: "Organic Assam Tea | Organic Nation ",
         description: "Discover the rich taste and health benefits of premium Organic Assam Tea, crafted for a perfect brew every time. Free Shipping available at 499",
         canonicalUrl: "https://organicnation.co.in/shop/organic-tea/Organic-Assam-Tea",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Assam-Tea/front.png"
     },
-    'Kashmiri-Kahwa': {
+    'kashmiri-kahwa': {
         title: "Buy Organic Nation Kashmiri Kahwa Online",
         description: "Indulge in the aromatic and flavorful experience of authentic Kashmiri Kahwa with Organic Nation's online offerings. Organic Nation's Kashmiri Kahwa.",
         canonicalUrl: "https://organicnation.co.in/shop/organic-tea/Kashmiri-Kahwa",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Kashmiri-Kahwa/front.png"
     },
-    'Lemon-Honey-Green-Tea': {
+    'lemon-honey-green-tea': {
         title: "Buy Lemon Honey Green Tea - Organic Nation",
         description: "Whether you're looking to detox, relax, or simply enjoy a flavorful tea, Organic Nation’s Lemon Honey Green Tea is the perfect companion. Buy Online ",
         canonicalUrl: "https://organicnation.co.in/shop/organic-tea/Lemon-Honey-Green-Tea",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Lemon-Honey-Green-Tea/front.png"
     },
-    'Chamomile-Tea': {
+    'chamomile-tea': {
         title: "Buy Organic Nation Chamomile Tea Online. ",
         description: "Experience tranquility with our Organic Chamomile Tea, sourced from the finest organic chamomile flowers",
         canonicalUrl: "https://organicnation.co.in/shop/organic-tea/Chamomile-Tea",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Chamomile-Tea/front.png"
     },
     // ====================== Salt ================================================
-    'Himalayan-Pink-Rock-Salt-Powder-small': {
-        title: "Buy Himalayan Pink Rock Salt Powder Online | Organic Nation",
-        description: "You can purchase Himalayan Pink Rock Salt Powder (200 gm) online at Organic Nation. Visit the website to place your order today!",
-        canonicalUrl: "https://organicnation.co.in/shop/salt/Himalayan-Pink-Rock-Salt-Powder-small",
-        image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Himalayan-Pink-Rock-Salt-Powder-small/front.png"
-    },
-    'Black-Salt': {
+    'black-salt': {
         title: "Buy Black Salt Powder (150 gm) Online | Organic Nation",
         description: "Organic Nation Black Salt Powder Online at best prices with FREE shipping & cash on delivery. Only Genuine Products.  Buy Now",
         canonicalUrl: "https://organicnation.co.in/shop/salt/Black-Salt",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Black-Salt/front.png"
     },
-    'Himalayan-Rock-Salt-Granules': {
+    'himalayan-rock-salt-granules': {
         title: "Buy Himalayan Rock Salt Granules Online | Organic Nation",
         description: "Discover the natural goodness of Himalayan Rock Salt Granules from Organic Nation. Sourced from the pristine Himalayan mountains",
         canonicalUrl: "https://organicnation.co.in/shop/salt/Himalayan-Rock-Salt-Granules",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Himalayan-Rock-Salt-Granules/front.png"
     },
-    'Himalayan-Pink-Rock-Salt-Powder': {
+    'himalayan-pink-rock-salt-powder': {
         title: "Buy Himalayan Pink Rock Salt Powder Online | Organic Nation",
         description: "Organic Nation Himalayan Pink Rock Salt Powder Online.  at best prices with FREE shipping & cash on delivery. Only Genuine Products.  Buy Now",
         canonicalUrl: "https://organicnation.co.in/shop/salt/Himalayan-Pink-Rock-Salt-Powder",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Himalayan-Pink-Rock-Salt-Powder/front.png"
     },
     // ====================== Sweetener ================================================
-    'Organic-Brown-Sugar-(Desi-khand)': {
+    'organic-brown-sugar': {
         title: "Buy Organic Brown Sugar (Desi khand) 500 g | Organic Nation",
         description: "Indulge in the rich, natural sweetness of our Organic Brown Sugar, also known as Desi Khand. Sourced from the finest organic sugarcane & unrefined sugar",
         canonicalUrl: "https://organicnation.co.in/shop/sweetners/Organic-Brown-Sugar-(Desi-khand)",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Brown-Sugar-(Desi-khand)/front.png"
     },
-    'Organic-Jaggery-Powder-(Shekkar)': {
+    'organic-jaggery-powder': {
         title: "Buy Organic Jaggery Powder (Shekkar) | Organic Nation",
         description: "Discover the natural sweetness of Organic Jaggery Powder, also known as Shekkar. our jaggery powder is a healthier alternative to refined sugar.",
         canonicalUrl: "https://organicnation.co.in/shop/sweetners/Organic-Jaggery-Powder-(Shekkar)",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Organic-Jaggery-Powder-(Shekkar)/front.png"
     },
     // ====================== Oils ================================================
-    'Sunflower-Oil': {
+    'sunflower-oil': {
         title: "Buy 100% Natural Sunflower Oil Online at Low Price",
         description: "Buy 100% natural Sunflower Oil  online in India at best price from Organic Nation. 100% Healthy ✓Fast Shipping ✓Buy Now!",
         canonicalUrl: "https://organicnation.co.in/shop/organic-oils/Sunflower-Oil",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Sunflower-Oil/extra.png"
     },
-    'Mustard-Oil': {
+    'mustard-oil': {
         title: "Buy 100% Natural Mustard Oil Online at Low Price",
         description: "Buy 100% natural Mustard Oil Online in India at best price from Organic Nation. Shop now for high quality of natural edible oils | Buy at 20% off ",
         canonicalUrl: "https://organicnation.co.in/shop/organic-oils/Mustard-Oil",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Mustard-Oil/extra.png"
     },
     // ====================== Oats ================================================
-    'Steel-cut-Oats': {
+    'steel-cut-oats': {
         title: "Buy Steel cut Oats Online at Low Price | Organic Nation",
         description: "Buy Steel cut Oats online in India at best price from Organic Nation. Shop now for high quality of Steel cut Oats online. 100% Healthy ✓Fast Shipping ",
         canonicalUrl: "https://organicnation.co.in/shop/oats/Steel-cut-Oats",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Steel-cut-Oats/front.png"
     },
-    'Rolled-Oats': {
+    'rolled-oats': {
         title: "Buy Rolled Oats Online at Low Price | Organic Nation",
         description: "Buy Rolled Oats Online in India at best price from Organic Nation. Shop now for high quality of Oats online. 100% Healthy ✓Fast Shipping ✓Buy Now!",
         canonicalUrl: "https://organicnation.co.in/shop/oats/Rolled-Oats",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Rolled-Oats/front.png"
     },
-    'Instant-Oats': {
+    'instant-oats': {
         title: "Buy Instant Oats Online at Low Price | Organic Nation",
         description: "Buy Instant Oats Online in India at best price from Organic Nation. Shop now for high quality of Oats online. 100% Healthy ✓Fast Shipping ✓Buy Now!",
         canonicalUrl: "https://organicnation.co.in/shop/oats/Instant-Oats",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Instant-Oats/Left.png"
     },
     // ====================== Vegan ================================================
-    'Veg-Soya-Chaap': {
+    'veg-soya-chaap': {
         title: "Buy Veg Soya Chaap Online at Low Price | Organic Nation",
         description: "Buy Veg Soya Chaap Online in India at best price from Organic Nation. Shop now for high quality of veg Soya Chaap online. 100% Veg ✓Fast Shipping ✓Buy Now!",
         canonicalUrl: "https://organicnation.co.in/shop/vegan/Veg-Soya-Chaap",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Veg-Soya-Chaap/front.png"
     },
     // ====================== Muesli ================================================
-    'Seeds-&-Cranberry-Muesli': {
+    'seeds-&-cranberry-muesli': {
         title: "Buy Seeds & Cranberry Muesli Online | Organic Nation",
         description: "Buy Seeds & Cranberry Muesli Online in India at best price from Organic Nation. Shop now for high quality seeds Muesli online. 100% Healthy ✓Fast Shipping",
         canonicalUrl: "https://organicnation.co.in/shop/breakfast-cereals/Seeds-&-Cranberry-Muesli",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Seeds-&-Cranberry-Muesli/front.png"
     },
-    'Hazelnut-&-Cocoa-Muesli': {
+    'hazelnut-&-cocoa-muesli': {
         title: "Buy Healthy Muesli | Hazelnut & Cocoa | Organic Nation",
         description: "Buy Hazelnut & Cocoa Muesli  Online in India at best price from Organic Nation. Shop now for high quality Muesli online. 100% Healthy ✓Fast Shipping ",
         canonicalUrl: "https://organicnation.co.in/shop/breakfast-cereals/Hazelnut-&-Cocoa-Muesli",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Hazelnut-&-Cocoa-Muesli/front.png"
     },
-    'Figs-&-Honey-Muesli': {
+    'figs-&-honey-muesli': {
         title: "Buy Healthy Muesli Online | Figs & Honey | Organic Nation",
         description: "Buy Figs & Honey Muesli Online in India at best price from Organic Nation. Shop now for high quality Muesli online. 100% Healthy ✓Fast Shipping ✓Buy Now!",
         canonicalUrl: "https://organicnation.co.in/shop/breakfast-cereals/Figs-&-Honey-Muesli",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Figs-&-Honey-Muesli/front.png"
     },
-    'Protien-Muesli': {
+    'protien-muesli': {
         title: "Buy Healthy Muesli Online | Protien Muesli | Organic Nation",
         description: "Buy Protien Muesli  Online in India at best price from Organic Nation. Shop now for high quality Muesli online. 100% Healthy ✓Fast Shipping ✓Buy Now!",
         canonicalUrl: "https://organicnation.co.in/shop/breakfast-cereals/Protien-Muesli",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Protien-Muesli/front.png"
     },
-    'Seeds-&-Berries-Granola': {
+    'seeds-&-berries-granola': {
         title: "> Buy Healthy Granola Online |Seeds & Berries| Organic Nation",
         description: "Buy Seeds & Berries Granola Online in India at best price from Organic Nation. Shop now for high quality Granola online. 100% Healthy ✓Fast Shipping ✓Buy Now!",
         canonicalUrl: "https://organicnation.co.in/shop/breakfast-cereals/Seeds-&-Berries-Granola",
         image:"https://organic-nation-product-images.s3.amazonaws.com/Organic-Nation-Images/Seeds-&-Berries-Granola/front.png"
     },
-    'Nuts-&-Berries-Granola': {
+    'nuts-&-berries-granola': {
         title: "Buy Healthy Granola Online | Nuts & Berries | Organic Nation",
         description: "Buy Nuts & Berries Granola Online in India at best price from Organic Nation. Shop now for high quality Nuts & Berries Granola online. 100% Healthy ",
         canonicalUrl: "https://organicnation.co.in/shop/breakfast-cereals/Nuts-&-Berries-Granola",

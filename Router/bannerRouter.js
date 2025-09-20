@@ -24,7 +24,9 @@ const requireAuth = passport.authenticate('jwt-admin', { session: false });
 const {
     getAllMainBanners,
     addNewBanner,
-    deleteBanner
+    deleteBanner,
+    // transformLowercase,
+    // convertProductNameUrlToLowercase
 } = require("../Handler/bannerHandler.js");
 const { upload, handleMulterError } = require("../middleware/upload.js");
 
@@ -34,5 +36,9 @@ router.get("/", getAllMainBanners);
 router.post("/add", requireAuth, upload.single('image'), addNewBanner);
 // router.post("/add", requireAuth, upload.single('image'), handleMulterError, addNewBanner);
 router.delete("/delete/:bannerId", requireAuth, deleteBanner);
+
+
+// router.post('/transform/lowercase',transformLowercase)
+// router.post('/transform/productUrl/lowercase',convertProductNameUrlToLowercase)
 
 module.exports = router;

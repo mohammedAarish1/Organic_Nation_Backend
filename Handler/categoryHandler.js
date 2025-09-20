@@ -9,7 +9,6 @@ const ProductInfo = require('../models/ProductInfo.js')
 
 
 exports.allProducts = async (req, res) => {
-  console.log('all products')
   try {
 
     const products = await Products.find({ isActive: true }).lean();

@@ -1,5 +1,7 @@
 const { uploadToCloudinary } = require("../middleware/upload.js");
-const MainBanners = require("../models/MainBanners")
+const MainBanners = require("../models/MainBanners");
+const Order = require("../models/Order.js");
+const Products = require("../models/Products.js");
 // const { PutObjectCommand } = require("@aws-sdk/client-s3");
 // const { s3Client } = require('../config/awsConfig.js');
 const { processImage, uploadImgOnAWS } = require("../utility/processImage.js");
@@ -261,3 +263,102 @@ exports.deleteBanner = async (req, res) => {
 
 
 
+// exports.transformLowercase = async (req, res) => {
+//     try {
+//         console.log('🔍 Starting name-url conversion...');
+
+//         // Find all orders that have uppercase letters in name-url
+//         const ordersToUpdate = await Order.find({
+//             "orderDetails.name-url": { $regex: /[A-Z]/ }
+//         });
+
+//         console.log(`📊 Found ${ordersToUpdate.length} orders to update`);
+
+//         if (ordersToUpdate.length === 0) {
+//             console.log('✅ No orders need updating!');
+//             return;
+//         }
+
+//         let updatedCount = 0;
+
+//         // Process each order
+//         for (let order of ordersToUpdate) {
+//             try {
+//                 // Convert name-url to lowercase for each item in orderDetails
+//                 const updatedOrderDetails = order.orderDetails.slice(0, 1).map(item => (
+//                     console.log('itemm',item)
+//                     // {
+//                     //     ...item,
+//                     //     "name-url": item["name-url"] ? item["name-url"].toLowerCase() : item["name-url"]
+//                     // }
+//                 ));
+//                 // console.log('updatedOrderDetails', updatedOrderDetails)
+//                 // Update the order
+//                 await Order.findByIdAndUpdate(order._id, {
+//                     orderDetails: updatedOrderDetails,
+//                     _lastModified: new Date()
+//                 });
+
+//                 updatedCount++;
+//                 console.log(`✅ Updated order: ${order.orderNo || order._id}`);
+
+//             } catch (error) {
+//                 console.error(`❌ Error updating order ${order._id}:`, error.message);
+//             }
+//         }
+
+//         console.log(`\n🎉 Conversion completed! Updated ${updatedCount} orders`);
+
+//         res.json('done')
+
+//     } catch (error) {
+//         console.error('💥 Error in conversion:', error.message);
+//     }
+
+// }
+
+
+// exports.convertProductNameUrlToLowercase = async (req, res) => {
+//     try {
+//         console.log('🔍 Starting product name-url conversion...');
+
+//         // Find all products that have uppercase letters in name-url
+//         const productsToUpdate = await Products.find({
+//             "name-url": { $regex: /[A-Z]/ }
+//         });
+
+//         console.log(`📊 Found ${productsToUpdate.length} products to update`);
+
+//         if (productsToUpdate.length === 0) {
+//             console.log('✅ No products need updating!');
+//             return;
+//         }
+
+//         let updatedCount = 0;
+
+//         // Process each product
+//         for (let product of productsToUpdate) {
+//             try {
+//                 const oldNameUrl = product["name-url"];
+//                 const newNameUrl = oldNameUrl.toLowerCase();
+
+//                 // Update the product
+//                 await Products.findByIdAndUpdate(product._id, {
+//                     "name-url": newNameUrl,
+//                     updatedAt: new Date()
+//                 });
+
+//                 updatedCount++;
+//                 console.log(`✅ Updated product: "${oldNameUrl}" → "${newNameUrl}"`);
+
+//             } catch (error) {
+//                 console.error(`❌ Error updating product ${product._id}:`, error.message);
+//             }
+//         }
+
+//         console.log(`\n🎉 Conversion completed! Updated ${updatedCount} products`);
+
+//     } catch (error) {
+//         console.error('💥 Error in conversion:', error.message);
+//     }
+// }

@@ -200,7 +200,7 @@ exports.adminLogin = async (req, res) => {
 
 
 
-    res.json({ message: 'Login successful', token });
+    res.json({ message: 'Login successful', token ,success:true});
 }
 
 // admin data 
@@ -246,7 +246,7 @@ exports.getResourceCounts = async (req, res) => {
             error: error.message
         });
     }
-}
+};
 
 exports.getResources = async (req, res) => {
     try {
@@ -297,7 +297,7 @@ exports.getResources = async (req, res) => {
         // console.log('eerr', error)
         res.status(500).send({ error: "Internal Server Error" });
     }
-}
+};
 
 
 
@@ -400,7 +400,7 @@ exports.generateInvoice = async (req, res) => {
 
             return {
                 serialNo: index + 1,
-                description: item['name-url'].replace(/-/g, ' ') + " " + item.weight,
+                description: item['name-url'].replace(/-/g, ' ').toUpperCase() + " " + item.weight,
                 hsnCode: 'HSN Code:' + ' ' + item.hsnCode,
                 name: item['name-url'],
                 weight: item.weight,
