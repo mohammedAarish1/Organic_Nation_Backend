@@ -218,6 +218,7 @@ exports.getAdminProfile = async (req, res) => {
     }
 };
 
+// get the number of documents from the db
 exports.getResourceCounts = async (req, res) => {
     try {
         const [orderCount, productCount, returnCount, queryCount, userCount] = await Promise.all([
