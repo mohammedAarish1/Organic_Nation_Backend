@@ -200,7 +200,7 @@ exports.adminLogin = async (req, res) => {
 
 
 
-    res.json({ message: 'Login successful', token ,success:true});
+    res.json({ message: 'Login successful', token, success: true });
 }
 
 // admin data 
@@ -719,7 +719,7 @@ exports.addNewProductInDatabase = async (req, res) => {
         const newProduct = new Products({
             product_id: Math.random(),
             name,
-            'name-url': name.replace(/\s+/g, '-'),
+            'name-url': name.replace(/\s+/g, '-').toLowerCase(),
             weight,
             grossWeight,
             price: parseInt(price),
@@ -1590,7 +1590,7 @@ exports.sendBulkEmail = async (req, res) => {
         const data = req.body;
         const { subject, emailBody } = data;
 
-        const emails = ['iammdaarish@gmail.com', 'aarish.foodsbay@gmail.com', 'foodsbayindiafbi@gmail.com'];
+        const emails = ['iammdaarish@gmail.com', 'aarish.foodsbay@gmail.com', 'foodsbayindiafbi@gmail.com', 'bolayo4428@hiepth.com', ''];
 
         const results = {
             successful: [],
@@ -1628,7 +1628,8 @@ exports.sendBulkEmail = async (req, res) => {
                 await new Promise(resolve => setTimeout(resolve, 1000)); // FIXED: Changed to 1 second
 
             } catch (emailError) {
-                console.error(`✗ Failed to send email to ${email}:`, emailError.message);
+                // console.log('emailError', emailError)
+                // console.error(`✗ Failed to send email to ${email}:`, emailError.message);
                 results.failed.push({
                     email: email,
                     error: emailError.message

@@ -33,12 +33,17 @@ exports.getCartDetails = async (req, res) => {
       productDetails = await Promise.all(
         cartItems.map(async ({ productName, quantity }) => {
           const product = await Products.findOne({ 'name-url': productName });
+          if (!product) {
+            console.log(`Product not found: ${productName}`);
+            return null; // or handle it differently (e.g. throw error)
+          }
           // convert to plain object
           const productObj = product?.toObject()
           // update quantity
-          productObj.quantity = quantity;
+          // productObj.quantity = quantity;
 
-          return productObj;
+          // add quantity
+          return { ...productObj, quantity };
         })
       );
     }
@@ -118,9 +123,15 @@ exports.addItemToCart = async (req, res) => {
     let totalCartAmount = 0;
     let totalTaxes = 0;
 
+    const validItems = [];
+
     // Iterate over each item in the cart to recalculate the totals
     for (const item of user.cart.items) {
       const product = await Products.findOne({ 'name-url': item.productName })
+      if (!product) {
+        // skip if any product removes from cart)
+        continue;
+      }
       const discountedPrice = product.price * (1 - product.discount / 100);
       const itemSubtotal = discountedPrice * item.quantity;
 
@@ -129,9 +140,10 @@ exports.addItemToCart = async (req, res) => {
 
       totalCartAmount += itemSubtotal;
       totalTaxes += itemTax;
-
+      validItems.push(item); // only keep valid items
     }
     // Update the user's cart totals
+    user.cart.items = validItems; // updated the user cart with only valid items (remove if any item not found in db)
     user.cart.totalCartAmount = Math.round(totalCartAmount);
     user.cart.totalTaxes = Math.round(totalTaxes);
     // user.cart.isCouponCodeApplied = false

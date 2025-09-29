@@ -138,6 +138,7 @@ exports.getSingleProductAllInfo = async (req, res) => {
     }
 
     const productInfo = await ProductInfo.findOne({ "name-url": name });
+    // const productInfo = pData.filter(p => p['name-url'] === name)[0];
 
     // get seo data for this product
     const seoData = productSeoData[name];

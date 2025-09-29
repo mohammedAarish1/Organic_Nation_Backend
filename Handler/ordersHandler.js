@@ -246,7 +246,7 @@ exports.addNewOrder = async (req, res) => {
           paymentStatus: savedOrder.paymentStatus,
         }
       );
-    }
+    };
 
     res
       .status(200)
@@ -1006,7 +1006,7 @@ exports.getLastIncompleteOrder = async (req, res) => {
     // get all orders of the user
     const orders = await Order.find({ user: userId });
     if (orders.length === 0) {
-      return res.status(404).json({ msg: "No Order found" });
+      return res.status(200).json(null);
     }
 
     const lastIncompleteOrder = orders
@@ -1090,21 +1090,3 @@ exports.handleReOrderReCompletion = async (req, res) => {
     throw error;
   }
 }
-
-
-
-
-// const addField = async () => {
-//   try {
-//     const result = await Products.updateMany(
-//       { isActive: { $exists: false } },
-//       { $set: { isActive: true } }
-//     )
-
-//     console.log(`${result.modifiedCount} products updated with 'isActive' field`);
-//   } catch (error) {
-//     console.error('Error adding isActive field:', error);
-//   }
-// }
-
-// addField()

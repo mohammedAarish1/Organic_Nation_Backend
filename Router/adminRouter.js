@@ -76,7 +76,7 @@ router.post("/orders/invoice", requireAuth, generateInvoice);
 // router.put("/orders/update/user-status/:userId", requireAuth, updateUserStatus);
 
 
-router.post("/products/add", upload.array('newImages', 5), addNewProductInDatabase);
+router.post("/products/add", upload.array('newImages', 10), addNewProductInDatabase);
 router.put("/products/update/:id", upload.array('newImages'), updateProductData);
 
 
