@@ -6,7 +6,26 @@
 // const { ObjectId } = require('mongodb');
 // const fs = require("fs");
 
-// // Read the JSON file
+
+// // x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x= database connection  x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x //
+
+// mongoose.connect('mongodb+srv://aayushkapoor2001:aayush1415@cluster0.sj3vvpc.mongodb.net/Organic-Nation?retryWrites=true&w=majority&appName=Cluster0')
+//     .then(() => {
+//         console.log('Connected to MongoDB');
+//     })
+//     .catch((err) => {
+//         console.error('Error connecting to MongoDB', err);
+
+//     });
+
+
+// // x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x= END x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x //
+
+
+
+
+
+// // x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=  for udpating a JSON file x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x
 // // let data = JSON.parse(fs.readFileSync("product_add_info.json"));
 
 // // // Loop through each item
@@ -21,17 +40,12 @@
 // // // Write back to file
 // // fs.writeFileSync("updated.json", JSON.stringify(data, null, 2));
 
+// // x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x= END x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x=x
+
 // // =============== ended updating json file
 
 
-// mongoose.connect('mongodb+srv://aayushkapoor2001:aayush1415@cluster0.sj3vvpc.mongodb.net/Organic-Nation?retryWrites=true&w=majority&appName=Cluster0')
-//     .then(() => {
-//         console.log('Connected to MongoDB');
-//     })
-//     .catch((err) => {
-//         console.error('Error connecting to MongoDB', err);
 
-//     });
 
 
 // const countDoc = async () => {
@@ -400,6 +414,54 @@
 // }
 
 
+// const checkOrderURLcase = async () => {
+//     const orders = await Order.find({})
+
+//     for (let o of orders) {
+
+//         o.orderDetails.forEach(i => {
+//             if (i['name-url'] === i['name-url'].toLowerCase()) {
+//                 console.log('TRUE...', i['name-url'])
+//             } else {
+//                 console.log('FALSE', i['name-url'],o.orderNo)
+//             }
+//         })
+
+//     }
+// }
+
+// const checkProdURLcase = async () => {
+//     const products = await Products.find({})
+
+//     for (let p of products) {
+//         if (p['name-url'] === p['name-url'].toLowerCase()) {
+//             console.log('TRUE...', p['name-url'])
+//         } else {
+//             console.log('FALSE', p['name-url'])
+//         }
+//     }
+// }
+
+
+// const checkCartURLcase = async () => {
+//     const users = await User.find({})
+
+//     for (let user of users) {
+
+//         user.cart.items.forEach(i => {
+//             if (i.productName === i.productName.toLowerCase()) {
+//                 console.log('TRUE...', i.productName)
+//             } else {
+//                 console.log('FALSE', i.productName,i.phoneNumber)
+//             }
+//         })
+
+//     }
+// }
+
+// // checkCartURLcase()
+// // checkOrderURLcase()
+// // checkURLcase()
 // // getUserCart()
 // // updateAllUsersProductName()
 // // updateSingleUserCart()

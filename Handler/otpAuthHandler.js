@@ -1,5 +1,5 @@
-// const { PublishCommand } = require("@aws-sdk/client-sns");
-// const { snsClient } = require("../config/awsConfig");
+const { PublishCommand } = require("@aws-sdk/client-sns");
+const { snsClient } = require("../config/awsConfig");
 // const jwt = require("jsonwebtoken");
 const OTP = require("../models/OTP");
 const User = require("../models/User");
@@ -10,91 +10,97 @@ const generateOTP = () => {
   return Math.floor(1000 + Math.random() * 9000).toString();
 };
 
-// const sendOTP = async (phoneNumber) => {
+// =-=-=-= send otp using AWS =-=-=-
+
+const sendOTP = async (phoneNumber) => {
+  const otp = generateOTP();
+  await OTP.create({ phoneNumber, otp, createdAt: new Date() });
+
+  const params = {
+    Message: `Organic Nation - Your OTP is: ${otp}. Please don't share it with anyone`,
+    PhoneNumber: phoneNumber,
+    MessageAttributes: {
+      "AWS.SNS.SMS.SMSType": {
+        DataType: "String",
+        StringValue: "Transactional",
+      },
+    },
+  };
+
+  try {
+    // console.log("otp", otp);
+    const data = await snsClient.send(new PublishCommand(params));
+
+    // return data;
+  } catch (err) {
+    // console.error("Error", err);
+    throw err;
+  }
+};
+
+exports.sendOTP = async (req, res) => {
+  const { phoneNumber } = req.body;
+  try {
+    await sendOTP(phoneNumber);
+
+    res.json({ success: true, message: "OTP sent successfully" });
+  } catch (error) {
+    console.log('Error sending OTP', error.message)
+    res.status(500).json({ success: false, message: "Failed to send OTP" });
+  }
+};
+// =-=-=-= send otp using AWS =-=-=- ended //
+
+
+// ============= send OTP using foxglove API ==============
+// exports.sendOTP = async (req, res) => {
+//   const { phoneNumber } = req.body;
+
+//   if (!phoneNumber) {
+//     res
+//       .status(400)
+//       .json({ success: false, message: "Phone number is required" });
+//   }
+
 //   const otp = generateOTP();
 //   await OTP.create({ phoneNumber, otp, createdAt: new Date() });
 
-//   const params = {
-//     Message: `Organic Nation - Your OTP is: ${otp}. Please don't share it with anyone`,
-//     PhoneNumber: phoneNumber,
-//     MessageAttributes: {
-//       "AWS.SNS.SMS.SMSType": {
-//         DataType: "String",
-//         StringValue: "Transactional",
-//       },
-//     },
+//   // ================================================ for testing ===============
+
+//   // console.log('otp', otp);
+//   // res.json({ success: true, message: "OTP sent successfully" });
+
+//   // ========================================== for testing ====================
+
+//   const message = `${otp} is your one-time-password for verification at Foodsbay India (Organic Nation). PLEASE DON'T SHARE IT WITH ANYONE.`;
+
+//   const params = message.replace(/ /g, "%20");
+//   const URL = `http://foxxsms.net/sms//submitsms.jsp?user=Foodsbay&key=${process.env.SMS_KEY}&mobile=${phoneNumber}&message=${params}&senderid=${process.env.SMS_SENDER_ID}&accusage=1&entityid=${process.env.SMS_ENTITY_ID}&tempid=${process.env.SMS_OTP_TEMP_ID}`;
+//   try {
+//     // const response=await axios.post(`http://foxxsms.net/sms//submitsms.jsp?user=Foodsbay&key=f2bf9f44deXX&mobile=${phoneNumber}&message=897543%20is%20your%20one-time-password%20for%20verification%20at%20Foodsbay%20India%20(Organic%20Nation).%20PLEASE%20DON%27T%20SHARE%20IT%20WITH%20ANYONE.&senderid=ORGNTN&accusage=1`)
+//     const response = await axios.post(URL);
+
+//     const responseData=response.data.trim().split(','); // converted it into an array since response.data is in text format
+//     const dataObj = {
+//       status: responseData[0], // sent or fail
+//       message: responseData[1], // success or invalid
+//       messageId: responseData[2],
+//       clientId: responseData[3],
+//       phoneNumber: responseData[4]
 //   };
 
-//   try {
-//     console.log("otp", otp);
-//     // const data = await snsClient.send(new PublishCommand(params));
 
-//     // return data;
-//   } catch (err) {
-//     // console.error("Error", err);
-//     throw err;
-//   }
-// };
 
-// exports.sendOTP = async (req, res) => {
-//   const { phoneNumber } = req.body;
-//   try {
-//     await sendOTP(phoneNumber);
+//     if(dataObj.status==='sent' && dataObj.message==='success'){
 
-//     res.json({ success: true, message: "OTP sent successfully" });
+//       res.json({ success: true, message: "OTP sent successfully" });
+//     }else{
+//       res.status(400).json({success:false, message:dataObj?.message})
+//     }
 //   } catch (error) {
 //     res.status(500).json({ success: false, message: "Failed to send OTP" });
 //   }
 // };
-
-exports.sendOTP = async (req, res) => {
-  const { phoneNumber } = req.body;
-
-  if (!phoneNumber) {
-    res
-      .status(400)
-      .json({ success: false, message: "Phone number is required" });
-  }
-
-  const otp = generateOTP();
-  await OTP.create({ phoneNumber, otp, createdAt: new Date() });
-
-  // ================================================ for testing ===============
-
-  // console.log('otp', otp);
-  // res.json({ success: true, message: "OTP sent successfully" });
-
-  // ========================================== for testing ====================
-
-  const message = `${otp} is your one-time-password for verification at Foodsbay India (Organic Nation). PLEASE DON'T SHARE IT WITH ANYONE.`;
-
-  const params = message.replace(/ /g, "%20");
-  const URL = `http://foxxsms.net/sms//submitsms.jsp?user=Foodsbay&key=${process.env.SMS_KEY}&mobile=${phoneNumber}&message=${params}&senderid=${process.env.SMS_SENDER_ID}&accusage=1&entityid=${process.env.SMS_ENTITY_ID}&tempid=${process.env.SMS_OTP_TEMP_ID}`;
-  try {
-    // const response=await axios.post(`http://foxxsms.net/sms//submitsms.jsp?user=Foodsbay&key=f2bf9f44deXX&mobile=${phoneNumber}&message=897543%20is%20your%20one-time-password%20for%20verification%20at%20Foodsbay%20India%20(Organic%20Nation).%20PLEASE%20DON%27T%20SHARE%20IT%20WITH%20ANYONE.&senderid=ORGNTN&accusage=1`)
-    const response = await axios.post(URL);
-
-    const responseData=response.data.trim().split(','); // converted it into an array since response.data is in text format
-    const dataObj = {
-      status: responseData[0], // sent or fail
-      message: responseData[1], // success or invalid
-      messageId: responseData[2],
-      clientId: responseData[3],
-      phoneNumber: responseData[4]
-  };
-
-
-
-    if(dataObj.status==='sent' && dataObj.message==='success'){
-
-      res.json({ success: true, message: "OTP sent successfully" });
-    }else{
-      res.status(400).json({success:false, message:dataObj?.message})
-    }
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Failed to send OTP" });
-  }
-};
 
 
 
