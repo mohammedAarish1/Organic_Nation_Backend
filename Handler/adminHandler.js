@@ -1294,7 +1294,7 @@ exports.updateProductData = async (req, res) => {
                 productUpdate['name-url'] = nameUrl.toLowerCase();
             } else {
                 // it the product is other than pickle, update the name-url
-                productUpdate['name-url'] = productUpdate.name.replace(/\s+/g, '-');
+                productUpdate['name-url'] = productUpdate.name.replace(/\s+/g, '-').toLowerCase();
             }
         }
 
