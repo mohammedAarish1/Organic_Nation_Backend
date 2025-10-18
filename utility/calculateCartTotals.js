@@ -160,7 +160,7 @@ const calculateTotals = async (cartItems) => {
     progressiveDiscount = 30;
     discountType = '30% OFF';
     progressiveDiscountAmount = Math.round(totalEligibleMRP * 0.30);
-  } else if (totalMRP >= 499) {
+  } else if (totalEligibleMRP >= 499) {
     progressiveDiscount = 20;
     discountType = '20% OFF';
     progressiveDiscountAmount = Math.round(totalEligibleMRP * 0.20);

@@ -32,7 +32,7 @@ exports.getCartDetails = async (req, res) => {
     if (cartItems.length > 0) {
       productDetails = await Promise.all(
         cartItems.map(async ({ productName, quantity }) => {
-          const product = await Products.findOne({ 'name-url': productName });
+          const product = await Products.findOne({ 'name-url': productName.toLowerCase() });
           if (!product) {
             console.log(`Product not found: ${productName}`);
             return null; // or handle it differently (e.g. throw error)
