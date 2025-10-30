@@ -35,7 +35,7 @@ exports.getPaymentDone = async (req, res) => {
                     merchantTransactionId: decoded.merchantTransactionId
                 };
             } catch (error) {
-                // console.error('Invalid retry token:', error);
+                console.error('Invalid retry token:', error);
                 return res.status(400).json({
                     success: false,
                     message: 'Invalid retry token'
@@ -112,6 +112,7 @@ exports.getPaymentDone = async (req, res) => {
         }
 
     } catch (error) {
+        console.log('payment initiate error:', error)
         res.status(500).send({
             message: error.message,
             success: false
@@ -232,7 +233,7 @@ exports.checkPaymentStatus = async (req, res) => {
 
         // Generate JWT token with payment details
         const token = jwt.sign({
-            number: order.phoneNumber,
+            number: order.phoneNumber.replace('+91',''),
             amount: order.subTotal + order.shippingFee,
             merchantTransactionId: order.merchantTransactionId
         }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -378,6 +379,7 @@ exports.checkPaymentStatus = async (req, res) => {
             return res.redirect(url)
         }
     } catch (error) {
+        console.log('payment status tracking error:', error)
         return res.redirect(`${process.env.FRONTEND_URL}/payment-status?error=InternalServerError`);
     }
 
