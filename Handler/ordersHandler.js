@@ -29,6 +29,7 @@ exports.addNewOrder = async (req, res) => {
     subTotal,
     taxAmount,
     shippingFee,
+    CODCharge,
     paymentMethod,
     paymentStatus,
     merchantTransactionId,
@@ -118,7 +119,7 @@ exports.addNewOrder = async (req, res) => {
     );
 
     // Calculate total discount and discount percentage
-    const totalDiscount = grandTotal - subTotal;
+    const totalDiscount = grandTotal - subTotal- CODCharge;
     const discountPercentage = (totalDiscount / grandTotal) * 100;
 
     // Calculate actual amount paid for each item
@@ -147,6 +148,7 @@ exports.addNewOrder = async (req, res) => {
       subTotal,
       taxAmount,
       shippingFee,
+      CODCharge,
       paymentMethod,
       paymentStatus,
       merchantTransactionId,

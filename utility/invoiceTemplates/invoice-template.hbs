@@ -159,10 +159,20 @@
                 <td colspan="8"></td>
                 <td colspan="8">Grand Total: {{formatCurrency mrpTotal}}</td>
             </tr>
+
+{{#if CODCharge}}
+    
+    <tr class="total">
+        <td colspan="7"></td>
+        <td colspan="7"> COD Charges(+): {{formatCurrency CODCharge}}</td>
+    </tr>
+{{/if}}
+
+
             <tr class="total">
                 <td colspan="7"></td>
                 {{!-- <td colspan="7">Less: Discount({{discountRate}}) -{{formatCurrency totalDiscount}}</td> --}}
-                <td colspan="7">Less: Discount(-) {{formatCurrency totalDiscount}}</td>
+                <td colspan="7">Less: Discount(-): {{formatCurrency totalDiscount}}</td>
             </tr>
             <tr class="total">
                 <td colspan="8"></td>

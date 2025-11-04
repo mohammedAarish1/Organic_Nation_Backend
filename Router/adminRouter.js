@@ -53,7 +53,8 @@ const {
   sendBulkEmail,
   // allProducts,
   getResources,
-  getResourceCounts
+  getResourceCounts,
+  handleCustomOrderCreation
   // handleOptimizingBannerImages
 } = require("../Handler/adminHandler.js");
 // const { processImage } = require("../utility/processImage.js");
@@ -85,6 +86,7 @@ router.post("/generate/sales/report", requireAuth, generateSalesReport);
 router.post("/generate/users/report", requireAuth, generateUsersReport);
 // router.put("/returns/update/return-status", requireAuth, updateReturnStatus);
 router.put("/update/invoice/number/:orderId", requireAuth, updateInvoiceNumber);
+router.put("/custom/order/create", requireAuth, handleCustomOrderCreation);
 
 
 router.put("/update/status", requireAuth, updateStatus);

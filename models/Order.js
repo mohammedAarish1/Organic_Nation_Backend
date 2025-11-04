@@ -53,6 +53,7 @@ const OrderSchema = new mongoose.Schema({
   subTotal: { type: Number, required: true },
   taxAmount: { type: Number, required: true },
   shippingFee: { type: Number, required: true },
+  CODCharge: { type: Number },
   paymentMethod: { type: String, required: true },
   paymentStatus: { type: String, required: true },
   merchantTransactionId: { type: String, },
