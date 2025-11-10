@@ -1025,7 +1025,7 @@ exports.getLastIncompleteOrder = async (req, res) => {
 // change payment method to COD and complete the order
 exports.handleReOrderReCompletion = async (req, res) => {
   try {
-    const { orderId, paymentMethod, subTotal, taxAmount } = req.body;
+    const { orderId, paymentMethod, subTotal, taxAmount,CODCharge } = req.body;
     const order = await Order.findById(orderId)
     if (!order) {
       return res.status(404).json({ msg: "Order not found" });
@@ -1033,6 +1033,7 @@ exports.handleReOrderReCompletion = async (req, res) => {
     order.paymentMethod = paymentMethod;
     order.subTotal = subTotal;
     order.taxAmount = taxAmount;
+    order.CODCharge = CODCharge;
     order.createdAt = new Date();
 
     const savedOrder = await order.save()

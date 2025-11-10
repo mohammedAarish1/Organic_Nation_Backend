@@ -136,7 +136,7 @@ const calculateTotals = async (cartItems) => {
       totalAfterBaseDiscount += itemAfterBaseDiscount;
 
       // Check if item is eligible for progressive discount
-      if (ELIGIBLE_CATEGORIES.includes(product.category) && product.price >= 249) {
+      if (ELIGIBLE_CATEGORIES.includes(product.category) && product.price >= 233) {
         totalEligibleMRP += itemMRP;
         eligibleItems.push({
           productName: product.name,

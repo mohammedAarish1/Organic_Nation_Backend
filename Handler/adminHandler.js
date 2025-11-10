@@ -1808,7 +1808,7 @@ exports.handleCustomOrderCreation = async (req, res) => {
       shippingFee,
       CODCharge,
       paymentMethod,
-      paymentStatus,
+      paymentStatus:paymentStatus.toUpperCase(),
       merchantTransactionId: "",
       couponCodeApplied: [],
       orderStatus: "active",
@@ -1828,7 +1828,6 @@ exports.handleCustomOrderCreation = async (req, res) => {
     res
       .status(200)
       .json({ success: true, message: "Order Created Successfully" });
-    console.log("done", savedOrder._id);
   } catch (error) {
     console.log("errrr", error);
     res.status(500).json({
