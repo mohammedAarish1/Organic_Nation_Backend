@@ -1,11 +1,9 @@
-
 // const ELIGIBLE_CATEGORIES = ['Homestyle Pickles', 'Organic Honey', 'Chutney & Dip', 'Fruit Preserves', 'Oats', 'Vegan'];
 
 // const calculateTotals = async (cartItems) => {
 //   let totalEligibleAmount = 0;
 //   let totalCartAmount = 0;
 //   let eligibleItems = [];
-
 
 //   // Calculate amounts for each item
 //   for (const product of cartItems) {
@@ -54,8 +52,6 @@
 //     discountAmount = Math.round(totalEligibleAmount * 0.10);
 //   }
 
-
-
 //   // calculation of total tax amount
 //   let totalTax = cartItems.reduce((total, product) => {
 //     let discount;
@@ -79,8 +75,6 @@
 //     return Math.round(total + taxAmount);
 //   }, 0);
 //   // calculation of total tax amount ended =======
-
-
 
 //   return {
 //     totalCartAmount,
@@ -116,127 +110,190 @@
 
 // module.exports = { calculateTotals }
 
+// previous working
 
-const ELIGIBLE_CATEGORIES = ['Homestyle Pickles', 'Organic Honey', 'Chutney & Dip', 'Fruit Preserves', 'Oats', 'Vegan'];
+// const ELIGIBLE_CATEGORIES = ['Homestyle Pickles', 'Organic Honey', 'Chutney & Dip', 'Fruit Preserves', 'Oats', 'Vegan'];
 
+// const calculateTotals = async (cartItems) => {
+//   let totalMRP = 0; // Total MRP (product.price * quantity)
+//   let totalAfterBaseDiscount = 0; // Total after applying base product discounts
+//   let totalEligibleMRP = 0; // MRP of eligible items only
+//   let eligibleItems = [];
+
+//   // Calculate MRP and base discounted totals
+//   for (const product of cartItems) {
+//     try {
+//       const itemMRP = product.price * product.quantity;
+//       const baseDiscountedPrice = product.price * (1 - product.discount / 100);
+//       const itemAfterBaseDiscount = baseDiscountedPrice * product.quantity;
+
+//       totalMRP += itemMRP;
+//       totalAfterBaseDiscount += itemAfterBaseDiscount;
+
+//       // Check if item is eligible for progressive discount
+//       if (ELIGIBLE_CATEGORIES.includes(product.category) && product.price >= 233) {
+//         totalEligibleMRP += itemMRP;
+//         eligibleItems.push({
+//           productName: product.name,
+//           category: product.category,
+//           mrp: itemMRP,
+//           quantity: product.quantity,
+//           baseDiscount: product.discount
+//         });
+//       }
+//     } catch (error) {
+//       console.error(`Error processing product ${product.name}:`, error);
+//     }
+//   }
+
+//   // Determine progressive discount tier based on total MRP
+//   let progressiveDiscount = 0;
+//   let discountType = '';
+//   let progressiveDiscountAmount = 0;
+
+//   if (totalMRP >= 1999) {
+//     progressiveDiscount = 30;
+//     discountType = '30% OFF';
+//     progressiveDiscountAmount = Math.round(totalEligibleMRP * 0.30);
+//   } else if (totalEligibleMRP >= 499) {
+//     progressiveDiscount = 20;
+//     discountType = '20% OFF';
+//     progressiveDiscountAmount = Math.round(totalEligibleMRP * 0.20);
+//   }
+
+//   // Calculate final amounts and tax
+//   let finalAmount = 0;
+//   let totalTax = 0;
+//   let totalDiscountAmount = 0;
+
+//   if (progressiveDiscount > 0) {
+//     // Progressive discount applies - calculate from MRP
+//     finalAmount = totalMRP - progressiveDiscountAmount;
+//     totalDiscountAmount = progressiveDiscountAmount;
+
+//     // Calculate tax on final discounted amount
+//     for (const product of cartItems) {
+//       const itemFinalPrice = product.price * (1 - progressiveDiscount / 100);
+//       const itemTotal = itemFinalPrice * product.quantity;
+//       const priceBeforeTax = itemTotal / (1 + product.tax / 100);
+//       const taxAmount = itemTotal - priceBeforeTax;
+//       totalTax += taxAmount;
+//     }
+//   } else {
+//     // Only base discount applies
+//     finalAmount = totalAfterBaseDiscount;
+//     totalDiscountAmount = totalMRP - totalAfterBaseDiscount;
+
+//     // Calculate tax on base discounted amount
+//     for (const product of cartItems) {
+//       const baseDiscountedPrice = product.price * (1 - product.discount / 100);
+//       const itemTotal = baseDiscountedPrice * product.quantity;
+//       const priceBeforeTax = itemTotal / (1 + product.tax / 100);
+//       const taxAmount = itemTotal - priceBeforeTax;
+//       totalTax += taxAmount;
+//     }
+//   }
+
+//   totalTax = Math.round(totalTax);
+//   return {
+//     totalCartAmount: totalMRP, // Total MRP before any discounts
+//     totalEligibleAmount: totalEligibleMRP,
+//     eligibleItems,
+//     discountType,
+//     discountPercentage: progressiveDiscount || 'Base',
+//     discountAmount: totalDiscountAmount,
+//     finalAmount: Math.round(finalAmount),
+//     totalTax,
+//     progressInfo: {
+//       // currentMRP: totalMRP,
+//       currentCartAmount: totalMRP,
+//       // currentEligibleMRP: totalEligibleMRP,
+//       currentEligibleAmount: totalEligibleMRP,
+//       nextThreshold: getNextThreshold(totalMRP),
+//       nextDiscountType: getNextDiscountType(totalMRP),
+//       amountToNext: getAmountToNext(totalMRP)
+//     }
+//   };
+// };
+
+// const getNextThreshold = (totalMRP) => {
+//   if (totalMRP >= 1999) return null;
+//   if (totalMRP >= 499) return 1999;
+//   return 499;
+// };
+
+// const getNextDiscountType = (totalMRP) => {
+//   if (totalMRP >= 1999) return null;
+//   if (totalMRP >= 499) return '30% OFF';
+//   return '20% OFF';
+// };
+
+// const getAmountToNext = (totalMRP) => {
+//   if (totalMRP >= 1999) return 0;
+//   if (totalMRP >= 499) return 1999 - totalMRP;
+//   return 499 - totalMRP;
+// };
+
+// module.exports = { calculateTotals };
+
+// simple totals
 const calculateTotals = async (cartItems) => {
-  let totalMRP = 0; // Total MRP (product.price * quantity)
-  let totalAfterBaseDiscount = 0; // Total after applying base product discounts
-  let totalEligibleMRP = 0; // MRP of eligible items only
-  let eligibleItems = [];
+  let totalMRP = 0;
+  let totalCartAmount = 0;
+  let totalDiscount = 0;
+  let totalTaxAmount = 0;
+  let offerDiscount = null;
 
   // Calculate MRP and base discounted totals
+
+  let totalHoneyQty = 0;
+  for (const product of cartItems) {
+    if (product.category === "Organic Honey" && product.quantity > 0) {
+      totalHoneyQty += product.quantity;
+    }
+  }
+  console.log("totalHoneyQty", totalHoneyQty);
+  // console.log("cart items", cartItems);
   for (const product of cartItems) {
     try {
-      const itemMRP = product.price * product.quantity;
-      const baseDiscountedPrice = product.price * (1 - product.discount / 100);
-      const itemAfterBaseDiscount = baseDiscountedPrice * product.quantity;
-
-      totalMRP += itemMRP;
-      totalAfterBaseDiscount += itemAfterBaseDiscount;
-
-      // Check if item is eligible for progressive discount
-      if (ELIGIBLE_CATEGORIES.includes(product.category) && product.price >= 233) {
-        totalEligibleMRP += itemMRP;
-        eligibleItems.push({
-          productName: product.name,
+      let discount = product.discount;
+      if (product.category === "Organic Honey" && totalHoneyQty >= 2) {
+        discount = 40;
+        offerDiscount = {
           category: product.category,
-          mrp: itemMRP,
-          quantity: product.quantity,
-          baseDiscount: product.discount
-        });
+          discountPercentage: discount,
+        };
       }
+
+      const itemMRP = product.price * product.quantity;
+      totalMRP += itemMRP;
+
+      const itemDiscount = (itemMRP * discount) / 100;
+      totalDiscount += itemDiscount;
+      // console.log('productDiscount',productDiscount)
+      const priceAfterDiscount = itemMRP - itemDiscount;
+      totalCartAmount += priceAfterDiscount;
+
+      const taxRate = product.tax / 100;
+      const taxAmount = priceAfterDiscount * (taxRate / (1 + taxRate));
+      totalTaxAmount += taxAmount;
+     
+
+      // totalAfterBaseDiscount += itemAfterBaseDiscount;
     } catch (error) {
       console.error(`Error processing product ${product.name}:`, error);
     }
   }
 
-  // Determine progressive discount tier based on total MRP
-  let progressiveDiscount = 0;
-  let discountType = '';
-  let progressiveDiscountAmount = 0;
 
-  if (totalMRP >= 1999) {
-    progressiveDiscount = 30;
-    discountType = '30% OFF';
-    progressiveDiscountAmount = Math.round(totalEligibleMRP * 0.30);
-  } else if (totalEligibleMRP >= 499) {
-    progressiveDiscount = 20;
-    discountType = '20% OFF';
-    progressiveDiscountAmount = Math.round(totalEligibleMRP * 0.20);
-  }
-
-  // Calculate final amounts and tax
-  let finalAmount = 0;
-  let totalTax = 0;
-  let totalDiscountAmount = 0;
-
-  if (progressiveDiscount > 0) {
-    // Progressive discount applies - calculate from MRP
-    finalAmount = totalMRP - progressiveDiscountAmount;
-    totalDiscountAmount = progressiveDiscountAmount;
-
-    // Calculate tax on final discounted amount
-    for (const product of cartItems) {
-      const itemFinalPrice = product.price * (1 - progressiveDiscount / 100);
-      const itemTotal = itemFinalPrice * product.quantity;
-      const priceBeforeTax = itemTotal / (1 + product.tax / 100);
-      const taxAmount = itemTotal - priceBeforeTax;
-      totalTax += taxAmount;
-    }
-  } else {
-    // Only base discount applies
-    finalAmount = totalAfterBaseDiscount;
-    totalDiscountAmount = totalMRP - totalAfterBaseDiscount;
-
-    // Calculate tax on base discounted amount
-    for (const product of cartItems) {
-      const baseDiscountedPrice = product.price * (1 - product.discount / 100);
-      const itemTotal = baseDiscountedPrice * product.quantity;
-      const priceBeforeTax = itemTotal / (1 + product.tax / 100);
-      const taxAmount = itemTotal - priceBeforeTax;
-      totalTax += taxAmount;
-    }
-  }
-
-  totalTax = Math.round(totalTax);
   return {
-    totalCartAmount: totalMRP, // Total MRP before any discounts
-    totalEligibleAmount: totalEligibleMRP,
-    eligibleItems,
-    discountType,
-    discountPercentage: progressiveDiscount || 'Base',
-    discountAmount: totalDiscountAmount,
-    finalAmount: Math.round(finalAmount),
-    totalTax,
-    progressInfo: {
-      // currentMRP: totalMRP,
-      currentCartAmount: totalMRP,
-      // currentEligibleMRP: totalEligibleMRP,
-      currentEligibleAmount: totalEligibleMRP,
-      nextThreshold: getNextThreshold(totalMRP),
-      nextDiscountType: getNextDiscountType(totalMRP),
-      amountToNext: getAmountToNext(totalMRP)
-    }
+    totalMRP: Math.round(totalMRP), // Total MRP before any discounts
+    totalCartAmount: Math.round(totalCartAmount), // Total MRP before any discounts
+    totalTax: Math.round(totalTaxAmount),
+    discountAmount: Math.round(totalDiscount),
+    offerDiscount,
+   
   };
-};
-
-const getNextThreshold = (totalMRP) => {
-  if (totalMRP >= 1999) return null;
-  if (totalMRP >= 499) return 1999;
-  return 499;
-};
-
-const getNextDiscountType = (totalMRP) => {
-  if (totalMRP >= 1999) return null;
-  if (totalMRP >= 499) return '30% OFF';
-  return '20% OFF';
-};
-
-const getAmountToNext = (totalMRP) => {
-  if (totalMRP >= 1999) return 0;
-  if (totalMRP >= 499) return 1999 - totalMRP;
-  return 499 - totalMRP;
 };
 
 module.exports = { calculateTotals };
