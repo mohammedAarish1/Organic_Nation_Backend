@@ -1764,8 +1764,10 @@ exports.handleCustomOrderCreation = async (req, res) => {
     for (let product of products) {
       const fullProduct = await Products.findOne({ name: product.productName });
       if (fullProduct) {
-        const discount = (fullProduct.price * product.discount) / 100;
-        const actualAmountPaid = fullProduct.price - discount;
+        const totalBeforeDiscount = fullProduct.price * product.quantity;
+        const totalDiscount = (totalBeforeDiscount * product.discount) / 100;
+        // const discount = (fullProduct.price * product.discount) / 100;
+        const actualAmountPaid = totalBeforeDiscount - totalDiscount;
         const tax =
           (actualAmountPaid * fullProduct.tax) / (100 + fullProduct.tax);
         subTotal += actualAmountPaid;
@@ -1808,7 +1810,7 @@ exports.handleCustomOrderCreation = async (req, res) => {
       shippingFee,
       CODCharge,
       paymentMethod,
-      paymentStatus:paymentStatus.toUpperCase(),
+      paymentStatus: paymentStatus.toUpperCase(),
       merchantTransactionId: "",
       couponCodeApplied: [],
       orderStatus: "active",

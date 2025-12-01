@@ -185,7 +185,7 @@ exports.checkPaymentStatus = async (req, res) => {
 
   if (!merchantTransactionId) {
     return res.redirect(
-      `${process.env.FRONTEND_URL}/payment-status?error=TransactionIdMissing`
+      `${process.env.FRONTEND_URL}/order-status?error=TransactionIdMissing`
     );
   }
 
@@ -219,7 +219,7 @@ exports.checkPaymentStatus = async (req, res) => {
 
     if (!order) {
       return res.redirect(
-        `${process.env.FRONTEND_URL}/payment-status?error=OrderNotFound`
+        `${process.env.FRONTEND_URL}/order-status?error=OrderNotFound`
       );
     }
 
@@ -253,8 +253,7 @@ exports.checkPaymentStatus = async (req, res) => {
       order.createdAt = new Date();
 
       await order.save(); // Save the updated order
-      const url = `${process.env.FRONTEND_URL}/payment-status?status=success&id=${merchantTransactionId}&orderId=${orderId}`;
-      // const url = `https://organicnation.co.in/payment-status?status=success&id=${merchantTransactionId}&orderId=${orderId}`
+      const url = `${process.env.FRONTEND_URL}/order-status?status=confirmed&orderId=${orderId}`;
 
       // get the user
       const user = await User.findOne({ phoneNumber: order.phoneNumber });
@@ -374,14 +373,13 @@ exports.checkPaymentStatus = async (req, res) => {
 
       return res.redirect(url);
     } else {
-      const url = `${process.env.FRONTEND_URL}/payment-status?status=failure&retryToken=${token}`;
-      // const url = `https://organicnation.co.in/payment-status?status=failure&retryToken=${token}`
+      const url = `${process.env.FRONTEND_URL}/order-status?status=failure&retryToken=${token}`;
       return res.redirect(url);
     }
   } catch (error) {
     console.log("payment status tracking error:", error);
     return res.redirect(
-      `${process.env.FRONTEND_URL}/payment-status?error=InternalServerError`
+      `${process.env.FRONTEND_URL}/order-status?error=InternalServerError`
     );
   }
 };

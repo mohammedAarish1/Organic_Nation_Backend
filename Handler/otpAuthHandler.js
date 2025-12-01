@@ -259,3 +259,102 @@ exports.verifyOTP = async (req, res) => {
     res.status(400).json({ success: false, message: "Invalid OTP" });
   }
 };
+
+
+
+// for NEXT JS
+exports.verifyOTPNew = async (req, res) => {
+  const { phoneNumber, referralCode, otp } = req.body;
+  const isValid = await verifyOTP(phoneNumber, otp); // Assuming verifyOTP is a function that verifies OTP.
+
+  if (isValid) {
+    try {
+      const formatedPhoneNumber=`+91${phoneNumber}`
+      // Check if the user already exists by phone number
+      let user = await User.findOne({ phoneNumber:formatedPhoneNumber });
+
+      if (!user) {
+        // If user doesn't exist, create a new user
+
+        // Create new user with a unique referral code
+        const newReferralCode = generateUniqueCode(); // Generate a unique referral code for the new user
+        user = new User({
+          phoneNumber:formatedPhoneNumber,
+          referralCode: newReferralCode,  // Generate a unique referral code for the new user
+          email: null,  // Assuming email is optional or handled elsewhere
+        });
+
+        // Only allow referral code use for new users
+        if (referralCode) {
+          const referrer = await User.findOne({ referralCode, });
+
+          if (referrer) {
+            // Link the new user to the referrer
+            user.referredBy = referrer.referralCode;
+
+           // Create immediate coupon for referred user
+           const referredCoupon = await createReferralCoupon(user._id, 'referred');
+
+           user.referralCoupons.push({
+             couponId: referredCoupon._id,
+             type: 'referred',
+             isUsed: false
+           });
+
+          } else {
+            return res.status(400).json({ message: "Invalid referral code." });
+          }
+        }
+
+        // Save the new user to the database
+        await user.save();
+      } else {
+        // If the user already exists, ignore the referral code
+        if (referralCode) {
+          return res.status(400).json({ message: "Referral code can only be used during registration." });
+        }
+      }
+
+      // Generate new tokens for the user (for both new and existing users)
+      const { accessToken, refreshToken } = generateTokens(user._id);
+
+      // Update refresh token in the database
+      user.refreshToken = refreshToken;
+      await user.save();
+
+      // Set refresh token in an HTTP-only cookie
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge:  1 * 60 * 60 * 1000, // 7 days
+      });
+
+      // Respond with the user data and tokens
+      res.status(201).json({
+        success: true,
+        user: {
+          id: user._id,
+          fullName: user.fullName || '',
+          email: user.email || '',
+          phoneNumber: user.phoneNumber || '',
+          cart: user.cart || [],
+          addresses: user.addresses || [],
+          referralCode:user.referralCode||'',
+          referralCoupons: user.referralCoupons || []
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error creating user", error: error.message });
+    }
+  } else {
+    res.status(400).json({ success: false, message: "Invalid OTP" });
+  }
+};

@@ -34,7 +34,6 @@ exports.getCartDetails = async (req, res) => {
         cartItems.map(async ({ productName, quantity }) => {
           const product = await Products.findOne({ 'name-url': productName.toLowerCase() });
           if (!product) {
-            console.log(`Product not found: ${productName}`);
             return null; // or handle it differently (e.g. throw error)
           }
           // convert to plain object
@@ -355,7 +354,30 @@ exports.handleCartMerge = async (req, res) => {
 
     res.json(user.cart);
   } catch (error) {
-    console.error('Error merging cart:', err.message);
+    console.error('Error merging cart:', error.message);
+    res.status(500).send('Server error');
+  }
+}
+
+// for Next JS
+exports.handleCartMergeNew = async (req, res) => {
+  try {
+    const { cart } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    user.cart.items = cart,
+      // user.cart.totalCartAmount = cart.totalCartAmount,
+      // user.cart.totalTaxes = cart.totalTaxes,
+      // user.cart.couponCodeApplied = cart.couponCodeApplied
+
+    user.save()
+
+
+    res.json({success:true,cart:user.cart});
+  } catch (error) {
+    console.error('Error merging cart:', error.message);
     res.status(500).send('Server error');
   }
 }

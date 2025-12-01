@@ -252,8 +252,6 @@ const calculateTotals = async (cartItems) => {
       totalHoneyQty += product.quantity;
     }
   }
-  console.log("totalHoneyQty", totalHoneyQty);
-  // console.log("cart items", cartItems);
   for (const product of cartItems) {
     try {
       let discount = product.discount;
@@ -270,7 +268,6 @@ const calculateTotals = async (cartItems) => {
 
       const itemDiscount = (itemMRP * discount) / 100;
       totalDiscount += itemDiscount;
-      // console.log('productDiscount',productDiscount)
       const priceAfterDiscount = itemMRP - itemDiscount;
       totalCartAmount += priceAfterDiscount;
 

@@ -16,8 +16,11 @@ const {
     refreshToken,
     logout,
     getUser,
-    isReferralCodeExist
+    isReferralCodeExist,
+    refreshTokenNew,
+    logoutNew
 } = require("../Handler/authHandler.js");
+const authMiddlewareNew = require("../middleware/authMiddlewareNew.js");
 
 // Define the route for getting products by category
 // router.post("/signup", userSignup);
@@ -36,8 +39,14 @@ router.get("/user/:email", getUserByEmail);
 router.post("/user/signup", signup);
 router.post("/user/login", login);
 router.post("/user/refresh", refreshToken);
+// for NEXT JS
+router.post("/user/refresh-new", refreshTokenNew);
 router.post("/user/logout", logout);
+// for NEXT JS
+router.post("/user/logout-new", logoutNew);
 router.get("/user", authMiddleware,getUser);
+// for NEXT JS
+router.get("/user-new", authMiddlewareNew,getUser);
 
 router.post("/user/exist", isReferralCodeExist);
 

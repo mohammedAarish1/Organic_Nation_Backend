@@ -349,6 +349,62 @@ exports.refreshToken = async (req, res) => {
   }
 };
 
+// for NEXT JS
+exports.refreshTokenNew = async (req, res) => {
+  try {
+    const { refreshToken } = req.cookies;
+    if (!refreshToken) {
+      return res.status(401).json({ message: "Refresh token not found" });
+    }
+
+    // Verify refresh token
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    // Find user and check if refresh token matches
+    const user = await User.findOne({
+      _id: decoded.userId,
+      refreshToken,
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid refresh token" });
+    }
+
+    // Generate new tokens
+    const tokens = generateTokens(user._id);
+
+    // Update refresh token in database
+    // user.refreshToken = tokens.refreshToken;
+    // await user.save();
+
+    // Set new refresh token in HTTP-only cookie
+    res.cookie("accessToken", tokens.accessToken, {
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === "production",
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    // res.json({ accessToken: tokens.accessToken });
+    res.json({
+      user: {
+        id: user._id,
+        fullName: user.fullName || '',
+        // lastName: user.lastName || '',
+        email: user.email || '',
+        phoneNumber: user.phoneNumber || '',
+        cart: user.cart || [],
+        addresses: user.addresses || [],
+        referralCode:user.referralCode||'',
+        referralCoupons: user.referralCoupons || []
+        // Add other necessary user fields
+      },
+    });
+  } catch (error) {
+    res.status(401).json({ message: "Invalid refresh token" });
+  }
+};
+
 // log out endpoint ============
 exports.logout = async (req, res) => {
   try {
@@ -372,7 +428,29 @@ exports.logout = async (req, res) => {
   }
 };
 
+// for NEXT JS
+exports.logoutNew = async (req, res) => {
+  try {
+    const { refreshToken } = req.cookies;
 
+    if (refreshToken) {
+      // Find user and remove refresh token
+      await User.findOneAndUpdate(
+        { refreshToken },
+        { $unset: { refreshToken: 1 } }
+      );
+    }
+
+    // Clear refresh token cookie
+    res.clearCookie("refreshToken");
+    res.clearCookie("accessToken");
+    res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error logging out", error: error.message });
+  }
+};
 // get user 
 exports.getUser = async (req, res) => {
   try {
