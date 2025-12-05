@@ -16,6 +16,36 @@ const Coupon = require("../models/Coupon.js");
 const merchantId = process.env.PHONEPE_MERCHANT_ID;
 const salt_key = process.env.PHONEPE_SALT_KEY;
 
+exports.updateMerchantTransactionId = async (req, res) => {
+  try {
+    const { id } = req.params; // Get the order ID from the URL params
+    const { newMerchantTransactionId } = req.body;
+    if (!newMerchantTransactionId) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing merchant Transaction Id",
+      });
+    }
+    const order = await Order.findOne({
+      merchantTransactionId: id,
+    });
+    if (!order) {
+      return res.status(400).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+    order.merchantTransactionId=newMerchantTransactionId
+    order.save();
+    res.status(200).json({success:true})
+  } catch (error) {
+     res.status(500).send({
+      message: error.message,
+      success: false,
+    });
+  }
+};
+
 // payment route
 exports.getPaymentDone = async (req, res) => {
   try {
@@ -78,7 +108,7 @@ exports.getPaymentDone = async (req, res) => {
 
     // change this URL with production URL
     // test url
-    // const prod_URL = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay"
+    // const prod_URL = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay";
 
     // production url
     const prod_URL = "https://api.phonepe.com/apis/hermes/pg/v1/pay";
@@ -182,7 +212,6 @@ exports.getPaymentDone = async (req, res) => {
 
 exports.checkPaymentStatus = async (req, res) => {
   const merchantTransactionId = req.query.id;
-
   if (!merchantTransactionId) {
     return res.redirect(
       `${process.env.FRONTEND_URL}/order-status?error=TransactionIdMissing`
@@ -216,7 +245,6 @@ exports.checkPaymentStatus = async (req, res) => {
     const order = await Order.findOne({
       merchantTransactionId: merchantTransactionId,
     });
-
     if (!order) {
       return res.redirect(
         `${process.env.FRONTEND_URL}/order-status?error=OrderNotFound`
@@ -242,18 +270,18 @@ exports.checkPaymentStatus = async (req, res) => {
     //         success: false // Simulate a payment failure
     //     }
     // };
-
     if (response.data.success) {
       const orderNumber = order.orderNo || "";
       const customerName = order.userName || "";
       const totalAmount = order.subTotal + order.shippingFee;
-      const orderId = order._id;
+      // const orderId = order._id;
 
       order.paymentStatus = "PAID";
       order.createdAt = new Date();
 
       await order.save(); // Save the updated order
-      const url = `${process.env.FRONTEND_URL}/order-status?status=confirmed&orderId=${orderId}`;
+      // const url = `${process.env.FRONTEND_URL}/order-status?status=confirmed&orderId=${orderId}`;
+      const url = `${process.env.FRONTEND_URL}/order-status?status=confirmed`;
 
       // get the user
       const user = await User.findOne({ phoneNumber: order.phoneNumber });

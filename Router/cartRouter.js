@@ -14,7 +14,11 @@ const {
     deleteSingleItem,
     updateQty,
     handleCartMerge,
-    handleCartMergeNew
+    handleCartMergeNew,
+    updateQtyNew,
+    deleteSingleItemNew,
+    addItemToCartNew,
+    getLoggedinUserCart
 } = require("../Handler/cartHandler.js");
 
 // Define the route for getting products by category
@@ -26,7 +30,13 @@ router.delete("/:productName", authMiddleware, deleteSingleItem);
 router.put("/updateQuantity/:productName", authMiddleware, updateQty);
 router.post("/merge", authMiddleware, handleCartMerge);
 // for Next JS
+router.get("/logged-in-user", authMiddlewareNew, getLoggedinUserCart);
+router.post("/add", authMiddlewareNew, addItemToCartNew);
 router.post("/merge-new", authMiddlewareNew, handleCartMergeNew);
+router.put("/updateQuantity-new/:productName", authMiddlewareNew, updateQtyNew);
+router.delete("/remove/:productName", authMiddlewareNew, deleteSingleItemNew);
+
+
 
 
 module.exports = router;

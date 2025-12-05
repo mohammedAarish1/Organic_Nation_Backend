@@ -1831,7 +1831,6 @@ exports.handleCustomOrderCreation = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Order Created Successfully" });
   } catch (error) {
-    console.log("errrr", error);
     res.status(500).json({
       error: "An error occurred while creating  the order",
       details: error.message,

@@ -339,16 +339,16 @@ exports.verifyOTPNew = async (req, res) => {
       // Respond with the user data and tokens
       res.status(201).json({
         success: true,
-        user: {
-          id: user._id,
-          fullName: user.fullName || '',
-          email: user.email || '',
-          phoneNumber: user.phoneNumber || '',
-          cart: user.cart || [],
-          addresses: user.addresses || [],
-          referralCode:user.referralCode||'',
-          referralCoupons: user.referralCoupons || []
-        },
+        // user: {
+        //   id: user._id,
+        //   fullName: user.fullName || '',
+        //   email: user.email || '',
+        //   phoneNumber: user.phoneNumber || '',
+        //   cart: user.cart || [],
+        //   addresses: user.addresses || [],
+        //   referralCode:user.referralCode||'',
+        //   referralCoupons: user.referralCoupons || []
+        // },
       });
     } catch (error) {
       console.error(error);
