@@ -252,7 +252,7 @@ exports.addNewOrder = async (req, res) => {
 
     res
       .status(200)
-      .json({ message: "Order placed successfully", orderId: savedOrder._id });
+      .json({success:true, message: "Order placed successfully", orderId: savedOrder._id });
     // res.json(savedOrder);
   } catch (err) {
     console.error('Error creating order:', err.message);

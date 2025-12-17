@@ -96,8 +96,7 @@ exports.getCartDetails = async (req, res) => {
       totals = await calculateTotals(productDetails);
     }
 
-    // console.log('productDetails', productDetails)
-    res.status(200).json({ productDetails, totals });
+    res.status(200).json({success:true, productDetails, totals });
   } catch (error) {
     console.error("Error retrieving cart details:", error.message);
     res.status(500).send("Server error");
@@ -352,7 +351,6 @@ exports.deleteSingleItem = async (req, res) => {
 };
 
 exports.deleteSingleItemNew = async (req, res) => {
-  // console.log("remove triggered", req.params);
   try {
     const user = await User.findById(req.user.id);
     if (!user) {

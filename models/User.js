@@ -70,6 +70,9 @@ const UserSchema = new mongoose.Schema(
       type: { type: String, enum: ['referrer', 'referred'], required: true }, // Indicates if this user was referrer or referred
       createdAt: { type: Date, default: Date.now }
     }],
+    wishlist:{
+      type:[String]
+    }
   },
 );
 

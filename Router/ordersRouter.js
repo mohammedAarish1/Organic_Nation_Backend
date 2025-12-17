@@ -38,6 +38,7 @@ const {
   handleReOrderReCompletion,
 } = require("../Handler/ordersHandler.js");
 const authMiddleware = require("../middleware/authMiddleware.js");
+const { addToWishlist, getAllWishlist, removeFromWishlist,  clearWishlist } = require("../Handler/wishlistHandler.js");
 
 // router.post("/", authMiddleware, createOrder);
 router.post("/", authMiddleware, addNewOrder);
@@ -53,6 +54,10 @@ router.post('/recomplete-order', authMiddleware, handleReOrderReCompletion); // 
 // for recent purchase notification
 router.get('/recent/purchases', getRecentPurchases);
 
-
-
+// wishlist
+router.post('/add-to-wishlist/:productId',authMiddleware,addToWishlist)
+router.get('/all/wish-list',authMiddleware,getAllWishlist) // for array of product id's
+// router.get('/all/wish-list/products',authMiddleware,getWishlistProductDetail) // for full products
+router.delete('/wish-list/remove/:productId',authMiddleware,removeFromWishlist)
+router.delete('/wish-list/clear',authMiddleware,clearWishlist)
 module.exports = router;

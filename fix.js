@@ -478,3 +478,63 @@
 // // // createUpdateOrderDetails(['Italian-Seasoning', 'Pizza-Seasoning'])
 // // // createUpdateOrderDetails(['Pizza-Seasoning', 'African-Peri-Peri', 'Chilli-Flakes'])
 // // // createUpdateOrderDetails(['Rolled-Oats', 'Pizza-Seasoning', 'Himalayan-Rock-Salt-Granules-(500g)', 'Organic-Brown-Sugar'])
+
+
+// const fs = require('fs');
+
+// // Method 1: Add same fields to all records
+// function addFieldsToAll() {
+//   // Read the JSON file
+//   const data = JSON.parse(fs.readFileSync('Organic-Nation.reviews1.json', 'utf8'));
+//   console.log('data.length', data.length)
+//   // Add new fields to each record
+//   const updatedData = data.map(item => ({
+//     ...item,
+//     // Add your new fields here
+//     title:'',
+//     verified: true,
+//     images:[],
+//     hasVideo:false,
+//     videoUrl:null
+//   }));
+//   console.log('updatedData',updatedData[0])
+//   // Write back to file
+//   fs.writeFileSync('updated-reviews.json', JSON.stringify(updatedData, null, 2));
+//   console.log(' Successfully added fields to all records!');
+// }
+
+// addFieldsToAll()
+
+
+// for reviews
+// // Read your JSON file
+// const fs = require('fs');
+
+// // Function to generate random date between two dates
+// function randomDate(start, end) {
+//   return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+// }
+
+// // Read the JSON file
+// const data = JSON.parse(fs.readFileSync('updated-reviews.json', 'utf8'));
+
+// // Date range
+// const startDate = new Date('2025-01-01');
+// const endDate = new Date('2025-12-10');
+
+// // Add createdAt and updatedAt to each object
+// const updatedData = data.map(item => {
+//   const createdAt = randomDate(startDate, endDate);
+//   const updatedAt = new Date(createdAt.getTime() + Math.random() * 7 * 24 * 60 * 60 * 1000); // updatedAt within 7 days of createdAt
+  
+//   return {
+//     ...item,
+//     createdAt: { $date: createdAt.toISOString() },
+//     updatedAt: { $date: updatedAt.toISOString() }
+//   };
+// });
+
+// // Write back to file
+// fs.writeFileSync('updated-reviews-with-dates.json', JSON.stringify(updatedData, null, 2));
+
+// console.log('Done! Check updated-reviews-with-dates.json');
