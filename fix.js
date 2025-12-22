@@ -538,3 +538,333 @@
 // fs.writeFileSync('updated-reviews-with-dates.json', JSON.stringify(updatedData, null, 2));
 
 // console.log('Done! Check updated-reviews-with-dates.json');
+
+
+
+// const seotitles=[
+//     {
+//         name:'garlic-pickle',
+//         title:'Organic Nation Garlic Pickle - Lahsun Achari Twist | Homestyle Indian Pickle | Lahsun ka Achar | Authentic Traditional Taste | No Chemical Preservatives | 250g'
+//     },
+//     {
+//         name:'ginger-pickle',
+//         title:'Organic Nation Ginger Pickle – Adrak Achari Fusion | Homestyle Indian Pickle | Authentic Traditional Taste | No Preservatives | 250g'
+//     },
+//     {
+//         name:'green-chilli-pickle',
+//         title:'Organic Nation Green Chilli Pickle – Pahadi Hari Mirch | Homestyle Indian Pickle | Authentic Traditional Taste | No Preservatives | 250g'
+//     },
+//     {
+//         name:'lemon-pickle',
+//         title:'Organic Nation Lemon Pickle– Nimbu ka achar| Homestyle Taste with Traditional Recipe | Natural & Preservative-Free | Traditional Indian Achar | Tangy & Spicy Flavour 250g'
+//     },
+//     {
+//         name:'mango-pickle',
+//         title:'Organic Nation Mango Pickle – Desi Mango Delight | Homestyle Indian Pickle | Authentic Traditional Taste | No Preservatives | 250g'
+//     },
+//     {
+//         name:'turmeric-pickle',
+//         title:'Organic Nation Turmeric Pickle – Haldi Achari Fusion | Homestyle Indian Pickle | Authentic Traditional Taste | No Preservatives | 250g'
+//     },
+//     {
+//         name:'mixed-pickle',
+//         title:'Organic Nation Mixed Pickle – Desi Mixed pickle | Homestyle Indian Pickle | Authentic Traditional Taste | No Preservatives | 250g'
+//     },
+//     {
+//         name:'lemon-chilli-pickle',
+//         title:'Organic Nation Lemon Chilli Pickle - Nimbu Mirch Twist | Homestyle Taste with Traditional Recipe | Lemon & Green Chilli Achar | Authentic Indian Taste | No Preservatives | 250g'
+//     },
+//     {
+//         name:'hing-ka-aam-pickle',
+//         title:'Organic Nation Hing Ka Aam Pickle - Hing Mango Delight | Homestyle Indian Pickle | Authentic Traditional Taste | No Preservatives | 250g'
+//     },
+//     {
+//         name:'sweet-mango-pickle',
+//         title:'Organic Nation Sweet Mango Pickle - Chatpata Mango Pickle | Traditional Aam ka Meetha Achar | Made with Homestyle Mangoes & Spices | No Preservatives 300g'
+//     },
+//     {
+//         name:'carrot-pickle',
+//         title:'Organic Nation Carrot Pickle – Gajar Achari Twist | Homestyle Indian Pickle | Authentic Traditional Taste | No Preservatives | 250g'
+//     },
+//     {
+//         name:'stuffed-red-chilli-pickle',
+//         title:'Organic Nation Stuffed Red Chilli Pickle - Bharwan Lal Mirch |Homestyle Indian Pickle | Authentic Traditional Taste | No Preservatives | 250g'
+//     },
+//     {
+//         name:'khatta-meetha-pickle',
+//         title:'Organic Nation Gobhi Gajar Shalgam Pickle | Tangy Trio | Homestyle Indian Pickle | Authentic Traditional Taste | No Preservatives | 250g'
+//     },
+//     {
+//         name:'sweet-lemon-pickle',
+//         title:'Organic Nation Sweet Lemon Pickle - Khatta Meetha Nimbu | Homestyle Taste | Traditional Indian Style | No Preservatives | Metha Nimbu Achar | 300g'
+//     },
+//     {
+//         name:'organic-light-flora-honey',
+//         title:'Organic Nation Light Flora Honey | Raw & Unprocessed Honey | Natural Wildflower | Rich in Antioxidants | No Added Sugar | original & Pure Honey 325g'
+//     },
+//     {
+//         name:'organic-wild-forest-honey',
+//         title:'Organic Nation Wild Forest Honey – Raw Unprocessed & Natural Sweetener – Sourced from Wildflowers – Rich in Antioxidants – No Added Sugar 325g'
+//     },
+//     {
+//         name:'organic-jamun-honey',
+//         title:'Organic Nation Jamun Honey – Raw, Unprocessed, Natural Sweetener – Sourced from Wildflowers – Immunity Booster – No Added Sugar 325g'
+//     },
+//     {
+//         name:'kashmir-honey',
+//         title:'Organic Nation Kashmir Honey 325g – Pure, Unprocessed & Raw | Natural Immunity Booster | No Added Sugar | Rich in Antioxidants'
+//     },
+//     {
+//         name:'seeds-&-cranberry-muesli',
+//         title:''
+//     },
+//     {
+//         name:'hazelnut-&-cocoa-muesli',
+//         title:''
+//     },
+//     {
+//         name:'figs-&-honey-muesli',
+//         title:''
+//     },
+//     {
+//         name:'protien-muesli',
+//         title:''
+//     },
+//     {
+//         name:'seeds-&-berries-granola',
+//         title:''
+//     },
+//     {
+//         name:'nuts-&-berries-granola',
+//         title:''
+//     },
+//     {
+//         name:'chilly-flakes',
+//         title:'Organic Nation Chilly Flakes 60g | Spices for Pizza, Pasta & Salads | Natural, Sun-Dried & Flavorful | No Preservatives | Spicy Seasoning for Cooking & Garnishing'
+//     },
+//     {
+//         name:'african-peri-peri',
+//         title:'Organic Nation African Peri Peri 90g  | Authentic Spice Blend | Hot & Tangy Seasoning | Natural Ingredients | Perfect for Grilling, Cooking'
+//     },
+//     {
+//         name:'mexican-seasoning',
+//         title:'Organic Nation African Peri Peri 90g | Authentic Spice Blend | Hot & Tangy Seasoning | Natural Ingredients | Perfect for Grilling, Cooking'
+//     },
+//     {
+//         name:'chinese-seasoning',
+//         title:'' 
+//     },
+//     {
+//         name:'pizza-seasoning',
+//         title:'Organic Nation Pizza Seasoning 80g | Authentic Italian Herb Blend | Natural & Aromatic | Perfect for Pizza, Pasta, Garlic Bread'
+//     },
+//     {
+//         name:'italian-seasoning',
+//         title:'Organic Nation Italian Seasoning 90g | Premium Mixed Herbs for Pasta, Pizza, Sauces & Marinades'
+//     },
+//     {
+//         name:'Pizza-Oregano',
+//         title:'Organic Nation Oregano 50g | Dried Oregano Leaves | Natural & Aromatic Herb | Perfect for Pizza, Pasta, Salads'
+//     },
+//     {
+//         name:'mixed-herbs',
+//         title:''
+//     },
+//     {
+//         name:'salt-and-pepper',
+//         title:'Organic Nation Salt and Pepper 80g | Natural Seasoning | No Additives | Perfect for Cooking'
+//     },
+//     {
+//         name:'basil',
+//         title:'Organic Nation Basil Leaves 30g (pack of 2) | Premium Sun-Dried Basil for Italian, Thai & Continental Cooking'
+//     },
+//     {
+//         name:'oregano',
+//         title:''
+//     },
+//     {
+//         name:'parsley',
+//         title:''
+//     },
+//     {
+//         name:'rosemary',
+//         title:''
+//     },
+//     {
+//         name:'thyme',
+//         title:''
+//     },
+//     {
+//         name:'ginger-powder',
+//         title:''
+//     },
+//     {
+//         name:'red-onion-powder',
+//         title:'Organic Nation Red Onion Powder 125g | Natural, Pure & Dehydrated | Flavorful Seasoning for Cooking, Marinades & Snacks'
+//     },
+//     {
+//         name:'garlic-powder',
+//         title:'Organic Nation Garlic Powder 100g | Pure & Natural Dehydrated Garlic | Flavorful Spice for Seasoning, Cooking & Marinades'
+//     },
+//     {
+//         name:'mix-fruit-conserve',
+//         title:'Organic Nation MIXED FRUIT CONSERVE - JAM - Rich in Calcium, Iron and Magnesium - Low Sugar | No Preservatives | For family and kids 340 g'
+//     },
+//     {
+//         name:'pineapple-conserve',
+//         title:'Organic Nation Pineapple Conserve | No Preservatives | Rich Fruit Spread | Pure Natural | No Added Flavours | 340g'
+//     },
+//     {
+//         name:'strawberry-conserve',
+//         title:'Organic Nation Strawberry Conserve | No Preservatives | Rich Fruit Spread | Sugar Free | Pure Natural | No Added Flavours | 340g'
+//     },
+//     {
+//         name:'orange-marmalade',
+//         title:'Organic Nation Orange Marmalade | No Preservatives | Rich Fruit Spread | Pure Natural | No Added Flavours | 340g'
+//     },
+//     {
+//         name:'chilli-garlic-dip',
+//         title:'Organic Nation Chilli Garlic Dip | Homestyle Made with Red Chillies, Garlic & Aromatic Spices | No Added Preservatives, No Artificial Flavours | Traditional Recipe, 260g'
+//     },
+//     {
+//         name:'mango-chutney',
+//         title:'Organic Nation Mango Chutney 300g | Authentic Indian Sweet & Spicy Relish | Handcrafted with Fresh Mangoes & Natural Spices | No Preservatives | Perfect for Dips, Sandwiches & Curries'
+//     },
+//     {
+//         name:'salsa-dip',
+//         title:'Organic Nation Salsa Dip | Homestyle Made with Fresh Tomatoes, Herbs & Spices | No Added Preservatives, No Artificial Flavours | Traditional Recipe, 260g'
+//     },
+//     {
+//         name:'sweet-tomato-chutney',
+//         title:'Organic Nation Sweet Tomato Chutney 300g | Sweet & Tangy Indian Dip | Natural Ingredients | No Preservatives | Perfect for Snacks, Chaats & Curries'
+//     },
+//     {
+//         name:'schezwan-dip',
+//         title:'Organic Nation Schezwan Dip | Homestyle Made with Red Chillies, Garlic & Aromatic Spices | No Added Preservatives, No Artificial Flavours | Traditional Recipe, 260g'
+//     },
+//     {
+//         name:'tamarind-chutney',
+//         title:'Organic Nation Tamarind Chutney 300g | Sweet & Tangy Indian Dip | Natural Ingredients | No Preservatives | Imli ki Chutney'
+//     },
+//     {
+//         name:'organic-green-tea',
+//         title:''
+//     },
+//     {
+//         name:'organic-lemon-ginger-green-tea',
+//         title:''
+//     },
+//     {
+//         name:'organic-classic-tulsi-green-tea',
+//         title:''
+//     },
+//     {
+//         name:'organic-masala-tea',
+//         title:''
+//     },
+//     {
+//         name:'organic-assam-tea',
+//         title:''
+//     },
+//     {
+//         name:'kashmiri-kahwa',
+//         title:''
+//     },
+//     {
+//         name:'lemon-honey-green-tea',
+//         title:''
+//     },
+//     {
+//         name:'chamomile-tea',
+//         title:''
+//     },
+//     {
+//         name:'black-salt',
+//         title:''
+//     },
+//     {
+//         name:'himalayan-rock-salt-granules-(500g)',
+//         title:'Organic Nation Himalayan Rock Salt Granules 500g | Sendha Namak for Cooking & Detox | Natural Mineral Salt | Unrefined & Chemical-Free'
+//     },
+//     {
+//         name:'himalayan-pink-rock-salt-powder-(200g)',
+//         title:'Organic Nation Himalayan Rock Salt 200g – Natural Mineral-Rich Sendha Namak for Cooking | Salt Powder | Fasting & Detox – Pure & Natural, Non-Iodised, Unprocessed Salt – No Additives or Chemicals - Sprinkler Jar'
+//     },
+//     {
+//         name:'himalayan-pink-rock-salt-powder-(500g)',
+//         title:'Organic Nation Himalayan Pink Rock Salt Powder 500g | Fine Grain Mineral Salt for Cooking & Detox | Natural Sendha Namak | Pure, Unrefined, Chemical-Free'
+//     },
+//     {
+//         name:'black-salt',
+//         title:'Organic Nation Black Salt 150g (pack of 2) | Kala Namak | Natural Digestive Salt | Stone-Ground | Rich in Minerals | Ideal for Cooking, Chaats & Salads'
+//     },
+//     {
+//         name:'organic-brown-sugar',
+//         title:'Organic Nation Brown Sugar 500g | Chemical-Free Sweetener | Ideal for Baking, Tea, Coffee'
+//     },
+//     {
+//         name:'organic-jaggery-powder',
+//         title:'Organic Nation Jaggery Powder 500g | Natural Desi Gud for Cooking & Sweetening | Chemical-Free, Unrefined Sweetener'
+//     },
+//     {
+//         name:'sunflower-oil',
+//         title:''
+//     },
+//     {
+//         name:'mustard-oil',
+//         title:''
+//     },
+//     {
+//         name:'steel-cut-oats',
+//         title:'Organic Nation Steel Cut Oats 1kg | Whole Grain Oats | Gluten-Free | Healthy Breakfast'
+//     },
+//     {
+//         name:'rolled-oats',
+//         title:'Organic Nation Rolled Oats 600g | Whole Grain | High Protein & Fibre | Gluten-Free | Healthy Breakfast | Ideal for Overnight Oats, Smoothies & Baking | Vegan & Natural'
+//     },
+//     {
+//         name:'instant-oats',
+//         title:'Organic Nation Instant Oats 600g | Whole Grain | High Protein & Fibre | Gluten-Free | Healthy Breakfast | Ideal for Overnight Oats, Smoothies & Baking | Vegan & Natural'
+//     },
+//     {
+//         name:'veg-soya-chaap',
+//         title:'Organic Nation Veg Soya Chaap | High in Protein | Delicious and Nutritious 850g'
+//     },   
+//     {
+//         name:'veg-soya-chaap',
+//         title:'Organic Nation Veg Millets Chaap, 800g'
+//     },   
+//     {
+//         name:'mustard-oil',
+//         title:'Organic Nation Mustard Oil 1 Ltr | Cold Pressed | Pure & Natural |No Chemicals | Ideal for Cooking, Frying & Baking'
+//     },   
+//     {
+//         name:'sunflower-oil',
+//         title:'Organic Nation Sunflower Oil 1 Ltr | Cold Pressed | Pure & Natural | No Chemicals | Ideal for Cooking, Frying & Baking'
+//     },   
+//     {
+//         name:'groundnut-oil',
+//         title:'Organic Nation Groundnut Oil 1 Ltr | Cold Pressed | Pure & Natural | No Chemicals | Ideal for Cooking, Frying & Baking'
+//     },   
+// ]
+
+// const updatetitle=async()=>{
+//   try {
+//     for (const update of seotitles) {
+//       const result = await Products.updateOne(
+//         { 'name-url': update.name },  // Find product by 'name' field
+//         { $set: { title: update.title } } // Update the 'title' field
+//       );
+
+//       if (result.modifiedCount > 0) {
+//         console.log(`Updated product: ${update.name} with title: ${update.title}`);
+//       } else {
+//         console.log(`No updates for product: ${update.name}`);
+//       }
+//     }
+//   } catch (error) {
+//     console.error('Error updating products:', error);
+//   }
+// }
+
+// updatetitle()

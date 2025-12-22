@@ -14,6 +14,9 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  title: {
+    type: String,
+  },
   'name-url': {
     type: String,
     required: true
