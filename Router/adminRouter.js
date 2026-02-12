@@ -54,7 +54,8 @@ const {
   // allProducts,
   getResources,
   getResourceCounts,
-  handleCustomOrderCreation
+  handleCustomOrderCreation,
+  handleb2bformSubmission
   // handleOptimizingBannerImages
 } = require("../Handler/adminHandler.js");
 // const { processImage } = require("../utility/processImage.js");
@@ -91,6 +92,11 @@ router.put("/custom/order/create", requireAuth, handleCustomOrderCreation);
 
 router.put("/update/status", requireAuth, updateStatus);
 router.post("/send/bulk-email", requireAuth, sendBulkEmail);
+
+
+router.post("/foodsbay/query/form/submit",  handleb2bformSubmission);
+
+
 // experiment for images =============
 
 // router.post('/product/upload/optimized/images', upload.array('images', 5), handleOptimizinImages);

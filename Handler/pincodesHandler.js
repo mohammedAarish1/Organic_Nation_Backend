@@ -4,8 +4,6 @@ exports.checkDeliveryAvailability = async (req, res) => {
     try {
         const pinCode = req.params.pincode;
 
-
-
         const pinCodeData = await PinCode.findOne({ pinCode });
         if (pinCodeData) {
             res.json({
@@ -18,9 +16,9 @@ exports.checkDeliveryAvailability = async (req, res) => {
                 }
             });
         } else {
-            res.status(401).json({
+            res.status(201).json({
                 available: false,
-                message: 'Delivery is not available for this pin code.'
+                message: `Delivery is not available for ${pinCode}.`
             });
         }
     } catch (error) {

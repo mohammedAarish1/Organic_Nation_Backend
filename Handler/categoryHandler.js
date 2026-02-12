@@ -8,6 +8,39 @@ const ProductAdditionalInfo = require("../models/ProductAdditionalInfo.js");
 // const ProductAdditionalInfo = require('../models/ProductAdditoinalInfo.js')
 // const mongoose = require('mongoose');
 
+const getProductWithReviews = async (products) => {
+  const productsWithReviews = await Promise.all(
+    products.map(async (product) => {
+      const productObj = product.toObject ? product.toObject() : product;
+
+      const reviews = await Review.find({
+        productName: productObj["name-url"],
+      }).sort({ createdAt: -1 });
+
+      let averageRating = 0;
+      let totalReviews = reviews.length;
+
+      if (totalReviews > 0) {
+        const totalRating = reviews.reduce(
+          (acc, review) => acc + review.rating,
+          0,
+        );
+        averageRating = (totalRating / totalReviews).toFixed(1);
+      }
+
+      return {
+        ...productObj,
+        reviewsAndRating: {
+          averageRating,
+          totalReviews,
+        },
+      };
+    }),
+  );
+
+  return productsWithReviews;
+};
+
 exports.allProducts = async (req, res) => {
   try {
     const products = await Products.find({ isActive: true }).lean();
@@ -16,6 +49,7 @@ exports.allProducts = async (req, res) => {
       console.log("No products found in the database");
     }
 
+    const productsWithReviews = await getProductWithReviews(products);
     // const filteredProducts = products.filter(product => product.category !== 'Organic Tea' && product.category !== 'Breakfast Cereals')    // separate the categories and category-url
     const categoryList = products.map((product) => ({
       category: product.category,
@@ -29,8 +63,8 @@ exports.allProducts = async (req, res) => {
         self.findIndex(
           (t) =>
             t.category === product.category &&
-            t.categoryUrl === product.categoryUrl
-        )
+            t.categoryUrl === product.categoryUrl,
+        ),
     );
 
     // add the 'All' category
@@ -39,7 +73,9 @@ exports.allProducts = async (req, res) => {
       ...uniqueCategoriesList,
     ];
 
-    res.status(200).json({ products, categoryList: finalCategoryList });
+    res
+      .status(200)
+      .json({ products: productsWithReviews, categoryList: finalCategoryList });
   } catch (error) {
     res.status(500).send({ error: "Internal Server Error" });
   }
@@ -48,16 +84,35 @@ exports.allProducts = async (req, res) => {
 exports.getCategories = async (req, res) => {
   try {
     // Use Mongoose to query the database
-    const categories = await Products.find({}, "category category-url")
+    const categories = await Products.find(
+      { isActive: true },
+      "category category-url",
+    )
       .lean() // Convert to plain JavaScript objects
       .exec(); // Execute the query
-
     // Extract unique categories
-    const categoryValues = categories.map((doc) => doc.category);
-    const uniqueCategoriesSet = new Set(categoryValues);
+    // const categoryValues = categories.map((doc) => doc.category);
+    const uniqueCategoriesSet = new Set(categories);
     const uniqueCategoriesArray = Array.from(uniqueCategoriesSet);
 
-    res.send({ message: "done", categories: uniqueCategoriesArray });
+    // filter out the unique categories
+    const uniqueCategoriesList = categories.filter(
+      (product, index, self) =>
+        index ===
+        self.findIndex(
+          (t) =>
+            t.category === product.category &&
+            t["category-url"] === product["category-url"],
+        ),
+    );
+
+    // add the 'All' category
+    const finalCategoryList = [
+      { category: "All", "category-url": "All" },
+      ...uniqueCategoriesList,
+    ];
+
+    res.send({ message: "done", categories: finalCategoryList });
   } catch (error) {
     res
       .status(500)
@@ -96,7 +151,7 @@ exports.getProductsByCategory = async (req, res) => {
         if (totalReviews > 0) {
           const totalRating = reviews.reduce(
             (acc, review) => acc + review.rating,
-            0
+            0,
           );
           averageRating = (totalRating / totalReviews).toFixed(1);
         }
@@ -108,7 +163,7 @@ exports.getProductsByCategory = async (req, res) => {
             totalReviews,
           },
         };
-      })
+      }),
     );
 
     // Sending response with products
@@ -160,15 +215,16 @@ exports.getSingleProductAllInfo = async (req, res) => {
     const reviews = await Review.find({ productName: name }).sort({
       createdAt: -1,
     });
-
     let averageRating;
     if (reviews.length > 0) {
       // calculate the average rating of the product
-      const totalRating = reviews.reduce(
-        (acc, review) => acc + review.rating,
-        0
-      );
-      averageRating = Number((totalRating / reviews.length).toFixed(1));
+      const totalRating = reviews.reduce((acc, review) => {
+        if (typeof review.rating === "number") {
+          return acc + review.rating;
+        }
+        return acc;
+      },0);
+      averageRating = Number((totalRating / reviews.filter(r=>r.rating).length).toFixed(1));
     }
 
     // const productInfo = await ProductInfo.findOne({ "name-url": name });

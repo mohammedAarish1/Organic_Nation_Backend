@@ -13,6 +13,6 @@ router.get("/", allProducts);
 router.get("/:category", getProductsByCategory);
 router.get("/:category/:product", getProduct);
 router.get("/product/details/:name", getSingleProductAllInfo);
-router.get("/", getCategories);
+router.get("/all/categories/list", getCategories);
 
 module.exports = router;

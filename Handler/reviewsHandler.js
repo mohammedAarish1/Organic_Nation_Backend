@@ -3,6 +3,7 @@ const User = require("../models/User");
 
 const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const { s3Client } = require("../config/awsConfig.js");
+const ProductAdditionalInfo = require("../models/ProductAdditionalInfo.js");
 
 // @route   POST /api/reviews
 // @desc    Write a review
@@ -138,9 +139,23 @@ exports.getSingleProductReviews = async (req, res) => {
     if (reviews.length === 0) {
       return res.status(404).json({ msg: "No reviews found for this product" });
     }
-    res.json(reviews);
+
+
+     let averageRating;
+    if (reviews.length > 0) {
+      // calculate the average rating of the product
+      const totalRating = reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      averageRating = Number((totalRating / reviews.length).toFixed(1));
+    }
+ const productInfo = await ProductAdditionalInfo.findOne({
+      "name-url": productName,
+    });
+    res.json({reviews,averageRating,otherReviews:productInfo.otherReviews||[]});
   } catch (err) {
-    // console.error('Error fetching reviews:', err.message);
+    console.error('Error fetching reviews:', err.message);
     res.status(500).send("Server error");
   }
 };

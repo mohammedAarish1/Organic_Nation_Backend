@@ -39,6 +39,7 @@ const {
 } = require("../Handler/ordersHandler.js");
 const authMiddleware = require("../middleware/authMiddleware.js");
 const { addToWishlist, getAllWishlist, removeFromWishlist,  clearWishlist } = require("../Handler/wishlistHandler.js");
+const authMiddlewareNew = require("../middleware/authMiddlewareNew.js");
 
 // router.post("/", authMiddleware, createOrder);
 router.post("/", authMiddleware, addNewOrder);
@@ -60,4 +61,14 @@ router.get('/all/wish-list',authMiddleware,getAllWishlist) // for array of produ
 // router.get('/all/wish-list/products',authMiddleware,getWishlistProductDetail) // for full products
 router.delete('/wish-list/remove/:productId',authMiddleware,removeFromWishlist)
 router.delete('/wish-list/clear',authMiddleware,clearWishlist)
+
+
+// for Next js
+router.get("/all/new", authMiddlewareNew, getAllOrders);
+router.post('/add-to-wishlist-new/:productId',authMiddlewareNew,addToWishlist);
+router.get('/all/wish-list-new',authMiddlewareNew,getAllWishlist) // for array of product id's
+router.delete('/wish-list/remove-new/:productId',authMiddlewareNew,removeFromWishlist)
+router.delete('/wish-list-new/clear',authMiddlewareNew,clearWishlist)
+
+
 module.exports = router;

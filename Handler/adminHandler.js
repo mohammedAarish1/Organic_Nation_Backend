@@ -302,7 +302,6 @@ exports.getResources = async (req, res) => {
         return res.status(400).json({ error: "Invalid resource type" });
     }
   } catch (error) {
-    // console.log('eerr', error)
     res.status(500).send({ error: "Internal Server Error" });
   }
 };
@@ -1920,3 +1919,29 @@ exports.sendBulkEmail = async (req, res) => {
     });
   }
 };
+
+
+// foodsbay B2B queries form handling
+exports.handleb2bformSubmission=async(req,res)=>{
+  try {
+const data=req.body;
+  const result=  await sendEmail(
+            "aarish.foodsbay@gmail.com",
+            "Foodsbay Query",
+            "foodsbayQuery",
+            {
+              name:data.name.toUpperCase(),
+              company:data.company|| 'NA',
+              phoneNumber:data.phone,
+              email:data.email || 'NA',
+              businessType:data.business || 'NA',
+              products:data.products || 'NA',
+              message:data.message,
+              // Add more template variables as needed
+            },
+          );
+          res.status(200).json({success:true})
+  } catch (error) {
+    throw error
+  }
+}

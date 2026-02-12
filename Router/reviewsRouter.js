@@ -34,11 +34,15 @@ const {
     getAverageRating,
     getSingleProductReviews
 } = require("../Handler/reviewsHandler.js");
+const authMiddlewareNew = require("../middleware/authMiddlewareNew.js");
 
 router.post("/", authMiddleware,upload, addReview);
 router.get("/", getAllReviews);
 router.get("/average/:productName", getAverageRating);
 router.get("/:productName", getSingleProductReviews);
+
+// for Next JS
+router.post("/add/new/review", authMiddlewareNew,upload, addReview);
 
 
 module.exports = router;

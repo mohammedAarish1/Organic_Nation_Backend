@@ -24,7 +24,7 @@ exports.addToWishlist = async (req, res) => {
 };
 
 exports.getAllWishlist = async (req, res) => {
-  try {
+  try { 
     const user = await User.findById(req.user._id).populate({
       path: "wishlist",
       select: "name img price discount weight name-url category-url",

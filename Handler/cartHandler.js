@@ -518,7 +518,6 @@ exports.handleCartMerge = async (req, res) => {
 // for Next JS
 exports.handleCartMergeNew = async (req, res) => {
   try {
-    // console.log(req.body);
     const { cart } = req.body;
     const user = await User.findById(req.user.id);
     if (!user) {

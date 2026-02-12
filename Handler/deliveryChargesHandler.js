@@ -62,7 +62,6 @@ const { extractWeight } = require('../utility/helper');
 exports.calculateDeliveryCharges = async (req, res) => {
     try {
         const { pinCode } = req.body;
-
         const user = req.user
 
         if (!user) {
@@ -139,7 +138,6 @@ exports.calculateCODCharges = async (req, res) => {
             return res.status(401).json({ error: 'Unauthorized' })
         }
 
-
         let totalGrossWeight = 0;
 
         for (let product of cartItemsList) {
@@ -164,6 +162,40 @@ exports.calculateCODCharges = async (req, res) => {
         });
 
         res.status(200).json({ codCharge: codCharges.Rate });
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+}
+
+// for Next JS
+exports.calculateCODChargesNew = async (req, res) => {
+    try {
+        // const { cartItemsList } = req.body;
+        const user = req.user
+        if (!user) {
+            return res.status(401).json({ error: 'Unauthorized' })
+        }
+
+        let totalGrossWeight = 0;
+
+       for (const item of user.cart.items) {
+            // Step 3: Get product details
+            const product = await Products.findOne({ 'name-url': item.productName });
+
+            if (product && product.grossWeight) {
+                const quantity = item.quantity
+                const grossWeight = extractWeight(product.grossWeight); // Ensure grossWeight is a number
+
+                // Step 4: Calculate weight for this item
+                totalGrossWeight += grossWeight * quantity;
+            }
+        }
+        const codChargesList = await CourierRate.findOne({ Classification: 'COD' })
+        const codCharges = codChargesList.CourierCharges.find(charge => {
+            const chargeWeight = extractWeight(charge.Weight)
+            return totalGrossWeight <= chargeWeight;
+        });
+        res.json({ codCharge: codCharges.Rate });
     } catch (error) {
         res.status(500).json({ error: 'Server error' });
     }
