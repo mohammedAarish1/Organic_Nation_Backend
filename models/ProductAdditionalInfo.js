@@ -44,7 +44,7 @@ const productAdditionalInfoSchema = new mongoose.Schema({
     type: [String],
   },
    video: {
-    type: String,
+    type: [String],
   },
   otherReviews:[{
     platform:{type:String},

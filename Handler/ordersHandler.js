@@ -750,7 +750,7 @@ exports.handleReturnItems = async (req, res) => {
 
     await Promise.all([returnItem.save(), order.save()]);
 
-    res.status(201).json({ message: "Return item created successfully" });
+    res.status(201).json({ message: "Return item created successfully" ,success:true});
   } catch (error) {
     console.error("Error creating return item:", error);
     res
