@@ -656,9 +656,8 @@ exports.handleReturnItems = async (req, res) => {
       // Validate if the new total return quantity exceeds the ordered quantity
       if (newReturnedQuantity > orderedQuantity) {
         return res.status(400).json({
-          message: `Cannot return more items than ordered. Ordered: ${orderedQuantity}, Already returned: ${currentReturnedQuantity}, Attempting to return: ${Number(
-            quantity,
-          )}`,
+          success:false,
+          message: `Cannot return more items than ordered. Ordered: ${orderedQuantity}, Already returned: ${currentReturnedQuantity} Qty`,
         });
       }
 

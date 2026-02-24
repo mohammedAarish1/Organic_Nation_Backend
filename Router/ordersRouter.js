@@ -64,7 +64,7 @@ router.delete('/wish-list/clear',authMiddleware,clearWishlist)
 
 
 // for Next js
-router.get("/all/new", authMiddlewareNew, getAllOrders);
+// router.get("/all/new", authMiddlewareNew, getAllOrders);
 router.post('/add-to-wishlist-new/:productId',authMiddlewareNew,addToWishlist);
 router.get('/all/wish-list-new',authMiddlewareNew,getAllWishlist) // for array of product id's
 router.delete('/wish-list/remove-new/:productId',authMiddlewareNew,removeFromWishlist)

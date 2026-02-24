@@ -15,6 +15,8 @@ const Coupon = require("../models/Coupon.js");
 
 const merchantId = process.env.PHONEPE_MERCHANT_ID;
 const salt_key = process.env.PHONEPE_SALT_KEY;
+// const FRONTEND_URL=process.env.FRONTEND_URL;
+const FRONTEND_URL="https://www.organicnation.co.in"
 
 exports.updateMerchantTransactionId = async (req, res) => {
   try {
@@ -214,7 +216,7 @@ exports.checkPaymentStatus = async (req, res) => {
   const merchantTransactionId = req.query.id;
   if (!merchantTransactionId) {
     return res.redirect(
-      `${process.env.FRONTEND_URL}/order-status?error=TransactionIdMissing`
+      `${FRONTEND_URL}/order-status?error=TransactionIdMissing`
     );
   }
 
@@ -247,7 +249,7 @@ exports.checkPaymentStatus = async (req, res) => {
     });
     if (!order) {
       return res.redirect(
-        `${process.env.FRONTEND_URL}/order-status?error=OrderNotFound`
+        `${FRONTEND_URL}/order-status?error=OrderNotFound`
       );
     }
 
@@ -281,7 +283,7 @@ exports.checkPaymentStatus = async (req, res) => {
 
       await order.save(); // Save the updated order
       // const url = `${process.env.FRONTEND_URL}/order-status?status=confirmed&orderId=${orderId}`;
-      const url = `${process.env.FRONTEND_URL}/order-status?status=confirmed`;
+      const url = `${FRONTEND_URL}/order-status?status=confirmed`;
 
       // get the user
       const user = await User.findOne({ phoneNumber: order.phoneNumber });
@@ -401,13 +403,13 @@ exports.checkPaymentStatus = async (req, res) => {
 
       return res.redirect(url);
     } else {
-      const url = `${process.env.FRONTEND_URL}/order-status?status=failure&retryToken=${token}`;
+      const url = `${FRONTEND_URL}/order-status?status=failure&retryToken=${token}`;
       return res.redirect(url);
     }
   } catch (error) {
     console.log("payment status tracking error:", error);
     return res.redirect(
-      `${process.env.FRONTEND_URL}/order-status?error=InternalServerError`
+      `${FRONTEND_URL}/order-status?error=InternalServerError`
     );
   }
 };

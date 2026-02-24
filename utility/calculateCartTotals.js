@@ -255,13 +255,13 @@ const calculateTotals = async (cartItems) => {
   for (const product of cartItems) {
     try {
       let discount = product.discount;
-      if (product.category === "Organic Honey" && totalHoneyQty >= 2) {
-        discount = 40;
-        offerDiscount = {
-          category: product.category,
-          discountPercentage: discount,
-        };
-      }
+      // if (product.category === "Organic Honey" && totalHoneyQty >= 2) {
+      //   discount = 40;
+      //   offerDiscount = {
+      //     category: product.category,
+      //     discountPercentage: discount,
+      //   };
+      // }
 
       const itemMRP = product.price * product.quantity;
       totalMRP += itemMRP;

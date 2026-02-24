@@ -45,7 +45,7 @@ exports.saveContactedUser = async (req, res) => {
             }
         );
 
-        res.status(201).json({ message: 'Contact Details submitted successfully' });
+        res.status(201).json({success:true, message: 'Contact Details submitted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error submitting contact form' });
     }
