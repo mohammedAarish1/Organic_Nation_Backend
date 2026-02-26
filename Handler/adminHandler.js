@@ -1926,7 +1926,7 @@ exports.handleb2bformSubmission=async(req,res)=>{
   try {
 const data=req.body;
   const result=  await sendEmail(
-            "aarish.foodsbay@gmail.com",
+            "info@foodsbay.com",
             "Foodsbay Query",
             "foodsbayQuery",
             {

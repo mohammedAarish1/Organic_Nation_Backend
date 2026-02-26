@@ -3,7 +3,7 @@ const router = express.Router();
 const {
   getCategories,
   getProductsByCategory,
-  getProduct,
+  // getProduct,
   allProducts,
   getSingleProductAllInfo
 } = require("../Handler/categoryHandler.js");
@@ -11,7 +11,7 @@ const {
 // Define the route for getting products by category
 router.get("/", allProducts);
 router.get("/:category", getProductsByCategory);
-router.get("/:category/:product", getProduct);
+// router.get("/:category/:product", getProduct);
 router.get("/product/details/:name", getSingleProductAllInfo);
 router.get("/all/categories/list", getCategories);
 
