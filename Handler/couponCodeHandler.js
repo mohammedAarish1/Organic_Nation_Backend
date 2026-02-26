@@ -89,7 +89,7 @@ exports.applyFamilyCouponCode = async (req, res) => {
 
       const basePrice = product.price * item.quantity;
 
-      return Math.round(total + basePrice)
+      return Math.round(total + basePrice);
 
     }, 0);
 
