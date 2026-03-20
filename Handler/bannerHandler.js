@@ -92,7 +92,6 @@ exports.getAllMainBanners = async (req, res) => {
 //             // banner: newBanner
 //         });
 //     } catch (err) {
-//         console.log('err', err)
 //         res.status(500).json({
 //             success: false,
 //             message: 'An error occurred while creating the banner',

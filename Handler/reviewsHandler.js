@@ -133,7 +133,6 @@ exports.getAverageRating = async (req, res) => {
 // @desc    Get all reviews for a particular product
 exports.getSingleProductReviews = async (req, res) => {
   const productName = req.params.productName;
-
   try {
     const reviews = await Review.find({ productName });
     if (reviews.length === 0) {
@@ -142,14 +141,26 @@ exports.getSingleProductReviews = async (req, res) => {
 
 
      let averageRating;
-    if (reviews.length > 0) {
+
+       if (reviews.length > 0) {
       // calculate the average rating of the product
-      const totalRating = reviews.reduce(
-        (acc, review) => acc + review.rating,
-        0
-      );
-      averageRating = Number((totalRating / reviews.length).toFixed(1));
+      const totalRating = reviews.reduce((acc, review) => {
+        if (typeof review.rating === "number") {
+          return acc + review.rating;
+        }
+        return acc;
+      },0);
+      averageRating = Number((totalRating / reviews.filter(r=>r.rating).length).toFixed(1));
     }
+
+    // if (reviews.length > 0) {
+    //   // calculate the average rating of the product
+    //   const totalRating = reviews.reduce(
+    //     (acc, review) => acc + review.rating,
+    //     0
+    //   );
+    //   averageRating = Number((totalRating / reviews.length).toFixed(1));
+    // }
  const productInfo = await ProductAdditionalInfo.findOne({
       "name-url": productName,
     });

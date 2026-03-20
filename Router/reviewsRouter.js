@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const passport = require('passport');
 const multer = require('multer');
 
 // const requireAuth = passport.authenticate('jwt', { session: false });
@@ -34,7 +33,7 @@ const {
     getAverageRating,
     getSingleProductReviews
 } = require("../Handler/reviewsHandler.js");
-const authMiddlewareNew = require("../middleware/authMiddlewareNew.js");
+// const authMiddlewareNew = require("../middleware/authMiddlewareNew.js");
 
 router.post("/", authMiddleware,upload, addReview);
 router.get("/", getAllReviews);
@@ -42,7 +41,7 @@ router.get("/average/:productName", getAverageRating);
 router.get("/:productName", getSingleProductReviews);
 
 // for Next JS
-router.post("/add/new/review", authMiddlewareNew,upload, addReview);
+// router.post("/add/new/review", authMiddlewareNew,upload, addReview);
 
 
 module.exports = router;

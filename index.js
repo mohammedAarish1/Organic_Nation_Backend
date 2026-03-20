@@ -31,12 +31,17 @@ app.set('trust proxy', 1) // for handling the 'X-Forwarded-For' error because of
 
 
 // Parse the comma-separated domains from environment variable
-const allowedOrigins = process.env.FRONTEND_URL 
-  ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
-  : ['https://organicnation.co.in'];
+// const allowedOrigins = process.env.FRONTEND_URL 
+//   ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+//   : ['https://organicnation.co.in'];
 
 app.use(cors({
-  origin: allowedOrigins, // Now it's an array of allowed origins
+  // origin: allowedOrigins, // Now it's an array of allowed origins
+  origin: [
+    process.env.FRONTEND_URL,
+    process.env.ADMIN_URL,
+    process.env.FOODSBAY_URL
+  ], 
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization', 'CSRF-Token']
 }));

@@ -20,13 +20,26 @@ const getProductWithReviews = async (products) => {
       let averageRating = 0;
       let totalReviews = reviews.length;
 
-      if (totalReviews > 0) {
-        const totalRating = reviews.reduce(
-          (acc, review) => acc + review.rating,
-          0,
+      if (reviews.length > 0) {
+        // calculate the average rating of the product
+        const totalRating = reviews.reduce((acc, review) => {
+          if (typeof review.rating === "number") {
+            return acc + review.rating;
+          }
+          return acc;
+        }, 0);
+        averageRating = Number(
+          (totalRating / reviews.filter((r) => r.rating).length).toFixed(1),
         );
-        averageRating = (totalRating / totalReviews).toFixed(1);
       }
+
+      // if (totalReviews > 0) {
+      //   const totalRating = reviews.reduce(
+      //     (acc, review) => acc + review.rating,
+      //     0,
+      //   );
+      //   averageRating = (totalRating / totalReviews).toFixed(1);
+      // }
 
       return {
         ...productObj,
@@ -222,8 +235,10 @@ exports.getSingleProductAllInfo = async (req, res) => {
           return acc + review.rating;
         }
         return acc;
-      },0);
-      averageRating = Number((totalRating / reviews.filter(r=>r.rating).length).toFixed(1));
+      }, 0);
+      averageRating = Number(
+        (totalRating / reviews.filter((r) => r.rating).length).toFixed(1),
+      );
     }
 
     // const productInfo = await ProductInfo.findOne({ "name-url": name });

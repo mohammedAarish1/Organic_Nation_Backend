@@ -260,7 +260,7 @@ exports.getResources = async (req, res) => {
       case "products":
         const products = await Products.find().lean();
         if (products.length === 0) {
-          res
+        return  res
             .status(400)
             .json({ message: "No products found in the database" });
         }
@@ -268,7 +268,7 @@ exports.getResources = async (req, res) => {
       case "orders":
         const orders = await Order.find().lean();
         if (orders.length === 0) {
-          res
+        return  res
             .status(400)
             .json({ message: "No products found in the database" });
         }
@@ -276,7 +276,7 @@ exports.getResources = async (req, res) => {
       case "users":
         const users = await User.find().lean();
         if (users.length === 0) {
-          res
+        return  res
             .status(400)
             .json({ message: "No products found in the database" });
         }
@@ -284,7 +284,7 @@ exports.getResources = async (req, res) => {
       case "queries":
         const queries = await ContactedUser.find().lean();
         if (queries.length === 0) {
-          res
+       return  res
             .status(400)
             .json({ message: "No products found in the database" });
         }
@@ -292,7 +292,7 @@ exports.getResources = async (req, res) => {
       case "returns":
         const returns = await ReturnItem.find().lean();
         if (returns.length === 0) {
-          res
+        return  res
             .status(400)
             .json({ message: "No products found in the database" });
         }
@@ -801,99 +801,6 @@ exports.deleteDocument = async (req, res) => {
   }
 };
 
-// generate sale report (old)
-
-// exports.generateSalesReport = async (req, res) => {
-//     try {
-//         const { startDate, endDate } = req.body;
-
-//         // Validate date inputs
-//         const start = new Date(startDate);
-//         const end = new Date(endDate);
-
-//         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-//             return res.status(400).json({ message: 'Invalid date format. Please use YYYY-MM-DD format.' });
-//         }
-
-//         // Set the time to the start and end of the day
-//         start.setHours(0, 0, 0, 0);
-//         end.setHours(23, 59, 59, 999);
-
-//         // Fetch orders within the date range
-//         // Fetch orders within the date range
-//         const orders = await Order.find({
-//             createdAt: { $gte: start, $lte: end }
-//         }).populate('user');
-
-//         const workbook = new ExcelJS.Workbook();
-//         const worksheet = workbook.addWorksheet('Order Report');
-
-//         // Add headers
-//         worksheet.addRow([
-//             'Invoice Number', 'Invoice Date', 'Order Status', 'Order Id', 'Order Date',
-//             'Item Description', 'Item Returned', 'HSN', 'MRP', 'Discount %', 'Discount Amount',
-//             'Price After Discount', 'Quantity', 'Sub Total', 'Shipping Charges',
-//             'Invoice Amount', 'Tax Exclusive Gross', 'Total Tax Amount',
-//             'Cgst Rate', 'Sgst Rate', 'Utgst Rate', 'Igst Rate',
-//             'Cgst Tax', 'Sgst Tax', 'Igst Tax',
-//             'Bill From City', 'Bill From State', 'Bill From Country', 'Bill From Postal Code',
-//             'Ship From City', 'Ship From State', 'Ship From Country', 'Ship From Postal Code',
-//             'Ship To City', 'Ship To State', 'Ship To Country', 'Ship To Postal Code',
-//             'Payment Method', 'Bill To City', 'Bill To State', 'Bill To Country', 'Bill To Postalcode',
-//             'Buyer Name'
-//         ]);
-
-//         for (const order of orders) {
-//             const invoiceDate = new Date(order.createdAt).toLocaleDateString('en-GB');
-//             const totalOfMrp = order.orderDetails.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
-//             const discountPercentage = Math.round(((totalOfMrp - order.subTotal) / totalOfMrp) * 100);
-
-//             for (const item of order.orderDetails) {
-//                 const discountAmount = Math.round(((item.unitPrice * discountPercentage) / 100) * 100) / 100;
-//                 const priceAfterDiscount = Math.round((item.unitPrice - discountAmount) * 100) / 100;
-//                 const subTotal = Math.round((priceAfterDiscount * item.quantity) * 100) / 100;
-//                 const invoiceAmount = subTotal + order.shippingFee;
-//                 const taxExclusiveGross = Math.round(((invoiceAmount * 100) / (100 + item.tax)) * 100) / 100;
-//                 const totalTaxAmount = Math.round((taxExclusiveGross * (item.tax / 100)) * 100) / 100;
-
-//                 let cgstRate = 0, sgstRate = 0, igstRate = 0;
-//                 if (order.shippingAddress.state.toLowerCase() === 'uttar pradesh' || order.billingAddress.state.toLowerCase() === 'uttar pradesh') {
-//                     cgstRate = sgstRate = item.tax / 2;
-//                 } else {
-//                     igstRate = item.tax;
-//                 }
-
-//                 const buyer = await User.findOne({ email: order.userEmail.toLowerCase() });
-
-//                 worksheet.addRow([
-//                     order.invoiceNumber, invoiceDate, order.orderStatus, order._id.toString(), invoiceDate,
-//                     item['name-url'], item.returnInfo.isItemReturned ? 'Yes' : 'No', item.hsnCode, item.unitPrice, discountPercentage, discountAmount,
-//                     priceAfterDiscount, item.quantity, subTotal, order.shippingFee,
-//                     invoiceAmount, taxExclusiveGross, totalTaxAmount,
-//                     cgstRate, sgstRate, 0, igstRate,
-//                     cgstRate ? Math.round((totalTaxAmount / 2) * 100) / 100 : 0, sgstRate ? Math.round((totalTaxAmount / 2) * 100) / 100 : 0, igstRate ? Math.round(totalTaxAmount * 100) / 100 : 0,
-//                     'Noida', 'UTTAR PRADESH', 'IN', '201301',
-//                     'NOIDA', 'UTTAR PRADESH', 'IN', '201301',
-//                     order.shippingAddress?.city || '', order.shippingAddress?.state || '', 'IN', order.shippingAddress?.pinCode || '',
-//                     order.paymentMethod,
-//                     order.billingAddress.city || '', order.billingAddress.state || '', 'IN', order.billingAddress?.pinCode || '',
-//                     buyer ? buyer.firstName + ' ' + buyer.lastName : ''
-//                 ]);
-//             }
-//         }
-
-//         // Generate Excel file
-//         const buffer = await workbook.xlsx.writeBuffer();
-
-//         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-//         res.setHeader('Content-Disposition', 'attachment; filename=OrderReport.xlsx');
-//         res.send(buffer);
-
-//     } catch (error) {
-//         console.error('Error generating report:', error);
-//         res.status(500).json({ message: 'Error generating report', error: error.message });
-//     }
-// }
 
 // generate sale report (new)
 exports.generateSalesReport = async (req, res) => {
@@ -1179,127 +1086,7 @@ exports.generateUsersReport = async (req, res) => {
 
 // }
 
-// edit or modify the existing product data
-// exports.updateProductData = async (req, res) => {
-//     // Start mongoose session for transaction
-//     const session = await mongoose.startSession();
-//     session.startTransaction();
 
-//     try {
-//         const productId = req.params.id;
-//         const updateData = req.body;
-
-//         // Validate productId
-//         if (!mongoose.Types.ObjectId.isValid(productId)) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: 'Invalid product ID format'
-//             });
-//         }
-
-//         // Find the existing product
-//         const existingProduct = await Products.findById(productId).session(session);
-//         if (!existingProduct) {
-//             await session.abortTransaction();
-//             return res.status(404).json({
-//                 success: false,
-//                 message: 'Product not found'
-//             });
-//         }
-
-//         let newImageUrls = [];
-//         // Handle image uploads if there are any new images
-//         if (req.files?.length > 0) {
-//             try {
-//                 const uploadPromises = req.files.map(file => uploadToS3(file, updateData.name || existingProduct.name));
-//                 const uploadResults = await Promise.all(uploadPromises);
-//                 newImageUrls = uploadResults;
-//             } catch (uploadError) {
-//                 await session.abortTransaction();
-//                 throw new Error('Image upload failed: ' + uploadError.message);
-//             }
-//         }
-
-//         // Prepare the update object with type checking and validation
-//         const productUpdate = {
-//             name: updateData.name?.trim(),
-//             'name-url': updateData.name?.trim().replace(/\s+/g, '-'),
-//             weight: updateData.weight?.trim(),
-//             price: parseFloat(updateData.price) || existingProduct.price,
-//             discount: parseFloat(updateData.discount) || existingProduct.discount,
-//             tax: parseFloat(updateData.tax) || existingProduct.tax,
-//             'hsn-code': updateData.hsnCode?.trim(),
-//             category: updateData.category?.trim(),
-//             'category-url': updateData.category?.trim().replace(/\s+/g, '-'),
-//             description: updateData.description?.trim(),
-//             availability: updateData.availability || existingProduct.availability,
-//             // img: [...(updateData.deleteImages ? [] : existingProduct.img), ...newImageUrls],
-//             img: [...existingProduct.img, ...newImageUrls],
-//             meta: {
-//                 buy: parseInt(updateData.buy) || 0,
-//                 get: parseInt(updateData.get) || 0,
-//                 season_special: updateData.season_special === 'true' || updateData.season_special === true,
-//                 new_arrivals: updateData.new_arrivals === 'true' || updateData.new_arrivals === true,
-//                 best_seller: updateData.best_seller === 'true' || updateData.best_seller === true,
-//                 deal_of_the_day: updateData.deal_of_the_day === 'true' || updateData.deal_of_the_day === true
-//             }
-//         };
-
-//         // If deleteImages is true, delete old images from S3
-//         //   if (updateData.deleteImages === 'true' && existingProduct.img.length > 0) {
-//         //     try {
-//         //       const deletePromises = existingProduct.img.map(imageUrl => deleteFromS3(imageUrl));
-//         //       await Promise.all(deletePromises);
-//         //     } catch (deleteError) {
-//         //       await session.abortTransaction();
-//         //       throw new Error('Failed to delete old images: ' + deleteError.message);
-//         //     }
-//         //   }
-
-//         // Update the product with optimistic concurrency control
-//         const updatedProduct = await Products.findOneAndUpdate(
-//             {
-//                 _id: productId,
-//                 updatedAt: existingProduct.updatedAt // Ensure no concurrent updates
-//             },
-//             productUpdate,
-//             {
-//                 new: true,
-//                 runValidators: true,
-//                 session
-//             }
-//         );
-
-//         if (!updatedProduct) {
-//             await session.abortTransaction();
-//             return res.status(409).json({
-//                 success: false,
-//                 message: 'Product was updated by another request. Please refresh and try again.'
-//             });
-//         }
-
-//         // Commit the transaction
-//         await session.commitTransaction();
-
-//         res.json({
-//             success: true,
-//             message: 'Product updated successfully',
-//             product: updatedProduct
-//         });
-
-//     } catch (error) {
-//         await session.abortTransaction();
-
-//         console.error('Error updating product:', error);
-//         res.status(500).json({
-//             success: false,
-//             message: 'Error updating product',
-//             error: error.message
-//         });
-//     } finally {
-//         session.endSession();
-//     }
-// }
 
 // route for updating product data
 exports.updateProductData = async (req, res) => {
@@ -1921,7 +1708,7 @@ exports.sendBulkEmail = async (req, res) => {
 };
 
 
-// foodsbay B2B queries form handling
+// ================================== foodsbay B2B queries form handling ==========================
 exports.handleb2bformSubmission=async(req,res)=>{
   try {
 const data=req.body;
