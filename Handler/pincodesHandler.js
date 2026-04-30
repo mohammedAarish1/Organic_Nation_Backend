@@ -27,4 +27,4 @@ exports.checkDeliveryAvailability = async (req, res) => {
             error: 'An error occurred while checking availability.'
         });
     }
-}
+};
