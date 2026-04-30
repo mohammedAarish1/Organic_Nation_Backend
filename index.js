@@ -40,7 +40,9 @@ app.use(cors({
   origin: [
     process.env.FRONTEND_URL,
     process.env.ADMIN_URL,
-    process.env.FOODSBAY_URL
+    process.env.FOODSBAY_URL,
+    "https://organic-nation-frontend-nex-git-9e4c4c-organic-nations-projects.vercel.app/",
+    "https://organic-nation-frontend-next-5mihhtkex-organic-nations-projects.vercel.app/"
   ], 
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization', 'CSRF-Token']

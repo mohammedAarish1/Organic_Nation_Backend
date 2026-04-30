@@ -60,22 +60,22 @@ exports.applyFamilyCouponCode = async (req, res) => {
   try {
     const coupon = await Coupon.findOne({ code: couponCode });
     if (!coupon) {
-      return res.status(400).json({ error: "Invalid coupon code" });
+      return res.status(400).json({success:false, error: "Invalid coupon code" });
     }
 
     if (!phoneNumber) {
-      return res.status(400).json({ error: "Please log in to apply this coupon code" });
+      return res.status(400).json({success:false, error: "Please log in to apply this coupon code" });
     }
 
     // 1. Find user
     const user = await User.findOne({ phoneNumber, });
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({success:false, error: "User not found" });
     }
 
     // check user's cart if they added anything
     if (user.cart.items.length === 0) {
-      return res.status(400).json({ error: "Your cart is empty" });
+      return res.status(400).json({success:false, error: "Your cart is empty" });
     }
 
     // 3. Retrieve products
@@ -97,12 +97,12 @@ exports.applyFamilyCouponCode = async (req, res) => {
 
     // check if totalcartamount is above 1000
     if (productMRPTotal < 1000) {
-      return res.status(400).json({ error: "Please add products worth ₹1000 or more" })
+      return res.status(400).json({success:false, error: "Please add products worth ₹1000 or more" })
     }
 
 
     if (user.cart.couponCodeApplied.length !== 0) {
-      return res.status(404).json({ error: "Not Applicable" });
+      return res.status(404).json({success:false, error: "Not Applicable" });
     }
 
 
@@ -115,12 +115,12 @@ exports.applyFamilyCouponCode = async (req, res) => {
     // 2. Validate coupon 
     const validCoupon = coupon.code;
     if (validCoupon !== couponCode) {
-      return res.status(400).json({ error: "Invalid coupon code" });
+      return res.status(400).json({success:false, error: "Invalid coupon code" });
     }
 
     for (const item of user.cart.items) {
       if (item.productName.toLowerCase().includes('combo')) {
-        return res.status(400).json({ error: "Coupon not applicable on combo products" });
+        return res.status(400).json({success:false, error: "Coupon not applicable on combo products" });
       }
     }
 
@@ -165,15 +165,16 @@ exports.applyFamilyCouponCode = async (req, res) => {
 
     // 6. Update user's cart
     // user.cart.items = updatedItems;
-    // user.cart.totalCartAmount = Math.round(subtotalIncludingTax);
-    // user.cart.totalTaxes = Math.round(totalTax);
-    // user.cart.couponCodeApplied.push(couponCodeInfo);
+    user.cart.totalCartAmount = Math.round(subtotalIncludingTax);
+    user.cart.totalTaxes = Math.round(totalTax);
+    user.cart.couponCodeApplied.push(couponCodeInfo);
 
     await user.save();
 
     // 8. Prepare response
 
     const response = {
+      success:true,
       message: "Coupon Code Applied Successfully",
       couponCodeApplied: [couponCodeInfo],
       totalCartAmount: Math.round(subtotalIncludingTax),

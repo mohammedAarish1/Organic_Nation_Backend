@@ -15,8 +15,8 @@ const Coupon = require("../models/Coupon.js");
 
 const merchantId = process.env.PHONEPE_MERCHANT_ID;
 const salt_key = process.env.PHONEPE_SALT_KEY;
-// const FRONTEND_URL=process.env.FRONTEND_URL;
-const FRONTEND_URL="https://www.organicnation.co.in"
+const FRONTEND_URL=process.env.FRONTEND_URL;
+// const FRONTEND_URL = "https://www.organicnation.co.in";
 
 exports.updateMerchantTransactionId = async (req, res) => {
   try {
@@ -37,11 +37,11 @@ exports.updateMerchantTransactionId = async (req, res) => {
         message: "Order not found",
       });
     }
-    order.merchantTransactionId=newMerchantTransactionId
+    order.merchantTransactionId = newMerchantTransactionId;
     order.save();
-    res.status(200).json({success:true})
+    res.status(200).json({ success: true });
   } catch (error) {
-     res.status(500).send({
+    res.status(500).send({
       message: error.message,
       success: false,
     });
@@ -66,6 +66,14 @@ exports.getPaymentDone = async (req, res) => {
           amount: decoded.amount,
           merchantTransactionId: newMerchantTransactionId,
         };
+
+        const order = await Order.findOne({
+          merchantTransactionId: decoded.merchantTransactionId,
+        });
+        if (order) {
+          order.merchantTransactionId = newMerchantTransactionId;
+          order.save();
+        }
       } catch (error) {
         console.error("Invalid retry token:", error);
         return res.status(400).json({
@@ -216,7 +224,7 @@ exports.checkPaymentStatus = async (req, res) => {
   const merchantTransactionId = req.query.id;
   if (!merchantTransactionId) {
     return res.redirect(
-      `${FRONTEND_URL}/order-status?error=TransactionIdMissing`
+      `${FRONTEND_URL}/order-status?error=TransactionIdMissing`,
     );
   }
 
@@ -248,9 +256,7 @@ exports.checkPaymentStatus = async (req, res) => {
       merchantTransactionId: merchantTransactionId,
     });
     if (!order) {
-      return res.redirect(
-        `${FRONTEND_URL}/order-status?error=OrderNotFound`
-      );
+      return res.redirect(`${FRONTEND_URL}/order-status?error=OrderNotFound`);
     }
 
     // Generate JWT token with payment details
@@ -261,7 +267,7 @@ exports.checkPaymentStatus = async (req, res) => {
         merchantTransactionId: order.merchantTransactionId,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1h" },
     );
 
     const response = await axios.request(options);
@@ -315,7 +321,7 @@ exports.checkPaymentStatus = async (req, res) => {
           const couponDetails = await Coupon.findById(coupon.id);
           if (couponDetails.type === "referral") {
             const referralCoupon = user?.referralCoupons.find(
-              (rc) => rc.couponId.toString() === couponDetails._id.toString()
+              (rc) => rc.couponId.toString() === couponDetails._id.toString(),
             );
 
             if (referralCoupon) {
@@ -354,7 +360,7 @@ exports.checkPaymentStatus = async (req, res) => {
       const result = await sendOrderConfirmationMsg(
         customerName,
         totalAmount,
-        order.phoneNumber
+        order.phoneNumber,
       );
 
       //  Send order confirmation email
@@ -367,7 +373,7 @@ exports.checkPaymentStatus = async (req, res) => {
           customerName,
           totalAmount,
           // Add more template variables as needed
-        }
+        },
       );
 
       //  Send order receiving email to sales.foodsbay@gmail.com
@@ -389,7 +395,7 @@ exports.checkPaymentStatus = async (req, res) => {
                   item.quantity
                 }, Weight: ${
                   item.weight
-                }, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`
+                }, Unit Price: ₹${item.unitPrice.toFixed(2)}, Tax: ₹${item.tax}`,
             )
             .join(", "),
           subTotal: order.subTotal,
@@ -398,7 +404,7 @@ exports.checkPaymentStatus = async (req, res) => {
           paymentMethod: order.paymentMethod,
           paymentStatus: order.paymentStatus,
           // Add more template variables as needed
-        }
+        },
       );
 
       return res.redirect(url);
@@ -409,7 +415,7 @@ exports.checkPaymentStatus = async (req, res) => {
   } catch (error) {
     console.log("payment status tracking error:", error);
     return res.redirect(
-      `${FRONTEND_URL}/order-status?error=InternalServerError`
+      `${FRONTEND_URL}/order-status?error=InternalServerError`,
     );
   }
 };

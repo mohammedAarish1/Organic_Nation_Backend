@@ -237,7 +237,8 @@
 // module.exports = { calculateTotals };
 
 // simple totals
-const calculateTotals = async (cartItems) => {
+const calculateTotals = async (cartDetails) => {
+  const {cartItems,prevTotalCartAmt,prevTotalTax,isCouponCodeApplied}=cartDetails;
   let totalMRP = 0;
   let totalCartAmount = 0;
   let totalDiscount = 0;
@@ -285,9 +286,9 @@ const calculateTotals = async (cartItems) => {
 
   return {
     totalMRP: Math.round(totalMRP), // Total MRP before any discounts
-    totalCartAmount: Math.round(totalCartAmount), // Total MRP before any discounts
-    totalTax: Math.round(totalTaxAmount),
-    discountAmount: Math.round(totalDiscount),
+    totalCartAmount:isCouponCodeApplied?prevTotalCartAmt: Math.round(totalCartAmount), // Total MRP before any discounts
+    totalTax:isCouponCodeApplied?prevTotalTax: Math.round(totalTaxAmount),
+    discountAmount: isCouponCodeApplied? Math.round(totalMRP-prevTotalCartAmt) : Math.round(totalDiscount),
     offerDiscount,
    
   };

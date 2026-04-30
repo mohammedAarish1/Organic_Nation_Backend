@@ -62,6 +62,7 @@ exports.sendOTP = async (req, res) => {
       .json({ success: false, message: "Phone number is required" });
   }
 
+  await OTP.deleteOne({ phoneNumber });
   const otp = generateOTP();
   await OTP.create({ phoneNumber, otp, createdAt: new Date() });
 

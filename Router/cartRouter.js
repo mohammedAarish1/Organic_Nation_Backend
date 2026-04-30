@@ -32,7 +32,7 @@ router.post("/merge", authMiddleware, handleCartMerge);
 // for Next JS
 router.get("/logged-in-user", authMiddlewareNew, getLoggedinUserCart);
 router.post("/add", authMiddlewareNew, addItemToCartNew);
-router.post("/merge-new", authMiddlewareNew, handleCartMergeNew);
+router.post("/merge-new", authMiddleware, handleCartMergeNew);
 router.put("/updateQuantity-new/:productName", authMiddlewareNew, updateQtyNew);
 router.delete("/remove/:productName", authMiddlewareNew, deleteSingleItemNew);
 

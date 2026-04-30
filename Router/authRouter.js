@@ -46,7 +46,7 @@ router.post("/user/logout", logout);
 router.post("/user/logout-new", logoutNew);
 router.get("/user", authMiddleware,getUser);
 // for NEXT JS
-router.get("/user-new", authMiddlewareNew,getUser);
+// router.get("/user-new", authMiddlewareNew,getUser);
 
 router.post("/user/exist", isReferralCodeExist);
 

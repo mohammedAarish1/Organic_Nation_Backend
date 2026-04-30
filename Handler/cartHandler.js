@@ -4,8 +4,6 @@ const Products = require("../models/Products.js");
 const { updateCouponStatus } = require("../utility/helper.js");
 const { calculateTotals } = require("../utility/calculateCartTotals.js");
 
-// Middleware to protect routes
-// const requireAuth = passport.authenticate('jwt', { session: false });
 
 // @route   GET /api/cart
 // @desc    Get user's cart
@@ -57,12 +55,25 @@ exports.getLoggedinUserCart = async (req, res) => {
     let totals;
     const productDetails = await getProductDetails(user.cart.items);
     if (productDetails.length > 0) {
-      totals = await calculateTotals(productDetails);
+      const cartDetails={
+        cartItems:productDetails,
+        prevTotalCartAmt:user.cart.totalCartAmount||0,
+        prevTotalTax:user.cart.totalTaxes,
+        isCouponCodeApplied:user.cart.couponCodeApplied.length>0
+      }
+      // totals = await calculateTotals(productDetails);
+      totals = await calculateTotals(cartDetails);
     }
+    if(user.cart.couponCodeApplied.length===0){
+      user.cart.totalCartAmount=totals?.totalCartAmount;
+      user.cart.totalTaxes=totals?.totalTax;
+    }
+
+    await user.save();
     // res.json(user.cart);
-    res.status(200).json({ productDetails, totals });
+    res.status(200).json({ productDetails, totals,couponCodeApplied:user.cart.couponCodeApplied });
   } catch (err) {
-    console.error("Error retrieving cart:", err.message);
+    console.error("Error retrieving carttt:", err.message);
     res.status(500).send("Server error");
   }
 };
@@ -93,7 +104,16 @@ exports.getCartDetails = async (req, res) => {
     }
 
     if (productDetails.length > 0) {
-      totals = await calculateTotals(productDetails);
+
+       const cartDetails={
+        cartItems:productDetails,
+        prevTotalCartAmt:0,
+        prevTotalTax:0,
+        isCouponCodeApplied:false
+      }
+
+
+      totals = await calculateTotals(cartDetails);
     }
 
     res.status(200).json({success:true, productDetails, totals });
@@ -203,6 +223,7 @@ exports.addItemToCart = async (req, res) => {
   }
 };
 
+// for NEXT JS
 exports.addItemToCartNew = async (req, res) => {
   const { productId, quantity, productName } = req.body;
   try {
@@ -222,7 +243,6 @@ exports.addItemToCartNew = async (req, res) => {
         couponCodeApplied: [],
       };
     }
-
     // Fetch product information
     const product = await Products.findOne({ "name-url": productName });
     if (!product) {
@@ -245,6 +265,7 @@ exports.addItemToCartNew = async (req, res) => {
         quantity,
       });
     }
+    user.cart.couponCodeApplied = [];
 
     // Save the updated user document
     await user.save();
@@ -358,7 +379,6 @@ exports.deleteSingleItemNew = async (req, res) => {
     }
 
     const productName = req.params.productName;
-    // console.log("productName re", productName);
     // Find the index of the item to be removed
     const itemIndex = user.cart.items.findIndex(
       (item) => item.productName === productName
@@ -369,6 +389,7 @@ exports.deleteSingleItemNew = async (req, res) => {
 
     // Remove the item from the cart
     user.cart.items.splice(itemIndex, 1);
+    user.cart.couponCodeApplied = [];
 
     // Save the updated user document
     await user.save();
@@ -452,7 +473,6 @@ exports.updateQty = async (req, res) => {
 };
 
 exports.updateQtyNew = async (req, res) => {
-  // console.log("update cart qty triggered");
   try {
     const { action } = req.body; // 'increase' or 'decrease'
     if (!["increase", "decrease"].includes(action)) {
@@ -464,7 +484,6 @@ exports.updateQtyNew = async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
-    // console.log("action", action);
     const productIndex = user.cart.items.findIndex(
       (item) => item.productName.toString() === req.params.productName
     );
@@ -483,6 +502,7 @@ exports.updateQtyNew = async (req, res) => {
         user.cart.items.splice(productIndex, 1);
       }
     }
+    user.cart.couponCodeApplied = [];
 
     // // Save the updated user document
     await user.save();

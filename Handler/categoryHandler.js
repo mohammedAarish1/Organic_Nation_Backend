@@ -187,27 +187,27 @@ exports.getProductsByCategory = async (req, res) => {
   }
 };
 
-// exports.getProduct = async (req, res) => {
-//   try {
-//     const product = req.params.product;
-//     // Using Mongoose to find a single product by name URL
-//     const singleProduct = await Products.findOne({ "name-url": product });
+exports.getProduct = async (req, res) => {
+  try {
+    const product = req.params.product;
+    // Using Mongoose to find a single product by name URL
+    const singleProduct = await Products.findOne({ "name-url": product });
 
-//     // Checking if product exists
-//     if (!singleProduct) {
-//       return res.status(404).json({ error: "Product not found" });
-//     }
+    // Checking if product exists
+    if (!singleProduct) {
+      return res.status(404).json({ error: "Product not found" });
+    }
 
-//     // const productAddInfo = await ProductAdditionalInfo.findOne({ "name-url": product });
+    // const productAddInfo = await ProductAdditionalInfo.findOne({ "name-url": product });
 
-//     // Sending response with the found product
-//     res.json({ product: singleProduct });
-//   } catch (error) {
-//     // Handling errors
-//     console.error("Error fetching product:", error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
+    // Sending response with the found product
+    res.json({ product: singleProduct });
+  } catch (error) {
+    // Handling errors
+    console.error("Error fetching product:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 exports.getSingleProductAllInfo = async (req, res) => {
   try {
