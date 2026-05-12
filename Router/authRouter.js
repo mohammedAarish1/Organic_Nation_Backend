@@ -7,8 +7,8 @@ const authMiddleware = require("../middleware/authMiddleware.js");
 
 
 const {
-    googleCallback,
-    collectPhoneAndPassword,
+    // googleCallback,
+    // collectPhoneAndPassword,
     getUserByEmail,
     //new 
     signup,
@@ -25,9 +25,9 @@ const authMiddlewareNew = require("../middleware/authMiddlewareNew.js");
 // Define the route for getting products by category
 // router.post("/signup", userSignup);
 router.get("/google", passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get("/google/callback", passport.authenticate('google', { failureRedirect: '/' }), googleCallback);
+// router.get("/google/callback", passport.authenticate('google', { failureRedirect: '/' }), googleCallback);
 // router.post("/google/phone", passport.authenticate('jwt', { session: false }), collectPhoneAndPassword);
-router.post("/google/phone",authMiddleware, collectPhoneAndPassword);
+// router.post("/google/phone",authMiddleware, collectPhoneAndPassword);
 // router.post("/login", userLogin);
 router.get("/user/:email", getUserByEmail);
 // router.get("/user", requireAuth, getUserByToken);

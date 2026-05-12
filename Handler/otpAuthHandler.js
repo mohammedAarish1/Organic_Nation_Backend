@@ -234,7 +234,8 @@ exports.verifyOTP = async (req, res) => {
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "none",
+        sameSite: "lax",
+         domain: ".organicnation.co.in", 
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
@@ -327,13 +328,15 @@ exports.verifyOTPNew = async (req, res) => {
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "none",
+        sameSite: "lax",
+         domain: ".organicnation.co.in", 
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "none",
+        sameSite: "lax",
+         domain: ".organicnation.co.in", 
         maxAge:  1 * 60 * 60 * 1000, // 7 days
       });
 

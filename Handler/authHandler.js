@@ -6,121 +6,121 @@ const { generateTokens, address } = require("../utility/helper");
 
 // @route   GET /api/auth/google/callback
 // @desc    Google auth callback
-exports.googleCallback = async (req, res) => {
-  try {
-    const user = req.user;
-    // Generate new tokens
-    const { accessToken, refreshToken } = generateTokens(user._id);
+// exports.googleCallback = async (req, res) => {
+//   try {
+//     const user = req.user;
+//     // Generate new tokens
+//     const { accessToken, refreshToken } = generateTokens(user._id);
 
-    // Update refresh token in database
-    user.refreshToken = refreshToken;
-    await user.save();
+//     // Update refresh token in database
+//     user.refreshToken = refreshToken;
+//     await user.save();
 
-    // Set refresh token in HTTP-only cookie
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      // secure: process.env.NODE_ENV === "production",
-      secure: true,
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+//     // Set refresh token in HTTP-only cookie
+//     res.cookie("refreshToken", refreshToken, {
+//       httpOnly: true,
+//       // secure: process.env.NODE_ENV === "production",
+//       secure: true,
+//       sameSite: "lax",
+//       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+//     });
 
-    // Prepare user data
-    const userData = {
-      id: user._id,
-      fullName: user.fullName,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
-      cart: user.cart,
-    };
+//     // Prepare user data
+//     const userData = {
+//       id: user._id,
+//       fullName: user.fullName,
+//       email: user.email,
+//       phoneNumber: user.phoneNumber,
+//       cart: user.cart,
+//     };
 
-    // Encode the data to be sent in the URL
-    const encodedData = encodeURIComponent(
-      JSON.stringify({
-        accessToken,
-        user: userData,
-      })
-    );
+//     // Encode the data to be sent in the URL
+//     const encodedData = encodeURIComponent(
+//       JSON.stringify({
+//         accessToken,
+//         user: userData,
+//       })
+//     );
 
-    // Check if the user is new (doesn't have a password set)
-    if (!user.password) {
-      // New user, redirect to collect phone number
-      res.redirect(
-        `${process.env.FRONTEND_URL
-        }/collect-phone-number?token=${encodeURIComponent(refreshToken)}`
-      );
-    } else {
-      // Existing user, redirect to home page
-      res.redirect(
-        `${process.env.FRONTEND_URL}/auth/google/login?data=${encodedData}`
-      );
-    }
-  } catch (error) {
-    console.error("Google callback error:", error);
-    res.redirect(
-      `${process.env.FRONTEND_URL}/register?error=Authentication failed`
-    );
-  }
-};
+//     // Check if the user is new (doesn't have a password set)
+//     if (!user.password) {
+//       // New user, redirect to collect phone number
+//       res.redirect(
+//         `${process.env.FRONTEND_URL
+//         }/collect-phone-number?token=${encodeURIComponent(refreshToken)}`
+//       );
+//     } else {
+//       // Existing user, redirect to home page
+//       res.redirect(
+//         `${process.env.FRONTEND_URL}/auth/google/login?data=${encodedData}`
+//       );
+//     }
+//   } catch (error) {
+//     console.error("Google callback error:", error);
+//     res.redirect(
+//       `${process.env.FRONTEND_URL}/register?error=Authentication failed`
+//     );
+//   }
+// };
 
 // @route   POST /api/auth/google/phone
 // @desc    Collect phone number and password after Google OAuth
-exports.collectPhoneAndPassword = async (req, res) => {
-  const { phoneNumber, password } = req.body;
-  const userId = req.user._id;
-  // const userId = req.session.userId;
-  try {
-    let user = await User.findById(userId);
-    if (!user) {
-      return res.status(400).json({ msg: "User not found" });
-    }
+// exports.collectPhoneAndPassword = async (req, res) => {
+//   const { phoneNumber, password } = req.body;
+//   const userId = req.user._id;
+//   // const userId = req.session.userId;
+//   try {
+//     let user = await User.findById(userId);
+//     if (!user) {
+//       return res.status(400).json({ msg: "User not found" });
+//     }
 
-    const { accessToken, refreshToken } = generateTokens(userId);
+//     const { accessToken, refreshToken } = generateTokens(userId);
 
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
-    user.phoneNumber = "+91" + phoneNumber;
-    user.refreshToken = refreshToken;
-    await user.save();
+//     const salt = await bcrypt.genSalt(10);
+//     user.password = await bcrypt.hash(password, salt);
+//     user.phoneNumber = "+91" + phoneNumber;
+//     user.refreshToken = refreshToken;
+//     await user.save();
 
-    // Set refresh token in HTTP-only cookie
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      // secure: process.env.NODE_ENV === "production",
-      secure: true,
-      sameSite: "none",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+//     // Set refresh token in HTTP-only cookie
+//     res.cookie("refreshToken", refreshToken, {
+//       httpOnly: true,
+//       // secure: process.env.NODE_ENV === "production",
+//       secure: true,
+//       sameSite: "none",
+//       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+//     });
 
-    req.session.userId = null;
+//     req.session.userId = null;
 
-    await sendEmail(
-      req.user?.email,
-      "Welcome To Organic Nation",
-      "signUpConfirmation",
-      {
-        userName: req.user.fullName,
-        // Add more template variables as needed
-      }
-    );
+//     await sendEmail(
+//       req.user?.email,
+//       "Welcome To Organic Nation",
+//       "signUpConfirmation",
+//       {
+//         userName: req.user.fullName,
+//         // Add more template variables as needed
+//       }
+//     );
 
-    res.status(201).json({
-      accessToken,
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        cart: user.cart,
-      },
-    });
+//     res.status(201).json({
+//       accessToken,
+//       user: {
+//         id: user._id,
+//         fullName: user.fullName,
+//         email: user.email,
+//         phoneNumber: user.phoneNumber,
+//         cart: user.cart,
+//       },
+//     });
 
-    // res.json({ msg: 'Phone number and password saved successfully' });
-  } catch (err) {
-    // console.error('Error saving phone number and password:', err.message);
-    res.status(500).send("Server error");
-  }
-};
+//     // res.json({ msg: 'Phone number and password saved successfully' });
+//   } catch (err) {
+//     // console.error('Error saving phone number and password:', err.message);
+//     res.status(500).send("Server error");
+//   }
+// };
 
 // @route   GET /api/auth/user/:email
 // @desc    Get user data by email
@@ -324,7 +324,8 @@ exports.refreshToken = async (req, res) => {
       httpOnly: true,
       // secure: process.env.NODE_ENV === "production",
       secure: true,
-      sameSite: "none",
+      sameSite: "lax",
+       domain: ".organicnation.co.in", 
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -381,7 +382,8 @@ exports.refreshTokenNew = async (req, res) => {
       httpOnly: true,
       // secure: process.env.NODE_ENV === "production",
       secure: true,
-      sameSite: "none",
+      sameSite: "lax",
+       domain: ".organicnation.co.in", 
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 

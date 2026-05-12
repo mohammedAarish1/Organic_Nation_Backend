@@ -134,7 +134,7 @@ exports.getAverageRating = async (req, res) => {
 exports.getSingleProductReviews = async (req, res) => {
   const productName = req.params.productName;
   try {
-    const reviews = await Review.find({ productName });
+    const reviews = await Review.find({ productName }).sort({createdAt:-1})
     if (reviews.length === 0) {
       return res.status(404).json({ msg: "No reviews found for this product" });
     }

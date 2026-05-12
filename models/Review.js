@@ -18,6 +18,9 @@ const ReviewSchema = new mongoose.Schema(
     images: { type: [String], default: [] }, // Default images
     hasVideo: { type: Boolean, default: false },
     videoUrl: { type: String, default: null },
+    reviewTag: { type: String, default: 'normal'},
+    location: { type: String, default: ''},
+    avatar:{type:String}
   },
   { timestamps: true }
 );
