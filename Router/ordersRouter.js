@@ -24,6 +24,29 @@ const upload = multer({
   { name: 'video', maxCount: 1 }
 ]);
 
+
+// ✅ middleware wrapper for multer
+const uploadMiddleware = (req, res, next) => {
+  upload(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(400).json({ 
+        success: false,
+        message: err.code === 'LIMIT_FILE_SIZE' 
+          ? 'File too large. Maximum size is 15MB' 
+          : err.message 
+      });
+    }
+    if (err) {
+      return res.status(400).json({ 
+        success: false,
+        message: err.message  // "Only image files are allowed" etc.
+      });
+    }
+    next();
+  });
+};
+
+
 const {
   // createOrder,
   cancelOrder,
@@ -46,7 +69,7 @@ router.post("/", authMiddleware, addNewOrder);
 router.delete("/:orderId", authMiddleware, cancelOrder);
 router.get("/all", authMiddleware, getAllOrders);
 router.get("/:orderId", getOrderById);
-router.post("/add-return-item", authMiddleware, upload, handleReturnItems)
+router.post("/add-return-item", authMiddleware, uploadMiddleware, handleReturnItems)
 router.get("/all/return-items", authMiddleware, getAllReturnItmes)
 router.delete('/cancel-return/:returnId', authMiddleware, cancelReturnRequest);
 router.get('/last/incomplete-order', authMiddleware, getLastIncompleteOrder);
