@@ -531,32 +531,7 @@ exports.generateInvoice = async (req, res) => {
 
 // }
 
-// update payment status
-// exports.updatePaymentStatus = async (req, res) => {
-//     const { orderId, status } = req.body;
 
-//     if (!orderId || !status) {
-//         return res.status(400).json({ error: 'Order ID and Payment status are required' });
-//     }
-
-//     try {
-//         const updatedOrder = await Order.findByIdAndUpdate(
-//             orderId,
-//             { paymentStatus: status },
-//             { new: true, runValidators: true }
-//         );
-
-//         if (!updatedOrder) {
-//             return res.status(404).json({ error: 'Order not found' });
-//         }
-
-//         res.json({ updatedOrder, message: 'Payment status updated successfully' });
-//     } catch (error) {
-//         res.status(500).json({ error: 'Internal server error' });
-
-//     }
-
-// }
 
 exports.updateStatus = async (req, res) => {
   const { id, collection, field, status, additionalData = {} } = req.body;
