@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 // const csrf = require('csurf');
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ override: false });
 
 const cors = require("cors");
 
