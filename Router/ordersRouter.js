@@ -69,7 +69,7 @@ router.post("/", authMiddleware, addNewOrder);
 router.delete("/:orderId", authMiddleware, cancelOrder);
 router.get("/all", authMiddleware, getAllOrders);
 router.get("/:orderId", getOrderById);
-router.post("/add-return-item", uploadMiddleware, handleReturnItems)
+router.post("/add-return-item", authMiddleware, uploadMiddleware, handleReturnItems)
 router.get("/all/return-items", authMiddleware, getAllReturnItmes)
 router.delete('/cancel-return/:returnId', authMiddleware, cancelReturnRequest);
 router.get('/last/incomplete-order', authMiddleware, getLastIncompleteOrder);
