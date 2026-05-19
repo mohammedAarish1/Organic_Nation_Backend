@@ -79,6 +79,9 @@ app.use(cors(corsOptions));
 app.set("trust proxy", 1); // for handling the 'X-Forwarded-For' error because of express-rate-limiter
 
 app.use(cookieParser());
+
+app.use("/api/orders", require("./Router/ordersRouter.js"));
+
 app.use(express.json());
 
 
@@ -113,7 +116,7 @@ connectToMongoDB().catch(console.error);
 
 app.use("/products", require("./Router/categoryRouter.js"));
 app.use("/api/auth", require("./Router/authRouter.js"));
-app.use("/api/orders", require("./Router/ordersRouter.js"));
+// app.use("/api/orders", require("./Router/ordersRouter.js"));
 app.use("/api/cart", require("./Router/cartRouter.js"));
 app.use("/api/reviews", require("./Router/reviewsRouter.js"));
 app.use("/api/delivery", require("./Router/pincodesRouter.js"));
