@@ -9,9 +9,9 @@ const ProductAdditionalInfo = require("../models/ProductAdditionalInfo.js");
 // @desc    Write a review
 exports.addReview = async (req, res) => {
   try {
-    const { productName, rating, title, review } = req.body;
-    const images = req.files.images || [];
-    const video = req.files.video ? req.files.video[0] : null;
+    const { productName, rating, title, review,images,video } = req.body;
+    // const images = req.files.images || [];
+    // const video = req.files.video ? req.files.video[0] : null;
     const userId = req.user.id;
 
     const user = await User.findById(userId);
@@ -24,51 +24,51 @@ exports.addReview = async (req, res) => {
     const userName = user.fullName || "User";
     const phoneNumber = user.phoneNumber || "";
 
-    let imagePaths = [];
-    const currentDate = new Date();
-    const formattedDate = `${currentDate.getFullYear()}-${(
-      currentDate.getMonth() + 1
-    )
-      .toString()
-      .padStart(2, "0")}-${currentDate.getDate().toString().padStart(2, "0")}`;
-    const reviewFolderId = `${user.fullName || user.phoneNumber}_${Date.now()}`;
-    const basePath = `${productName}/${formattedDate}/${reviewFolderId}`;
+    // let imagePaths = [];
+    // const currentDate = new Date();
+    // const formattedDate = `${currentDate.getFullYear()}-${(
+    //   currentDate.getMonth() + 1
+    // )
+    //   .toString()
+    //   .padStart(2, "0")}-${currentDate.getDate().toString().padStart(2, "0")}`;
+    // const reviewFolderId = `${user.fullName || user.phoneNumber}_${Date.now()}`;
+    // const basePath = `${productName}/${formattedDate}/${reviewFolderId}`;
 
-    // const folderName = `${productName}`;
-    if (images.length > 0) {
-      imagePaths = await Promise.all(
-        images.map(async (image, index) => {
-          const params = {
-            Bucket: process.env.AWS_BUCKET_REVIEW_IMAGES_VIDEOS,
-            Key: `${basePath}/images/${index + 1}.jpg`,
-            Body: image.buffer,
-            ContentType: image.mimetype,
-            ACL: "public-read",
-          };
+    // // const folderName = `${productName}`;
+    // if (images.length > 0) {
+    //   imagePaths = await Promise.all(
+    //     images.map(async (image, index) => {
+    //       const params = {
+    //         Bucket: process.env.AWS_BUCKET_REVIEW_IMAGES_VIDEOS,
+    //         Key: `${basePath}/images/${index + 1}.jpg`,
+    //         Body: image.buffer,
+    //         ContentType: image.mimetype,
+    //         ACL: "public-read",
+    //       };
 
-          const command = new PutObjectCommand(params);
-          await s3Client.send(command);
+    //       const command = new PutObjectCommand(params);
+    //       await s3Client.send(command);
 
-          return `https://${process.env.AWS_BUCKET_REVIEW_IMAGES_VIDEOS}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
-        })
-      );
-    }
+    //       return `https://${process.env.AWS_BUCKET_REVIEW_IMAGES_VIDEOS}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+    //     })
+    //   );
+    // }
 
-    let videoUrl = null;
-    if (video) {
-      const videoParams = {
-        Bucket: process.env.AWS_BUCKET_REVIEW_IMAGES_VIDEOS,
-        Key: `${basePath}/video/review-video.mp4`,
-        Body: video.buffer,
-        ContentType: video.mimetype,
-        ACL: "public-read",
-      };
+    // let videoUrl = null;
+    // if (video) {
+    //   const videoParams = {
+    //     Bucket: process.env.AWS_BUCKET_REVIEW_IMAGES_VIDEOS,
+    //     Key: `${basePath}/video/review-video.mp4`,
+    //     Body: video.buffer,
+    //     ContentType: video.mimetype,
+    //     ACL: "public-read",
+    //   };
 
-      const videoCommand = new PutObjectCommand(videoParams);
-      await s3Client.send(videoCommand);
+    //   const videoCommand = new PutObjectCommand(videoParams);
+    //   await s3Client.send(videoCommand);
 
-      videoUrl = `https://${process.env.AWS_BUCKET_REVIEW_IMAGES_VIDEOS}.s3.${process.env.AWS_REGION}.amazonaws.com/${videoParams.Key}`;
-    }
+    //   videoUrl = `https://${process.env.AWS_BUCKET_REVIEW_IMAGES_VIDEOS}.s3.${process.env.AWS_REGION}.amazonaws.com/${videoParams.Key}`;
+    // }
 
     const newReview = new Review({
       productName,
@@ -79,9 +79,9 @@ exports.addReview = async (req, res) => {
       userName,
       phoneNumber,
       verified: true,
-      images: imagePaths,
-      hasVideo: videoUrl ? true : false,
-      videoUrl,
+      images,
+      hasVideo: video ? true : false,
+      videoUrl:video,
     });
 
     const savedReview = await newReview.save();

@@ -59,10 +59,12 @@ const {
   addNewOrder,
   getLastIncompleteOrder,
   handleReOrderReCompletion,
+  handleReturnItemsNew,
 } = require("../Handler/ordersHandler.js");
 const authMiddleware = require("../middleware/authMiddleware.js");
 const { addToWishlist, getAllWishlist, removeFromWishlist,  clearWishlist } = require("../Handler/wishlistHandler.js");
 const authMiddlewareNew = require("../middleware/authMiddlewareNew.js");
+const { getUploadUrl } = require("../Handler/commonHandler.js");
 
 // router.post("/", authMiddleware, createOrder);
 router.post("/", authMiddleware, addNewOrder);
@@ -92,6 +94,8 @@ router.delete('/wish-list/clear',authMiddleware,clearWishlist)
 router.get('/all/wish-list-new',authMiddlewareNew,getAllWishlist) // for array of product id's
 router.delete('/wish-list/remove-new/:productId',authMiddlewareNew,removeFromWishlist)
 router.delete('/wish-list-new/clear',authMiddlewareNew,clearWishlist)
+router.post('/get-upload-url',getUploadUrl) // this route need to upload the media directly on S3 from frontend
+router.post("/add-return-item-new", authMiddleware, handleReturnItemsNew)
 
 
 module.exports = router;

@@ -13,6 +13,7 @@ dotenv.config({ override: false });
 
 const cors = require("cors");
 
+app.set("trust proxy", 1); // for handling the 'X-Forwarded-For' error because of express-rate-limiter
 
 // app.use(cors({
 //   origin: process.env.FRONTEND_URL, // Ensure this matches your frontend URL
@@ -27,56 +28,55 @@ const cors = require("cors");
 //   : ['https://organicnation.co.in'];
 
 
-const corsOptions = {
-  origin: function(origin, callback) {
-    const allowedOrigins = [
-      process.env.FRONTEND_URL,
-      process.env.ADMIN_URL,
-      process.env.FOODSBAY_URL,
-      process.env.FRONTEND_URL_NEXT_JS,
-    ].filter(Boolean);
-
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'CSRF-Token', 'X-Requested-With', 'Accept', 'Origin'],
-  optionsSuccessStatus: 200,
-};
-
-// Handle preflight FIRST — before everything else
-app.options('*', cors(corsOptions));
-
-app.use(cors(corsOptions));
-
-
-// app.use(
-//   cors({
-//     origin: [
+// const corsOptions = {
+//   origin: function(origin, callback) {
+//     const allowedOrigins = [
 //       process.env.FRONTEND_URL,
 //       process.env.ADMIN_URL,
 //       process.env.FOODSBAY_URL,
 //       process.env.FRONTEND_URL_NEXT_JS,
-//     ],
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//     allowedHeaders: [
-//       "Content-Type",
-//       "Authorization",
-//       "CSRF-Token",
-//       "X-Requested-With",
-//       "Accept",
-//     ],
-//     optionsSuccessStatus: 200,
-//   }),
-// );
+//     ].filter(Boolean);
+
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true,
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+//   allowedHeaders: ['Content-Type', 'Authorization', 'CSRF-Token', 'X-Requested-With', 'Accept', 'Origin'],
+//   optionsSuccessStatus: 200,
+// };
+
+// Handle preflight FIRST — before everything else
+// app.options('*', cors(corsOptions));
+
+// app.use(cors(corsOptions));
+
+
+app.use(
+  cors({
+    origin: [
+      process.env.FRONTEND_URL,
+      process.env.ADMIN_URL,
+      process.env.FOODSBAY_URL,
+      process.env.FRONTEND_URL_NEXT_JS,
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "CSRF-Token",
+      "X-Requested-With",
+      "Accept",
+    ],
+    optionsSuccessStatus: 200,
+  }),
+);
 
 // app.options('*', cors());
-app.set("trust proxy", 1); // for handling the 'X-Forwarded-For' error because of express-rate-limiter
 
 app.use(cookieParser());
 app.use(express.json());

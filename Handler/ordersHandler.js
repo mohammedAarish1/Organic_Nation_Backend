@@ -4,6 +4,7 @@ const PinCode = require("../models/PinCode.js");
 const User = require("../models/User");
 const Products = require("../models/Products.js");
 const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const { s3Client } = require("../config/awsConfig.js");
 const {
   generateInvoiceNumber,
@@ -17,7 +18,6 @@ const {
 } = require("../utility/helper.js");
 const Coupon = require("../models/Coupon.js");
 
-// const requireAuth = passport.authenticate('jwt', { session: false });
 
 // add a new order (new process)
 
@@ -749,7 +749,160 @@ exports.handleReturnItems = async (req, res) => {
 
     await Promise.all([returnItem.save(), order.save()]);
 
-    res.status(201).json({ message: "Return item created successfully" ,success:true});
+    res.status(201).json({ message: "Return request submitted successfully" ,success:true});
+  } catch (error) {
+    console.error("Error creating return item:", error);
+    res
+      .status(500)
+      .json({ message: "Error creating return item", error: error.message });
+  }
+};
+
+// for Next JS
+exports.handleReturnItemsNew = async (req, res) => {
+  try {
+    const {
+      itemName,
+      weight,
+      // price,
+      quantity,
+      reason,
+      returnOptions,
+      accountName,
+      bankName,
+      accountNumber,
+      ifscCode,
+      invoiceNumber,
+      images,
+      video
+    } = req.body;
+    const userId = req.user.id;
+    // Find the order using invoiceNumber
+    const order = await Order.findOne({ invoiceNumber });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // Find the specific item in orderDetails
+    const itemIndex = order.orderDetails.findIndex(
+      (item) => item["name-url"] === itemName,
+    );
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: "Item not found in order" });
+    }
+
+    // Get the ordered quantity for this item
+    const orderedQuantity = order.orderDetails[itemIndex].quantity;
+
+    // Check if returnInfo exists, if not create it
+    if (!order.orderDetails[itemIndex].returnInfo) {
+      order.orderDetails[itemIndex].returnInfo = {
+        isItemReturned: true,
+        returnedQuantity: Number(quantity),
+      };
+    } else {
+      // Calculate new total returned quantity
+      const currentReturnedQuantity =
+        order.orderDetails[itemIndex].returnInfo.returnedQuantity;
+      const newReturnedQuantity = currentReturnedQuantity + Number(quantity);
+
+      // Validate if the new total return quantity exceeds the ordered quantity
+      if (newReturnedQuantity > orderedQuantity) {
+        return res.status(400).json({
+          success:false,
+          message: `Cannot return more items than ordered. Ordered: ${orderedQuantity}, Already returned: ${currentReturnedQuantity} Qty`,
+        });
+      }
+
+      // Update returnInfo
+      order.orderDetails[itemIndex].returnInfo.returnedQuantity =
+        newReturnedQuantity;
+      order.orderDetails[itemIndex].returnInfo.isItemReturned = true;
+    }
+
+    // Create a new folder for this return using timestamp
+    // const folderName = `returns/${invoiceNumber.replace(
+    //   /\//g,
+    //   "-",
+    // )}-${Date.now()}/`;
+
+    // Upload images to S3 and get their paths
+    // const imagePaths = await Promise.all(
+    //   images.map(async (image, index) => {
+    //     const params = {
+    //       Bucket: process.env.AWS_BUCKET_NAME_RETURN_ITEMS,
+    //       Key: `${folderName}${index + 1}.jpg`,
+    //       Body: image.buffer,
+    //       ContentType: image.mimetype,
+    //       ACL: "public-read",
+    //     };
+
+    //     const command = new PutObjectCommand(params);
+    //     await s3Client.send(command);
+
+    //     return `https://${process.env.AWS_BUCKET_NAME_RETURN_ITEMS}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+    //   }),
+    // );
+
+    // Upload video to S3 if it exists
+    // let videoPath = null;
+    // if (video) {
+    //   const videoParams = {
+    //     Bucket: process.env.AWS_BUCKET_NAME_RETURN_ITEMS,
+    //     Key: `${folderName}video/return-video.mp4`,
+    //     Body: video.buffer,
+    //     ContentType: video.mimetype,
+    //     ACL: "public-read",
+    //   };
+
+    //   const videoCommand = new PutObjectCommand(videoParams);
+    //   await s3Client.send(videoCommand);
+
+    //   videoPath = `https://${process.env.AWS_BUCKET_NAME_RETURN_ITEMS}.s3.${process.env.AWS_REGION}.amazonaws.com/${videoParams.Key}`;
+    // }
+
+    // Create a new return item
+    const returnItem = new ReturnItem({
+      user: userId,
+      invoiceNumber,
+      itemName,
+      weight,
+      // price,
+      quantity,
+      reason,
+      returnStatus: "requested",
+      returnOptions,
+      images,
+      video, // Add video path to the return item
+      bankDetails: {
+        accountName,
+        bankName,
+        accountNumber,
+        ifscCode,
+      },
+    });
+
+    await updateStock(itemName, quantity, "return");
+
+    await sendEmail(
+      req.user.email,
+      "Item Return Request Confirmation",
+      "returnRequestConfirmation",
+      {
+        customerName: order.userName || "",
+        orderNumber: invoiceNumber,
+        itemName: itemName.replace(/-/g, " "),
+        quantity: quantity,
+        returnAddress: order.shippingAddress
+          ? address(order.shippingAddress)
+          : address(order.billingAddress),
+        // Add more template variables as needed
+      },
+    );
+
+    await Promise.all([returnItem.save(), order.save()]);
+
+    res.status(201).json({ message: "Return request submitted successfully" ,success:true});
   } catch (error) {
     console.error("Error creating return item:", error);
     res

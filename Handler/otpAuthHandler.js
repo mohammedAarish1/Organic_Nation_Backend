@@ -104,74 +104,6 @@ exports.sendOTP = async (req, res) => {
 };
 
 
-
-
-
-// route for verifying the OTP and creating a new user
-
-// exports.verifyOTP = async (req, res) => {
-//   const { phoneNumber, referralCode, otp } = req.body;
-//   const isValid = await verifyOTP(phoneNumber, otp);
-
-  
-//   if (isValid) {
-//     try {
-//       // Check if user exists
-//       let user;
-//       user = await User.findOne({ phoneNumber });
-
-//       if (!user) {
-//         // If user doesn't exist, create a new one
-//         user = new User({
-//           phoneNumber,
-//           email: null
-//         });
-
-
-//         await user.save();
-//       }
-
-//       // Generate new tokens
-//       const { accessToken, refreshToken } = generateTokens(user?._id);
-
-
-//       // Update refresh token in database
-//       user.refreshToken = refreshToken;
-//       await user.save();
-
-//       // Set refresh token in HTTP-only cookie
-//       res.cookie("refreshToken", refreshToken, {
-//         httpOnly: true,
-//         secure: true,
-//         sameSite: "none",
-//         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-//       });
-
-
-//       res.status(201).json({
-//         accessToken,
-//         user: {
-//           id: user?._id,
-//           firstName: user?.firstName || '',
-//           lastName: user?.lastName || '',
-//           email: user?.email || '',
-//           phoneNumber: user?.phoneNumber || '',
-//           cart: user?.cart || [],
-//           addresses: user?.addresses || [],
-//         },
-//       });
-//     } catch (error) {
-//       res
-//         .status(500)
-//         .json({ message: "Error creating user", error: error.message });
-
-//     }
-//   } else {
-//     res.status(400).json({ success: false, message: "Invalid OTP" });
-//   }
-// };
-
-
 exports.verifyOTP = async (req, res) => {
   const { phoneNumber, referralCode, otp } = req.body;
   const isValid = await verifyOTP(phoneNumber, otp); // Assuming verifyOTP is a function that verifies OTP.
@@ -235,7 +167,6 @@ exports.verifyOTP = async (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: "lax",
-         domain: ".organicnation.co.in", 
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
@@ -337,7 +268,8 @@ exports.verifyOTPNew = async (req, res) => {
         secure: true,
         sameSite: "lax",
          domain: ".organicnation.co.in", 
-        maxAge:  1 * 60 * 60 * 1000, // 7 days
+        // maxAge:  1 * 60 * 60 * 1000, // 1 hour
+        maxAge:   24 *60 * 60 * 1000, // 1 day
       });
 
       // Respond with the user data and tokens

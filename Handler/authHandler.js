@@ -325,7 +325,6 @@ exports.refreshToken = async (req, res) => {
       // secure: process.env.NODE_ENV === "production",
       secure: true,
       sameSite: "lax",
-       domain: ".organicnation.co.in", 
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -363,7 +362,7 @@ exports.refreshTokenNew = async (req, res) => {
     // Find user and check if refresh token matches
     const user = await User.findOne({
       _id: decoded.userId,
-      refreshToken,
+      // refreshToken,
     });
 
     if (!user) {
@@ -383,7 +382,7 @@ exports.refreshTokenNew = async (req, res) => {
       // secure: process.env.NODE_ENV === "production",
       secure: true,
       sameSite: "lax",
-       domain: ".organicnation.co.in", 
+       domain: ".organicnation.co.in",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -446,7 +445,7 @@ exports.logoutNew = async (req, res) => {
     // Clear refresh token cookie
     res.clearCookie("refreshToken");
     res.clearCookie("accessToken");
-    res.json({ message: "Logged out successfully" });
+    res.json({success:true, message: "Logged out successfully" });
   } catch (error) {
     res
       .status(500)
