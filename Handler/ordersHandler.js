@@ -820,46 +820,7 @@ exports.handleReturnItemsNew = async (req, res) => {
       order.orderDetails[itemIndex].returnInfo.isItemReturned = true;
     }
 
-    // Create a new folder for this return using timestamp
-    // const folderName = `returns/${invoiceNumber.replace(
-    //   /\//g,
-    //   "-",
-    // )}-${Date.now()}/`;
 
-    // Upload images to S3 and get their paths
-    // const imagePaths = await Promise.all(
-    //   images.map(async (image, index) => {
-    //     const params = {
-    //       Bucket: process.env.AWS_BUCKET_NAME_RETURN_ITEMS,
-    //       Key: `${folderName}${index + 1}.jpg`,
-    //       Body: image.buffer,
-    //       ContentType: image.mimetype,
-    //       ACL: "public-read",
-    //     };
-
-    //     const command = new PutObjectCommand(params);
-    //     await s3Client.send(command);
-
-    //     return `https://${process.env.AWS_BUCKET_NAME_RETURN_ITEMS}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
-    //   }),
-    // );
-
-    // Upload video to S3 if it exists
-    // let videoPath = null;
-    // if (video) {
-    //   const videoParams = {
-    //     Bucket: process.env.AWS_BUCKET_NAME_RETURN_ITEMS,
-    //     Key: `${folderName}video/return-video.mp4`,
-    //     Body: video.buffer,
-    //     ContentType: video.mimetype,
-    //     ACL: "public-read",
-    //   };
-
-    //   const videoCommand = new PutObjectCommand(videoParams);
-    //   await s3Client.send(videoCommand);
-
-    //   videoPath = `https://${process.env.AWS_BUCKET_NAME_RETURN_ITEMS}.s3.${process.env.AWS_REGION}.amazonaws.com/${videoParams.Key}`;
-    // }
 
     // Create a new return item
     const returnItem = new ReturnItem({
