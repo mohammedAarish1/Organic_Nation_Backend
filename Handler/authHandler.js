@@ -212,20 +212,20 @@ exports.signup = async (req, res) => {
       {
         userName: user.fullName,
         // Add more template variables as needed
-      }
+      },
     );
 
     res.status(201).json({
       accessToken,
       user: {
         id: user._id,
-        fullName: user.fullName || '',
-        email: user.email || '',
-        phoneNumber: user.phoneNumber || '',
+        fullName: user.fullName || "",
+        email: user.email || "",
+        phoneNumber: user.phoneNumber || "",
         cart: user.cart || [],
         addresses: user.addresses || [],
-        referralCode:user.referralCode||'',
-        referralCoupons: user.referralCoupons || []
+        referralCode: user.referralCode || "",
+        referralCoupons: user.referralCoupons || [],
       },
     });
   } catch (error) {
@@ -282,8 +282,8 @@ exports.login = async (req, res) => {
         phoneNumber: user.phoneNumber,
         cart: user.cart,
         addresses: user.addresses || [],
-        referralCode:user.referralCode||'',
-        referralCoupons: user.referralCoupons || []
+        referralCode: user.referralCode || "",
+        referralCoupons: user.referralCoupons || [],
       },
     });
   } catch (error) {
@@ -333,14 +333,14 @@ exports.refreshToken = async (req, res) => {
       accessToken: tokens.accessToken,
       user: {
         id: user._id,
-        fullName: user.fullName || '',
+        fullName: user.fullName || "",
         // lastName: user.lastName || '',
-        email: user.email || '',
-        phoneNumber: user.phoneNumber || '',
+        email: user.email || "",
+        phoneNumber: user.phoneNumber || "",
         cart: user.cart || [],
         addresses: user.addresses || [],
-        referralCode:user.referralCode||'',
-        referralCoupons: user.referralCoupons || []
+        referralCode: user.referralCode || "",
+        referralCoupons: user.referralCoupons || [],
         // Add other necessary user fields
       },
     });
@@ -382,7 +382,7 @@ exports.refreshTokenNew = async (req, res) => {
       // secure: process.env.NODE_ENV === "production",
       secure: true,
       sameSite: "lax",
-       domain: ".organicnation.co.in",
+      domain: ".organicnation.co.in",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -390,14 +390,14 @@ exports.refreshTokenNew = async (req, res) => {
     res.json({
       user: {
         id: user._id,
-        fullName: user.fullName || '',
+        fullName: user.fullName || "",
         // lastName: user.lastName || '',
-        email: user.email || '',
-        phoneNumber: user.phoneNumber || '',
+        email: user.email || "",
+        phoneNumber: user.phoneNumber || "",
         cart: user.cart || [],
         addresses: user.addresses || [],
-        referralCode:user.referralCode||'',
-        referralCoupons: user.referralCoupons || []
+        referralCode: user.referralCode || "",
+        referralCoupons: user.referralCoupons || [],
         // Add other necessary user fields
       },
     });
@@ -415,7 +415,7 @@ exports.logout = async (req, res) => {
       // Find user and remove refresh token
       await User.findOneAndUpdate(
         { refreshToken },
-        { $unset: { refreshToken: 1 } }
+        { $unset: { refreshToken: 1 } },
       );
     }
 
@@ -438,34 +438,39 @@ exports.logoutNew = async (req, res) => {
       // Find user and remove refresh token
       await User.findOneAndUpdate(
         { refreshToken },
-        { $unset: { refreshToken: 1 } }
+        { $unset: { refreshToken: 1 } },
       );
     }
 
+    const cookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      domain: ".organicnation.co.in",
+    };
+
     // Clear refresh token cookie
-    res.clearCookie("refreshToken");
-    res.clearCookie("accessToken");
-    res.json({success:true, message: "Logged out successfully" });
+    res.clearCookie("refreshToken",cookieOptions);
+    res.clearCookie("accessToken",cookieOptions);
+    res.json({ success: true, message: "Logged out successfully" });
   } catch (error) {
     res
       .status(500)
       .json({ message: "Error logging out", error: error.message });
   }
 };
-// get user 
+// get user
 exports.getUser = async (req, res) => {
   try {
-    const userId = req.user.id
+    const userId = req.user.id;
 
-    const user = await User.findById(userId).select("-password -refreshToken")
+    const user = await User.findById(userId).select("-password -refreshToken");
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" })
+      return res.status(404).json({ message: "User not found" });
     }
 
-
-    return res.status(200).json({ user })
-
+    return res.status(200).json({ user });
   } catch (error) {
     res
       .status(500)
@@ -473,25 +478,29 @@ exports.getUser = async (req, res) => {
   }
 };
 
-
-// check if a referral code (user) exist in the database 
+// check if a referral code (user) exist in the database
 exports.isReferralCodeExist = async (req, res) => {
   try {
-    const {referralCode} = req.body;
-
+    const { referralCode } = req.body;
 
     if (!referralCode) {
-      return res.status(400).json({ message: "Referral code is required" })
+      return res.status(400).json({ message: "Referral code is required" });
     }
 
-    const isExist=await User.findOne({ referralCode,})
+    const isExist = await User.findOne({ referralCode });
 
     if (!isExist) {
-      return res.status(201).json({exist:false, message: "Referral code does not exist" })
+      return res
+        .status(201)
+        .json({ exist: false, message: "Referral code does not exist" });
     }
 
-    return res.status(200).json({exist:true, message: "Referral code exist" })
+    return res
+      .status(200)
+      .json({ exist: true, message: "Referral code exist" });
   } catch (error) {
-    return res.status(500).json({ message: "Error checking referral code", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Error checking referral code", error: error.message });
   }
-}
+};

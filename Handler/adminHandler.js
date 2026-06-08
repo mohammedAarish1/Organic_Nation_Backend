@@ -6,6 +6,7 @@ const User = require("../models/User");
 const Products = require("../models/Products.js");
 const ContactedUser = require("../models/ContactedUser");
 const MainBanners = require("../models/MainBanners");
+const Newsletter = require("../models/Newsletter");
 const { DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const ExcelJS = require("exceljs");
 
@@ -219,13 +220,14 @@ exports.getAdminProfile = async (req, res) => {
 // get the number of documents from the db
 exports.getResourceCounts = async (req, res) => {
   try {
-    const [orderCount, productCount, returnCount, queryCount, userCount] =
+    const [orderCount, productCount, returnCount, queryCount, userCount,subscriptionCount] =
       await Promise.all([
         getCount(Order),
         getCount(Products),
         getCount(ReturnItem),
         getCount(ContactedUser),
         getCount(User),
+        getCount(Newsletter),
       ]);
 
     // Send response with the counts
@@ -237,6 +239,7 @@ exports.getResourceCounts = async (req, res) => {
         returnCount,
         queryCount,
         userCount,
+        subscriptionCount
       },
     });
   } catch (error) {
@@ -248,11 +251,12 @@ exports.getResourceCounts = async (req, res) => {
   }
 };
 
+// api to get the list of all the assets in the database
 exports.getResources = async (req, res) => {
   try {
     const { type } = req.query;
 
-    if (!["products", "orders", "returns", "users", "queries"].includes(type)) {
+    if (!["products", "orders", "returns", "users", "queries","newsletterEmails"].includes(type)) {
       return res.status(400).json({ error: "Invalid resource type" });
     }
 
@@ -297,7 +301,14 @@ exports.getResources = async (req, res) => {
             .json({ message: "No products found in the database" });
         }
         return res.status(200).json({ type, list: returns });
-
+ case "newsletterEmails":
+        const subscription_list = await Newsletter.find().lean().sort({subscribedAt:-1});
+        if (subscription_list.length === 0) {
+       return  res
+            .status(400)
+            .json({ message: "No lists found in the database" });
+        }
+        return res.status(200).json({ type, list: subscription_list });
       default:
         return res.status(400).json({ error: "Invalid resource type" });
     }
@@ -306,56 +317,8 @@ exports.getResources = async (req, res) => {
   }
 };
 
-// get all orders
-// exports.getTotalOrders = async (req, res) => {
-//     try {
-//         const orders = await Order.find();
-
-//         if (!orders) {
-//             return res.status(404).json({ message: 'No orders found' });
-//         }
-
-//         res.json(orders);
-//     } catch (err) {
-//         res.status(500).send('Server error');
-//     }
-
-// };
-// get all users
-// exports.getAllUsers = async (req, res) => {
-//     try {
-//         const users = await User.find().select('-password');
-
-//         if (!users) {
-//             return res.status(404).json({ message: 'No orders found' });
-//         }
-
-//         res.json(users);
-//     } catch (err) {
-//         // console.error('Error fetching users:', err.message);
-//         res.status(500).send('Server error');
-//     }
-
-// };
-// get all user queries
-// exports.getAllUserQueries = async (req, res) => {
-//     try {
-//         const queries = await ContactedUser.find();
-
-//         if (!queries) {
-//             return res.status(404).json({ message: 'No orders found' });
-//         }
-
-//         res.json(queries);
-//     } catch (err) {
-//         // console.error('Error fetching queries:', err.message);
-//         res.status(500).send('Server error');
-//     }
-
-// };
 
 // generate invoice
-
 exports.generateInvoice = async (req, res) => {
   // res.header('Access-Control-Allow-Origin', '*');
   // res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -468,73 +431,9 @@ exports.generateInvoice = async (req, res) => {
   }
 };
 
-// update order status
-
-// exports.updateOrderStatus = async (req, res) => {
-//     const { orderId, status, deliveryDate } = req.body;
-
-//     if (!orderId || !status) {
-//         return res.status(400).json({ error: 'Order ID and status are required' });
-//     }
-
-//     try {
-//         const updatedOrder = await Order.findByIdAndUpdate(
-//             orderId,
-//             {
-//                 orderStatus: status,
-//                 deliveryDate: deliveryDate || null
-//             },
-//             { new: true, runValidators: false }
-//         );
-
-//         if (!updatedOrder) {
-//             return res.status(404).json({ error: 'Order not found' });
-//         }
-
-//         if (updatedOrder.orderStatus === 'dispatched') {
-
-//             await sendEmail(
-//                 updatedOrder.userEmail,
-//                 "Order Dispatched",
-//                 "orderDispatched",
-//                 {
-//                     customerName: updatedOrder.receiverDetails.name,
-//                     orderNumber: updatedOrder.orderNo,
-
-//                     // Add more template variables as needed
-//                 }
-//             );
-
-//         } else if (updatedOrder.orderStatus === 'completed') {
-
-//             await sendEmail(
-//                 updatedOrder.userEmail,
-//                 "Order Delivered",
-//                 "orderDelivered",
-//                 {
-//                     customerName: updatedOrder.receiverDetails.name,
-//                     orderNumber: updatedOrder.orderNo,
-//                     OrderAmount: updatedOrder.subTotal + updatedOrder.shippingFee,
-//                     PaymentMethod: updatedOrder.paymentMethod,
-
-//                     // Add more template variables as needed
-//                 }
-//             );
-//         }
-
-//         res.json({ updatedOrder, message: 'Order status updated successfully' });
-//     } catch (error) {
-
-//         res.status(500).json({ error: 'Internal server error' });
-
-//     }
-
-// }
-
-
-
+// update status
 exports.updateStatus = async (req, res) => {
-  const { id, collection, field, status, additionalData = {} } = req.body;
+  const { id, collection, field, status, additionalData = {},value } = req.body;
 
   if (!id || !field || !status || !collection) {
     return res
@@ -589,7 +488,7 @@ exports.updateStatus = async (req, res) => {
           {
             customerName: updatedDocument.userName,
             orderNumber: updatedDocument.orderNo,
-
+            trackingUrl:value
             // Add more template variables as needed
           }
         );
@@ -618,33 +517,7 @@ exports.updateStatus = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
-// update user status
-// exports.updateUserStatus = async (req, res) => {
-//     const { userId } = req.params
-//     const { status } = req.body;
-//     if (!userId && !status) {
-//         return res.status(400).json({ error: 'user ID and status are required' });
-//     };
 
-//     try {
-//         const updatedUser = await User.findByIdAndUpdate(
-//             userId,
-//             {
-//                 role: status,
-//             },
-//             { new: true, runValidators: false }
-//         );
-
-//         if (!updatedUser) {
-//             return res.status(404).json({ error: 'User not found' });
-//         };
-
-//         res.status(200).json({ updatedUser, message: 'Status Updated successfully' });
-//     } catch (error) {
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-
-// }
 
 // add a new product in the database
 exports.addNewProductInDatabase = async (req, res) => {
@@ -728,7 +601,7 @@ exports.addNewProductInDatabase = async (req, res) => {
   }
 };
 
-// delete functinality for all the model's documents
+// delete api  for all the model's documents
 exports.deleteDocument = async (req, res) => {
   const { collection, id } = req.params;
 
@@ -755,6 +628,9 @@ exports.deleteDocument = async (req, res) => {
       break;
     case "Banners":
       Model = MainBanners;
+      break;
+    case "Subscription List":
+      Model = Newsletter;
       break;
     default:
       return res.status(400).json({ message: "Invalid collection name" });
@@ -963,7 +839,6 @@ exports.generateSalesReport = async (req, res) => {
 };
 
 // export all users details
-
 exports.generateUsersReport = async (req, res) => {
   try {
     const { startDate, endDate } = req.body;
@@ -1016,51 +891,6 @@ exports.generateUsersReport = async (req, res) => {
       .json({ message: "Error generating report", error: error.message });
   }
 };
-
-// get all returns
-// exports.getTotalReturns = async (req, res) => {
-//     try {
-//         const returns = await ReturnItem.find();
-
-//         if (!returns) {
-//             return res.status(404).json({ message: 'No returns found' });
-//         }
-
-//         res.json(returns);
-//     } catch (err) {
-//         res.status(500).send('Server error');
-//     }
-
-// };
-
-// update return status
-
-// exports.updateReturnStatus = async (req, res) => {
-//     const { returnId, status } = req.body;
-
-//     if (!returnId || !status) {
-//         return res.status(400).json({ error: 'Return ID and status are required' });
-//     }
-
-//     try {
-//         const updatedReturnItem = await ReturnItem.findByIdAndUpdate(
-//             returnId,
-//             { returnStatus: status },
-//             { new: true, runValidators: true }
-//         );
-
-//         if (!updatedReturnItem) {
-//             return res.status(404).json({ error: 'Return not found' });
-//         }
-
-//         res.json({ data: updatedReturnItem, message: 'Return status updated successfully' });
-//     } catch (error) {
-//         res.status(500).json({ error: 'Internal server error' });
-
-//     }
-
-// }
-
 
 
 // route for updating product data
@@ -1477,7 +1307,7 @@ exports.handleCustomOrderCreation = async (req, res) => {
     const {
       email,
       name,
-      phoneNumber,
+      phoneNumber:phone,
       address,
       pinCode,
       city,
@@ -1489,7 +1319,7 @@ exports.handleCustomOrderCreation = async (req, res) => {
       paymentStatus,
     } = data;
     let user;
-
+    const phoneNumber='+91'+phone
     // 1. check and register the user
     if (phoneNumber) {
       const existingUser = await User.findOne({ phoneNumber });
