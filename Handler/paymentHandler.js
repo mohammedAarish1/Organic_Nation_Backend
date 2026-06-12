@@ -15,7 +15,7 @@ const Coupon = require("../models/Coupon.js");
 
 const merchantId = process.env.PHONEPE_MERCHANT_ID;
 const salt_key = process.env.PHONEPE_SALT_KEY;
-const FRONTEND_URL=process.env.FRONTEND_URL;
+const FRONTEND_URL=process.env.FRONTEND_URL_NEXT_JS;
 // const FRONTEND_URL = "https://www.organicnation.co.in";
 
 exports.updateMerchantTransactionId = async (req, res) => {
@@ -97,7 +97,7 @@ exports.getPaymentDone = async (req, res) => {
       merchantTransactionId: paymentDetails.merchantTransactionId,
       merchantUserId: "MUID" + Date.now(),
       amount: paymentDetails.amount * 100, // multiply by 100 since it counts money in 'paise' instead of rupee
-      redirectUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/status/?id=${paymentDetails.merchantTransactionId}`,
+      redirectUrl: `https://api.organicnation.co.in/api/phonepe/status/?id=${paymentDetails.merchantTransactionId}`,
       // redirectUrl: `http://localhost:8000/api/phonepe/status/?id=${paymentDetails.merchantTransactionId}`,
       redirectMode: "POST",
       // callbackUrl: `https://dpzi63xcomvst.cloudfront.net/api/phonepe/callback/?id=${paymentDetails.merchantTransactionId}`,
